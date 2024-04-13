@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.daggerHilt)
 }
 
 android {
@@ -67,6 +69,14 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.com.google.dagger.hilt)
+    kapt(libs.com.google.dagger.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+//    implementation(libs.androidx.hilt.lifecycle.viewmodel)
+//    kapt(libs.androidx.hilt.compiler)
+
+    kapt(libs.com.google.dagger.hilt.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

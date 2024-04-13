@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.ui
+package lol.terabrendon.houseshare2.presentation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -9,16 +9,23 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainTopBar(modifier: Modifier = Modifier, onNavigationClick: () -> Unit) {
+fun MainTopBar(
+    modifier: Modifier = Modifier,
+    mainDestination: MainDestination,
+    onNavigationClick: () -> Unit
+) {
     CenterAlignedTopAppBar(
-        title = { Text(text = "MegaApp") },
+        title = { Text(stringResource(mainDestination.asResource())) },
         navigationIcon = {
             IconButton(onClick = onNavigationClick) {
                 Icon(Icons.Filled.Menu, contentDescription = null)
             }
         },
+        modifier = modifier
     )
 }
