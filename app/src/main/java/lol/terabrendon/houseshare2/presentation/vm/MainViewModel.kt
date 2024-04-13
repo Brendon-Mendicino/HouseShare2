@@ -1,31 +1,29 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
+import lol.terabrendon.houseshare2.repository.UserPreferencesRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    @ApplicationContext private val applicationContext: Context,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
+    companion object {
+        private const val TAG = "MainViewModel"
+    }
 
 
-    private var _previousDestination = MutableStateFlow<MainDestination?>(null)
-    val previousDestination: StateFlow<MainDestination?> = _previousDestination
-
-
-    private var _currentDestination = MutableStateFlow(MainDestination.Cleaning)
-    val currentDestination: StateFlow<MainDestination> = _currentDestination
-
+    val currentDestination =
+        userPreferencesRepository.userPreferencesFlow.map { MainDestination.from(it.mainDestination) }
 
     fun setCurrentDestination(destination: MainDestination) {
-        _previousDestination.update { currentDestination.value }
-        _currentDestination.update { destination }
+        viewModelScope.launch {
+            userPreferencesRepository.updateMainDestination(destination)
+        }
     }
 }

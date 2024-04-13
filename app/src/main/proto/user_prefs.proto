@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option java_package = "lol.terabrendon.houseshare2";
+option java_multiple_files = true;
+
+message UserPreferences {
+  enum MainDestination {
+    UNSPECIFIED = 0;
+    CLEANING = 1;
+    SHOPPING = 2;
+  }
+  MainDestination mainDestination = 1;
+}

@@ -3,6 +3,15 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.kapt)
     alias(libs.plugins.daggerHilt)
+    alias(libs.plugins.protobuf)
+    id("idea")
+}
+
+idea {
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
 }
 
 android {
@@ -56,6 +65,32 @@ android {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.26.1"
+    }
+
+    // Generates the java Protobuf-lite code for the Protobufs in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+//                create("kotlin") {
+//                    option("lite")
+//                }
+            }
+        }
+    }
+}
+
+//kapt {
+//    correctErrorTypes = true
+//}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -75,6 +110,11 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
 //    implementation(libs.androidx.hilt.lifecycle.viewmodel)
 //    kapt(libs.androidx.hilt.compiler)
+
+    // Proto DataSource
+    implementation(libs.androidx.datastore)
+    implementation(libs.com.google.protobuf.javalite)
+//    implementation(libs.com.google.protobuf.kotlin.lite)
 
     kapt(libs.com.google.dagger.hilt.compiler)
     testImplementation(libs.junit)

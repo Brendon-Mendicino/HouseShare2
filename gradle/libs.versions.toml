@@ -15,6 +15,9 @@ kapt = "1.9.0"
 hiltCompiler = "2.45.0"
 hiltLifecycle = "1.0.0"
 hiltNavigation = "1.2.0"
+protobuf = "0.9.4"
+datastore = "1.0.0"
+protobufJavalite = "4.26.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,8 +45,14 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 #androidx-hilt-lifecycle-viewmodel = { group = "androidx.hilt", name = "hilt-lifecycle-viewmodel", version.ref = "hiltLifecycle" }
 #androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltCompiler" }
 
+# Proto DataStore
+androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore" }
+com-google-protobuf-javalite = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "protobufJavalite" }
+com-google-protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobufJavalite" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kapt" }
 daggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }

@@ -1,10 +1,14 @@
 package lol.terabrendon.houseshare2.presentation
 
+import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -17,7 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -39,19 +47,22 @@ fun HouseShareMain(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val navController = rememberNavController()
-    val currentDestination by mainViewModel.currentDestination.collectAsState()
-    val previousDestination by mainViewModel.previousDestination.collectAsState()
-
+    val currentDestination by mainViewModel.currentDestination.collectAsState(initial = MainDestination.Loading)
+    var previousDestination by rememberSaveable {
+        mutableStateOf(currentDestination)
+    }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = currentDestination) {
-        val prev = previousDestination ?: return@LaunchedEffect
-
-        navController.navigate(currentDestination.name) {
-            popUpTo(prev.name) {
-                inclusive = true
+        if (currentDestination != previousDestination && previousDestination != MainDestination.Loading) {
+            navController.navigate(currentDestination.name) {
+                popUpTo(previousDestination.name) {
+                    inclusive = true
+                }
             }
         }
+
+        previousDestination = currentDestination
 
         drawerState.close()
     }
@@ -69,9 +80,24 @@ fun HouseShareMain(
                     onNavigationClick = { scope.launch { drawerState.open() } })
             }
         ) { contentPadding ->
+
+            if (currentDestination == MainDestination.Loading) {
+                Log.d(TAG, "HouseShareMain: starting loading screen")
+                // TODO: extract into splash screen
+                Box(
+                    modifier = Modifier
+                        .padding(contentPadding)
+                        .fillMaxSize()
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+
+                return@Scaffold
+            }
+
             NavHost(
                 navController = navController,
-                startDestination = MainDestination.Cleaning.name,
+                startDestination = currentDestination.name,
                 modifier = Modifier.padding(contentPadding)
             ) {
                 composable(route = MainDestination.Cleaning.name) {
