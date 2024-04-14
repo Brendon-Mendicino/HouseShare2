@@ -29,6 +29,12 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] = "$projectDir/schemas"
+            }
+        }
     }
 
     buildTypes {
@@ -46,6 +52,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -116,6 +123,14 @@ dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.com.google.protobuf.javalite)
 //    implementation(libs.com.google.protobuf.kotlin.lite)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    // Desugar
+    coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)
 
     kapt(libs.com.google.dagger.hilt.compiler)
     testImplementation(libs.junit)

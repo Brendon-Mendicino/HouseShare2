@@ -4,6 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import lol.terabrendon.houseshare2.repository.ShoppingItemRepository
+import lol.terabrendon.houseshare2.repository.ShoppingItemRepositoryImpl
 import lol.terabrendon.houseshare2.repository.UserPreferencesRepository
 import lol.terabrendon.houseshare2.repository.UserPreferencesRepositoryImpl
 import javax.inject.Singleton
@@ -18,4 +20,10 @@ abstract class RepositoryModule {
     abstract fun bindUserPreferencesRepository(
         repo: UserPreferencesRepositoryImpl
     ): UserPreferencesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindShoppingItemRepository(
+        repo: ShoppingItemRepositoryImpl
+    ): ShoppingItemRepository
 }
