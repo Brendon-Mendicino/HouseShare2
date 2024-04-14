@@ -3,7 +3,9 @@ package lol.terabrendon.houseshare2.presentation.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
 import lol.terabrendon.houseshare2.repository.UserPreferencesRepository
@@ -18,8 +20,10 @@ class MainViewModel @Inject constructor(
     }
 
 
-    val currentDestination =
-        userPreferencesRepository.userPreferencesFlow.map { MainDestination.from(it.mainDestination) }
+    val currentDestination = userPreferencesRepository
+        .userPreferencesFlow
+        .map { MainDestination.from(it.mainDestination) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MainDestination.Loading)
 
     fun setCurrentDestination(destination: MainDestination) {
         viewModelScope.launch {
