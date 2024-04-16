@@ -1,6 +1,7 @@
 package lol.terabrendon.houseshare2.presentation
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,15 +10,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -29,10 +32,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -40,6 +45,7 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
+import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 
 private const val TAG = "HouseShareMain"
 
@@ -134,13 +140,29 @@ private fun HouseShareMainInner(
 
             AnimatedFab(
                 currentDestination = currentDestination,
-                modifier = Modifier.align(Alignment.BottomEnd)
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
             ) { onBack ->
-                Surface(modifier = Modifier.fillMaxSize()) {
+                val shoppingViewModel: ShoppingViewModel =
+                    hiltViewModel(LocalView.current.findViewTreeViewModelStoreOwner()!!)
+
+                BackHandler {
+                    onBack()
+                }
+
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     ShoppingItemForm(
-                        onFinish = {},
+                        onFinish = { item ->
+                            shoppingViewModel.addShoppingItem(item)
+                            onBack()
+                        },
                         onBack = { onBack() },
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .fillMaxSize()
                     )
                 }
             }
