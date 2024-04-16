@@ -7,4 +7,6 @@ interface ShoppingItemRepository {
     fun getAll(): Flow<List<ShoppingItemModel>>
 
     suspend fun insert(newItem: ShoppingItemModel)
+
+    suspend fun deleteAll(items: List<ShoppingItemModel>)
 }

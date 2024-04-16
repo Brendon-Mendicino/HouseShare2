@@ -4,4 +4,11 @@
     <string name="shopping_list">Shopping list</string>
     <string name="house_activities">House activities</string>
     <string name="loading">Loading...</string>
+    <string name="create">Create</string>
+    <string name="name">Name</string>
+    <string name="amount">Amount</string>
+    <string name="price">Price</string>
+    <string name="delete_shopping_items">Delete shopping items?</string>
+    <string name="confirm">Confirm</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

@@ -17,7 +17,8 @@ import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
 fun MainTopBar(
     modifier: Modifier = Modifier,
     mainDestination: MainDestination,
-    onNavigationClick: () -> Unit
+    onNavigationClick: () -> Unit,
+    actions: @Composable (MainDestination) -> Unit,
 ) {
     CenterAlignedTopAppBar(
         title = { Text(stringResource(mainDestination.asResource())) },
@@ -26,6 +27,7 @@ fun MainTopBar(
                 Icon(Icons.Filled.Menu, contentDescription = null)
             }
         },
+        actions = { actions(mainDestination) },
         modifier = modifier
     )
 }

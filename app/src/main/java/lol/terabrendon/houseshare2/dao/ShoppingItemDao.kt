@@ -16,4 +16,7 @@ interface ShoppingItemDao {
 
     @Insert
     suspend fun insert(shoppingItem: ShoppingItem)
+
+    @Query("DELETE FROM ShoppingItem WHERE id in (:itemIds)")
+    suspend fun deleteAllById(itemIds: List<Int>)
 }
