@@ -130,7 +130,7 @@ fun AnimatedFab(
             })
 
             MainFabContainerState.Fullscreen -> fullscreen {
-                containerState = MainFabContainerState.Fullscreen
+                containerState = MainFabContainerState.Fab
             }
         }
     }

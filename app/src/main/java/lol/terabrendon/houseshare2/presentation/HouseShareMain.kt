@@ -187,5 +187,7 @@ fun MainFab(modifier: Modifier = Modifier, onClick: () -> Unit) {
                 contentDescription = stringResource(R.string.create)
             )
         },
-        onClick = { onClick() })
+        onClick = { onClick() },
+        modifier = modifier
+    )
 }
