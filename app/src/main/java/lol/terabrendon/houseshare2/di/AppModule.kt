@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.UserPreferences
+import lol.terabrendon.houseshare2.dao.ExpenseDao
 import lol.terabrendon.houseshare2.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.database.HouseShareDatabase
 import lol.terabrendon.houseshare2.preferences.userPreferencesStore
@@ -34,4 +35,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideShoppingItemDao(db: HouseShareDatabase): ShoppingItemDao = db.shoppingItemDao()
+
+    @Provides
+    @Singleton
+    fun provideExpenseDao(db: HouseShareDatabase): ExpenseDao = db.expenseDao()
 }

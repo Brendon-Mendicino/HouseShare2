@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CleaningServices
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,6 +44,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
 import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
@@ -135,6 +137,9 @@ private fun HouseShareMainInner(
                     composable(route = MainDestination.Shopping.name) {
                         ShoppingScreen()
                     }
+                    composable(route = MainDestination.Billing.name) {
+                        BillingScreen()
+                    }
                 }
             }
 
@@ -194,6 +199,13 @@ private fun MainDrawerSheet(
             icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) },
             selected = currentDestination == MainDestination.Shopping,
             onClick = { onDestinationClick(MainDestination.Shopping) },
+            modifier = Modifier.padding(itemPadding)
+        )
+        NavigationDrawerItem(
+            label = { Text(stringResource(R.string.billing)) },
+            icon = { Icon(Icons.Filled.Payments, contentDescription = null) },
+            selected = currentDestination == MainDestination.Billing,
+            onClick = { onDestinationClick(MainDestination.Billing) },
             modifier = Modifier.padding(itemPadding)
         )
     }

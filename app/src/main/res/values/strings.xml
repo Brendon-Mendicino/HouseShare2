@@ -14,4 +14,23 @@
     <string name="error">Error</string>
     <string name="name_should_not_be_empty">Name should not be empty!</string>
     <string name="amount_should_be_greater_than_0">Amount should be greater than 0!</string>
+    <string name="billing">Billing</string>
+    <string name="expenses">Expenses</string>
+    <string name="balance">Balance</string>
+    <string name="car">Car</string>
+    <string name="education">Education</string>
+    <string name="others">Others</string>
+    <string name="meals">Meals</string>
+    <string name="rent">Rent</string>
+    <string name="travel">Travel</string>
+    <string name="shopping">Shopping</string>
+    <string name="free_time">Free time</string>
+    <string name="games">Games</string>
+    <string name="restaurant">Restaurant</string>
+    <string name="home">Home</string>
+    <string name="bill">Bill</string>
+    <string name="gas_bill">Gas bill</string>
+    <string name="electric_bill">Electric bill</string>
+    <string name="training">Training</string>
+    <string name="paid">%1$s paid %2$s</string>
 </resources>
