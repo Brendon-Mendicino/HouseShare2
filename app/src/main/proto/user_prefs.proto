@@ -8,6 +8,7 @@ message UserPreferences {
     UNSPECIFIED = 0;
     CLEANING = 1;
     SHOPPING = 2;
+    BILLING = 3;
   }
   MainDestination mainDestination = 1;
 }
