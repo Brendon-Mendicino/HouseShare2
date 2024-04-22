@@ -39,7 +39,7 @@ class ExpenseRepositoryImpl @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun findAll(): Flow<List<ExpenseModel>> {
-        // Get users from the database
+        // Get users from the database associated to the current expenses
         val usersFlow = expenseDao
             .findAll()
             .flatMapMerge { expenses ->

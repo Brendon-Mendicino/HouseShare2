@@ -33,4 +33,5 @@
     <string name="electric_bill">Electric bill</string>
     <string name="training">Training</string>
     <string name="paid">%1$s paid %2$s</string>
+    <string name="open_app_menu">Open app menu</string>
 </resources>

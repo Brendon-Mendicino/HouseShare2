@@ -57,6 +57,9 @@ fun AppBarActions(
 
         else -> {}
     }
+
+    // App Menu
+    AppMenu()
 }
 
 @Composable
