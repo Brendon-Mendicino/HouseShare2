@@ -76,7 +76,7 @@ data class ExpenseWithUsers(
         parentColumn = "id",
         entityColumn = "expenseId"
     )
-    var users: List<ExpenseOfUser>,
+    val expensesWithUser: List<ExpenseOfUser>,
 ) {
     companion object {
         @JvmStatic
@@ -85,15 +85,15 @@ data class ExpenseWithUsers(
                 expense = Expense(
                     id = expense.id,
                     amount = expense.amount,
-                    ownerId = expense.ownerId,
+                    ownerId = expense.expenseOwner.id,
                     category = expense.category,
                     title = expense.title,
                     description = expense.description,
                 ),
-                users = expense.userExpenses.map {
+                expensesWithUser = expense.userExpenses.map {
                     ExpenseOfUser(
                         expenseId = expense.id,
-                        userId = it.userId,
+                        userId = it.user.id,
                         amount = it.amount,
                     )
                 }

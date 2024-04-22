@@ -10,6 +10,8 @@ import lol.terabrendon.houseshare2.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.repository.ShoppingItemRepositoryImpl
 import lol.terabrendon.houseshare2.repository.UserPreferencesRepository
 import lol.terabrendon.houseshare2.repository.UserPreferencesRepositoryImpl
+import lol.terabrendon.houseshare2.repository.UserRepository
+import lol.terabrendon.houseshare2.repository.UserRepositoryImpl
 import javax.inject.Singleton
 
 @Suppress("unused")
@@ -34,4 +36,10 @@ abstract class RepositoryModule {
     abstract fun bindExpenseRepository(
         repo: ExpenseRepositoryImpl
     ): ExpenseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserRepository(
+        repo: UserRepositoryImpl
+    ): UserRepository
 }

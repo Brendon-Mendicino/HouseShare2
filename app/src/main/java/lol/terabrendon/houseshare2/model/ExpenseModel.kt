@@ -19,13 +19,12 @@ import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.ui.graphics.vector.ImageVector
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.entity.ExpenseWithUsers
 import java.time.LocalDateTime
 
 data class ExpenseModel(
     val id: Int,
     val amount: Double,
-    val ownerId: Int,
+    val expenseOwner: UserModel,
     val category: ExpenseCategory,
     val title: String,
     val description: String?,
@@ -33,30 +32,30 @@ data class ExpenseModel(
     val userExpenses: List<UserExpenseModel>,
 ) {
     companion object {
-        @JvmStatic
-        fun from(expenseWithUsers: ExpenseWithUsers): ExpenseModel {
-            return ExpenseModel(
-                id = expenseWithUsers.expense.id,
-                amount = expenseWithUsers.expense.amount,
-                ownerId = expenseWithUsers.expense.ownerId,
-                category = expenseWithUsers.expense.category,
-                title = expenseWithUsers.expense.title,
-                description = expenseWithUsers.expense.description,
-                creationTimestamp = expenseWithUsers.expense.creationTimestamp,
-                userExpenses = expenseWithUsers.users.map {
-                    UserExpenseModel(
-                        userId = it.userId,
-                        amount = it.amount,
-                    )
-                }
-            )
-        }
+//        @JvmStatic
+//        fun from(expenseWithUsers: ExpenseWithUsers): ExpenseModel {
+//            return ExpenseModel(
+//                id = expenseWithUsers.expense.id,
+//                amount = expenseWithUsers.expense.amount,
+//                expenseOwner = expenseWithUsers.expense.ownerId,
+//                category = expenseWithUsers.expense.category,
+//                title = expenseWithUsers.expense.title,
+//                description = expenseWithUsers.expense.description,
+//                creationTimestamp = expenseWithUsers.expense.creationTimestamp,
+//                userExpenses = expenseWithUsers.expensesWithUser.map {
+//                    UserExpenseModel(
+//                        user = it.userId,
+//                        amount = it.amount,
+//                    )
+//                }
+//            )
+//        }
 
         @JvmStatic
         fun default(): ExpenseModel = ExpenseModel(
             id = 0,
             amount = 0.0,
-            ownerId = 0,
+            expenseOwner = UserModel.default(),
             category = ExpenseCategory.Car,
             title = "Title",
             description = "Description",
@@ -67,12 +66,12 @@ data class ExpenseModel(
 }
 
 data class UserExpenseModel(
-    val userId: Int,
+    val user: UserModel,
     val amount: Double,
 ) {
     companion object {
         @JvmStatic
-        fun default(): UserExpenseModel = UserExpenseModel(userId = 0, amount = 0.0)
+        fun default(): UserExpenseModel = UserExpenseModel(user = UserModel.default(), amount = 0.0)
 
     }
 }
