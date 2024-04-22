@@ -21,7 +21,7 @@ interface ExpenseDao {
     @Transaction
     suspend fun insertExpense(expense: ExpenseWithUsers) {
         insertExpense(expense.expense)
-        insertAllExpenseOfUser(expense.users)
+        insertAllExpenseOfUser(expense.expensesWithUser)
     }
 
     @Query("SELECT * FROM Expense")

@@ -11,6 +11,7 @@ import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.UserPreferences
 import lol.terabrendon.houseshare2.dao.ExpenseDao
 import lol.terabrendon.houseshare2.dao.ShoppingItemDao
+import lol.terabrendon.houseshare2.dao.UserDao
 import lol.terabrendon.houseshare2.database.HouseShareDatabase
 import lol.terabrendon.houseshare2.preferences.userPreferencesStore
 import javax.inject.Singleton
@@ -39,4 +40,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideExpenseDao(db: HouseShareDatabase): ExpenseDao = db.expenseDao()
+
+    @Provides
+    @Singleton
+    fun provideUserDao(db: HouseShareDatabase): UserDao = db.userDao()
 }
