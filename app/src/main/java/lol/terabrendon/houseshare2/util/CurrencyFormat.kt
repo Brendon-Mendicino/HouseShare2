@@ -12,3 +12,12 @@ fun Double.currencyFormat(): String {
 
     return format.format(this)
 }
+
+fun String.currencyFormat(): Double? {
+    val format = NumberFormat.getCurrencyInstance().apply {
+        maximumFractionDigits = 2
+        currency = Currency.getInstance(Locale.getDefault())
+    }
+
+    return format.runCatching { parse(this@currencyFormat).toDouble() }.getOrNull()
+}

@@ -2,12 +2,13 @@ package lol.terabrendon.houseshare2.presentation
 
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -33,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -44,6 +46,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.presentation.billing.BillingForm
 import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
 import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
@@ -155,20 +158,36 @@ private fun HouseShareMainInner(
                     onBack()
                 }
 
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    ShoppingItemForm(
-                        onFinish = { item ->
-                            shoppingViewModel.addShoppingItem(item)
-                            onBack()
-                        },
-                        onBack = { onBack() },
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .fillMaxSize()
-                    )
+                when (currentDestination) {
+                    MainDestination.Shopping -> Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        ShoppingItemForm(
+                            onFinish = { item ->
+                                shoppingViewModel.addShoppingItem(item)
+                                onBack()
+                            },
+                            onBack = { onBack() },
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .fillMaxSize()
+                        )
+                    }
+
+                    MainDestination.Billing -> Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        BillingForm(
+                            onFinish = { onBack() },
+                            onBack = { onBack() }
+                        )
+                    }
+
+                    MainDestination.Cleaning -> {}
+
+                    MainDestination.Loading -> onBack()
                 }
             }
         }
@@ -212,16 +231,21 @@ private fun MainDrawerSheet(
 }
 
 @Composable
-fun MainFab(modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun MainFab(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    @StringRes text: Int,
+    onClick: () -> Unit
+) {
     ExtendedFloatingActionButton(
-        text = { Text(stringResource(R.string.create)) },
+        text = { Text(stringResource(text)) },
         icon = {
             Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = stringResource(R.string.create)
+                imageVector = icon,
+                contentDescription = stringResource(text)
             )
         },
         onClick = { onClick() },
-        modifier = modifier
+        modifier = modifier.animateContentSize()
     )
 }

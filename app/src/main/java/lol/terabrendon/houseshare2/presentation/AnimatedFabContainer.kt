@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.unit.dp
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
 import lol.terabrendon.houseshare2.presentation.state.MainFabContainerState
 
@@ -49,6 +54,13 @@ fun AnimatedFab(
     }
 
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
+
+    val fabIcon = when (currentDestination) {
+        MainDestination.Shopping -> Icons.Filled.AddShoppingCart
+        MainDestination.Cleaning -> Icons.Filled.Add
+        MainDestination.Billing -> Icons.Filled.Receipt
+        MainDestination.Loading -> Icons.Filled.Add
+    }
 
     LaunchedEffect(containerState) {
         when (containerState) {
@@ -85,6 +97,8 @@ fun AnimatedFab(
                 onClick = {
                     containerState = MainFabContainerState.Fullscreen
                 },
+                icon = fabIcon,
+                text = R.string.create
             )
 
             MainFabContainerState.Fullscreen -> fullscreen {

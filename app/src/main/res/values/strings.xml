@@ -34,4 +34,11 @@
     <string name="training">Training</string>
     <string name="paid">%1$s paid %2$s</string>
     <string name="open_app_menu">Open app menu</string>
+    <string name="category">Category</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="title_should_not_be_empty">Title should not be empty!</string>
+    <string name="additive">Additive</string>
+    <string name="percentage">Percentage</string>
+    <string name="quota">Quota</string>
 </resources>
