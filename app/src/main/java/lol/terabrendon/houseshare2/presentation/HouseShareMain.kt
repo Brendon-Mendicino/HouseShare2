@@ -46,8 +46,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.presentation.billing.BillingForm
 import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
+import lol.terabrendon.houseshare2.presentation.billing.NewExpenseForm
 import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
@@ -179,9 +179,8 @@ private fun HouseShareMainInner(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        BillingForm(
+                        NewExpenseForm(
                             onFinish = { onBack() },
-                            onBack = { onBack() }
                         )
                     }
 

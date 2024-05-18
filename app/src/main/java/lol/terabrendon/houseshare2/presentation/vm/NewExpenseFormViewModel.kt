@@ -5,28 +5,59 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.model.ExpenseCategory
-import lol.terabrendon.houseshare2.model.UserModel
+import lol.terabrendon.houseshare2.model.ExpenseModel
+import lol.terabrendon.houseshare2.model.UserExpenseModel
 import lol.terabrendon.houseshare2.presentation.billing.PaymentUnit
 import lol.terabrendon.houseshare2.presentation.billing.UserPaymentState
+import lol.terabrendon.houseshare2.repository.ExpenseRepository
+import lol.terabrendon.houseshare2.repository.UserRepository
 import lol.terabrendon.houseshare2.util.combineState
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class BillingFormViewModel @Inject constructor() : ViewModel() {
+class NewExpenseFormViewModel @Inject constructor(
+    private val expenseRepository: ExpenseRepository,
+    private val userRepository: UserRepository,
+) : ViewModel() {
     companion object {
-        private const val TAG = "BillingFormViewModel"
+        private const val TAG = "NewExpenseFormViewModel"
     }
 
-    private val users = MutableStateFlow(
-        listOf(
-            UserModel(0, "Brendon"),
-            UserModel(1, "Flavy"),
-            UserModel(2, "Cipolla"),
+    private fun updatePaymentUnits(size: Int) {
+        paymentUnits.value = (0..size).map { PaymentUnit.Additive }
+    }
+
+    private fun updatePaymentValueUnits(size: Int) {
+        paymentValueUnits.value = (0..size).map { 0.0 }
+    }
+
+    private val _isFinished = MutableStateFlow(false)
+
+    /**
+     * This value is used to terminate the screen when all the operations
+     * are finished
+     */
+    val isFinished: StateFlow<Boolean> = _isFinished
+
+
+    // TODO: use real users of the group
+    private val users = userRepository.findAll()
+        .onEach {
+            Log.i(TAG, "Getting updated list of users from the database.")
+            updatePaymentUnits(it.size)
+            updatePaymentValueUnits(it.size)
+        }
+        .stateIn(
+            viewModelScope, SharingStarted.WhileSubscribed(5000), listOf()
         )
-    )
 
     private var _moneyAmount = MutableStateFlow(0.0)
     val moneyAmount: StateFlow<Double> = _moneyAmount
@@ -40,8 +71,9 @@ class BillingFormViewModel @Inject constructor() : ViewModel() {
     private var _category = MutableStateFlow<ExpenseCategory?>(null)
     val category: StateFlow<ExpenseCategory?> = _category
 
-    private var paymentUnits = MutableStateFlow((0..users.value.size).map { PaymentUnit.Additive })
-    private var paymentValueUnits = MutableStateFlow((0..users.value.size).map { 0.0 })
+    private var paymentUnits = MutableStateFlow(listOf<PaymentUnit>())
+
+    private var paymentValueUnits = MutableStateFlow(listOf<Double>())
 
     private var _payments =
         combineState(
@@ -125,6 +157,31 @@ class BillingFormViewModel @Inject constructor() : ViewModel() {
             values.toMutableList().apply {
                 this[index] = newValue
             }
+        }
+    }
+
+    fun onConfirm() {
+        val expense = ExpenseModel(
+            id = 0,
+            amount = moneyAmount.value,
+            // TODO: modify when we'll the current user
+            expenseOwner = users.value.first(),
+            category = category.value!!,
+            title = title.value,
+            description = description.value,
+            creationTimestamp = LocalDateTime.now(),
+            userExpenses = payments.value.map {
+                UserExpenseModel(
+                    user = it.user,
+                    amount = it.amountMoney,
+                )
+            }
+        )
+
+        viewModelScope.launch {
+            Log.i(TAG, "Inserting a new expense with title \"${expense.title}\" to the repository")
+            expenseRepository.insert(expense)
+            _isFinished.value = true
         }
     }
 }

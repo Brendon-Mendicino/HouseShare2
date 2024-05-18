@@ -12,7 +12,7 @@ import lol.terabrendon.houseshare2.entity.ExpenseWithUsers
 @Dao
 interface ExpenseDao {
     @Insert
-    suspend fun insertExpense(expense: Expense)
+    suspend fun insertExpense(expense: Expense): Long
 
     @Insert
     suspend fun insertAllExpenseOfUser(expenseOfUsers: List<ExpenseOfUser>)
@@ -20,8 +20,8 @@ interface ExpenseDao {
     @Insert
     @Transaction
     suspend fun insertExpense(expense: ExpenseWithUsers) {
-        insertExpense(expense.expense)
-        insertAllExpenseOfUser(expense.expensesWithUser)
+        val expenseId = insertExpense(expense.expense)
+        insertAllExpenseOfUser(expense.expensesWithUser.map { it.copy(expenseId = expenseId.toInt()) })
     }
 
     @Query("SELECT * FROM Expense")

@@ -54,6 +54,7 @@ class ExpenseRepositoryImpl @Inject constructor(
                 }
             }
 
+        // TODO: create a single fetch from the database
         return expenseDao
             .findAll()
             .combine(usersFlow) { expenses, users ->
@@ -61,7 +62,9 @@ class ExpenseRepositoryImpl @Inject constructor(
                     createExpenseModel(
                         expense,
                         users
-                    )!!
+                    ) ?: throw IllegalArgumentException(
+                        "It was not possible to create a new ${ExpenseModel::class.qualifiedName}! Expense: $expense, Users: $users"
+                    )
                 }
             }
     }

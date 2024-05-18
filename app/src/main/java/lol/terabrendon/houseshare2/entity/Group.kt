@@ -6,6 +6,6 @@ import androidx.room.PrimaryKey
 @Entity
 data class Group(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Long,
     val name: String,
 )
