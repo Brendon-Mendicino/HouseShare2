@@ -25,7 +25,7 @@ class ShoppingViewModel @Inject constructor(
         private const val TAG = "ShoppingViewModel"
     }
 
-    private val selectedItems = MutableStateFlow(mutableSetOf<Int>())
+    private val selectedItems = MutableStateFlow(mutableSetOf<Long>())
 
     val shoppingItems = shoppingItemRepository
         .getAll()
@@ -42,7 +42,7 @@ class ShoppingViewModel @Inject constructor(
 
     val isAnySelected = selectedItems.mapState(viewModelScope) { items -> items.isNotEmpty() }
 
-    fun onItemSelected(id: Int, selected: Boolean) {
+    fun onItemSelected(id: Long, selected: Boolean) {
         selectedItems.update {
             Log.i(TAG, "onItemSelected: updating ShoppingItem@$id as selected: $selected")
             it.toMutableSet().apply {

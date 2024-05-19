@@ -12,11 +12,11 @@ interface UserDao {
     fun findAll(): Flow<List<User>>
 
     @Query("select * from User where id=:id")
-    fun findById(id: Int): Flow<User?>
+    fun findById(id: Long): Flow<User?>
 
     @Query("select * from User where id in (:ids)")
-    fun findAllById(ids: List<Int>): Flow<List<User>>
+    fun findAllById(ids: List<Long>): Flow<List<User>>
 
     @Insert
-    suspend fun insert(user: User)
+    suspend fun insert(user: User): Long
 }

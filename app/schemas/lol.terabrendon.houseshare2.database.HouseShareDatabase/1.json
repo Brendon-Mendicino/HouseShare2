@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7bb14093b28f4e633d898f0f54325b59",
+    "identityHash": "881aaf2a5df0e9408fc7c43015234c77",
     "entities": [
       {
         "tableName": "ShoppingItem",
@@ -155,7 +155,7 @@
         ]
       },
       {
-        "tableName": "ExpenseOfUser",
+        "tableName": "Payment",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`expenseId` INTEGER NOT NULL, `userId` INTEGER NOT NULL, `amount` REAL NOT NULL, PRIMARY KEY(`expenseId`, `userId`), FOREIGN KEY(`userId`) REFERENCES `User`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`expenseId`) REFERENCES `Expense`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
@@ -186,22 +186,22 @@
         },
         "indices": [
           {
-            "name": "index_ExpenseOfUser_expenseId",
+            "name": "index_Payment_expenseId",
             "unique": false,
             "columnNames": [
               "expenseId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExpenseOfUser_expenseId` ON `${TABLE_NAME}` (`expenseId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Payment_expenseId` ON `${TABLE_NAME}` (`expenseId`)"
           },
           {
-            "name": "index_ExpenseOfUser_userId",
+            "name": "index_Payment_userId",
             "unique": false,
             "columnNames": [
               "userId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExpenseOfUser_userId` ON `${TABLE_NAME}` (`userId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Payment_userId` ON `${TABLE_NAME}` (`userId`)"
           }
         ],
         "foreignKeys": [
@@ -233,7 +233,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7bb14093b28f4e633d898f0f54325b59')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '881aaf2a5df0e9408fc7c43015234c77')"
     ]
   }
 }

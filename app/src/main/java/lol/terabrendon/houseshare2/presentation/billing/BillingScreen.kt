@@ -194,7 +194,7 @@ private fun ExpenseItem(modifier: Modifier = Modifier, expense: ExpenseModel) {
 @Preview(showBackground = true)
 @Composable
 fun ExpensesPreview() {
-    val e = (0..5).map {
+    val e = (0..5L).map {
         ExpenseModel.default().copy(
             id = it,
             userExpenses = (0..10).map { UserExpenseModel.default() }.toList()

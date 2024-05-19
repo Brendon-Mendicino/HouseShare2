@@ -3,7 +3,7 @@ package lol.terabrendon.houseshare2.model
 import lol.terabrendon.houseshare2.entity.User
 
 data class UserModel(
-    val id: Int,
+    val id: Long,
     val username: String,
 ) {
     companion object {

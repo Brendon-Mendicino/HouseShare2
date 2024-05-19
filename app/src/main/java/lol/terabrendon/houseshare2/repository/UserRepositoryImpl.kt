@@ -14,10 +14,10 @@ class UserRepositoryImpl @Inject constructor(
         users.map { UserModel.from(it) }
     }
 
-    override fun findById(id: Int): Flow<UserModel?> =
+    override fun findById(id: Long): Flow<UserModel?> =
         userDao.findById(id).map { it?.let { UserModel.from(it) } }
 
-    override fun findAllById(ids: List<Int>): Flow<List<UserModel>> =
+    override fun findAllById(ids: List<Long>): Flow<List<UserModel>> =
         userDao.findAllById(ids).map { users -> users.map { UserModel.from(it) } }
 
     override suspend fun insert(user: UserModel) {

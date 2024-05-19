@@ -7,7 +7,7 @@ import lol.terabrendon.houseshare2.model.UserModel
 @Entity
 data class User(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Long,
     val username: String,
 ) {
     companion object {

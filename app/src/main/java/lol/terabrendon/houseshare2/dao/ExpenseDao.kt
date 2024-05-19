@@ -6,8 +6,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.entity.Expense
-import lol.terabrendon.houseshare2.entity.ExpenseOfUser
 import lol.terabrendon.houseshare2.entity.ExpenseWithUsers
+import lol.terabrendon.houseshare2.entity.Payment
 
 @Dao
 interface ExpenseDao {
@@ -15,13 +15,13 @@ interface ExpenseDao {
     suspend fun insertExpense(expense: Expense): Long
 
     @Insert
-    suspend fun insertAllExpenseOfUser(expenseOfUsers: List<ExpenseOfUser>)
+    suspend fun insertAllPayment(payments: List<Payment>)
 
     @Insert
     @Transaction
-    suspend fun insertExpense(expense: ExpenseWithUsers) {
-        val expenseId = insertExpense(expense.expense)
-        insertAllExpenseOfUser(expense.expensesWithUser.map { it.copy(expenseId = expenseId.toInt()) })
+    suspend fun insertExpense(expense: Expense, payments: List<Payment>) {
+        val expenseId = insertExpense(expense)
+        insertAllPayment(payments.map { it.copy(expenseId = expenseId) })
     }
 
     @Query("SELECT * FROM Expense")

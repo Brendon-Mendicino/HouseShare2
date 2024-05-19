@@ -23,13 +23,14 @@ import java.time.LocalDateTime
 )
 data class Expense(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Long,
     val amount: Double,
     @ColumnInfo(index = true)
-    val ownerId: Int,
+    val ownerId: Long,
     val category: ExpenseCategory,
     val title: String,
     val description: String?,
+    // TODO: check if it's possible to use OffsetDateTime
     @ColumnInfo(defaultValue = "(datetime('now', 'localtime'))")
     val creationTimestamp: LocalDateTime = LocalDateTime.now(),
 ) {
@@ -40,6 +41,19 @@ data class Expense(
         @TypeConverter
         fun expenseCategoryFromString(category: String?): ExpenseCategory? =
             category?.let { ExpenseCategory.valueOf(category) }
+    }
+
+    companion object {
+        @JvmStatic
+        fun from(expense: ExpenseModel): Expense = Expense(
+            id = expense.id,
+            amount = expense.amount,
+            ownerId = expense.expenseOwner.id,
+            title = expense.title,
+            category = expense.category,
+            description = expense.description,
+            creationTimestamp = expense.creationTimestamp,
+        )
     }
 }
 
@@ -61,12 +75,22 @@ data class Expense(
         ),
     ]
 )
-data class ExpenseOfUser(
+data class Payment(
     @ColumnInfo(index = true)
-    val expenseId: Int,
+    val expenseId: Long,
     @ColumnInfo(index = true)
-    val userId: Int,
+    val userId: Long,
     val amount: Double,
+)
+
+data class PaymentWithUser(
+    @Embedded
+    val payment: Payment,
+    @Relation(
+        parentColumn = "userId",
+        entityColumn = "id",
+    )
+    val user: User,
 )
 
 data class ExpenseWithUsers(
@@ -74,30 +98,40 @@ data class ExpenseWithUsers(
     val expense: Expense,
     @Relation(
         parentColumn = "id",
+        entityColumn = "id",
+    )
+    val owner: User,
+    @Relation(
+        entity = Payment::class,
+        parentColumn = "id",
         entityColumn = "expenseId"
     )
-    val expensesWithUser: List<ExpenseOfUser>,
+    val expensesWithUser: List<PaymentWithUser>,
 ) {
-    companion object {
-        @JvmStatic
-        fun from(expense: ExpenseModel): ExpenseWithUsers {
-            return ExpenseWithUsers(
-                expense = Expense(
-                    id = expense.id,
-                    amount = expense.amount,
-                    ownerId = expense.expenseOwner.id,
-                    category = expense.category,
-                    title = expense.title,
-                    description = expense.description,
-                ),
-                expensesWithUser = expense.userExpenses.map {
-                    ExpenseOfUser(
-                        expenseId = expense.id,
-                        userId = it.user.id,
-                        amount = it.amount,
-                    )
-                }
-            )
-        }
-    }
+//    companion object {
+//        @JvmStatic
+//        fun from(expense: ExpenseModel): ExpenseWithUsers {
+//            return ExpenseWithUsers(
+//                expense = Expense(
+//                    id = expense.id,
+//                    amount = expense.amount,
+//                    ownerId = expense.expenseOwner.id,
+//                    category = expense.category,
+//                    title = expense.title,
+//                    description = expense.description,
+//                ),
+//                owner = User.from(expense.expenseOwner),
+//                expensesWithUser = expense.userExpenses.map {
+//                    PaymentWithUser(
+//                        payment = Payment(
+//                            expenseId = expense.id,
+//                            userId = it.user.id,
+//                            amount = it.amount,
+//                        ),
+//                        user = User.from(it.user)
+//                    )
+//                }
+//            )
+//        }
+//    }
 }

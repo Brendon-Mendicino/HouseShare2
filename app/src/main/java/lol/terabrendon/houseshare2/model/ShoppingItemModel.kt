@@ -4,7 +4,7 @@ import lol.terabrendon.houseshare2.entity.ShoppingItem
 import java.time.LocalDateTime
 
 data class ShoppingItemModel(
-    val id: Int,
+    val id: Long,
     val name: String,
     val amount: Int,
     val price: Double?,

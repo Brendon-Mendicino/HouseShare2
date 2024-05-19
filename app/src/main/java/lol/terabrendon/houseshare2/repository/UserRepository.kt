@@ -7,9 +7,9 @@ interface UserRepository {
 
     fun findAll(): Flow<List<UserModel>>
 
-    fun findById(id: Int): Flow<UserModel?>
+    fun findById(id: Long): Flow<UserModel?>
 
-    fun findAllById(ids: List<Int>): Flow<List<UserModel>>
+    fun findAllById(ids: List<Long>): Flow<List<UserModel>>
 
     suspend fun insert(user: UserModel)
 }

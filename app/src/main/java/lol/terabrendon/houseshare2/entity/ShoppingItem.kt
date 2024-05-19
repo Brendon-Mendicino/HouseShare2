@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 @Entity
 data class ShoppingItem(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     val name: String,
     val amount: Int,
     val price: Double?,

@@ -12,11 +12,11 @@ interface ShoppingItemDao {
     fun findAll(): Flow<List<ShoppingItem>>
 
     @Query("SELECT * FROM ShoppingItem WHERE id=:id")
-    fun findById(id: Int): Flow<ShoppingItem?>
+    fun findById(id: Long): Flow<ShoppingItem?>
 
     @Insert
-    suspend fun insert(shoppingItem: ShoppingItem)
+    suspend fun insert(shoppingItem: ShoppingItem): Long
 
     @Query("DELETE FROM ShoppingItem WHERE id in (:itemIds)")
-    suspend fun deleteAllById(itemIds: List<Int>)
+    suspend fun deleteAllById(itemIds: List<Long>)
 }

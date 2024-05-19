@@ -238,7 +238,7 @@ private fun FormTextField(
 private fun ShoppingListItem(
     modifier: Modifier = Modifier,
     shoppingItem: ShoppingItemModel,
-    onChecked: (Int, Boolean) -> Unit,
+    onChecked: (Long, Boolean) -> Unit,
 ) {
     val spacerModifier = Modifier.requiredWidth(16.dp)
 
