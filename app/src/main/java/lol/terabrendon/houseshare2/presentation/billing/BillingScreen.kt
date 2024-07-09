@@ -184,7 +184,7 @@ private fun ExpenseItem(modifier: Modifier = Modifier, expense: ExpenseModel) {
         if (isExpanded) {
             Column(modifier = Modifier.fillMaxHeight()) {
                 expense.userExpenses.forEach { item ->
-                    Text("${item.amount} ${item.user.username}")
+                    Text("${item.partAmount} ${item.user.username}")
                 }
             }
         }

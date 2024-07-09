@@ -24,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -67,6 +68,7 @@ fun NewExpenseForm(
     val title by newExpenseFormViewModel.title.collectAsStateWithLifecycle()
     val category by newExpenseFormViewModel.category.collectAsStateWithLifecycle()
     val payments by newExpenseFormViewModel.payments.collectAsStateWithLifecycle()
+    val payer by newExpenseFormViewModel.payer.collectAsStateWithLifecycle()
     val isFinished by newExpenseFormViewModel.isFinished.collectAsStateWithLifecycle()
 
     val amountError = { moneyAmount <= 0.0 }
@@ -217,6 +219,11 @@ fun NewExpenseForm(
             )
         }
 
+        // List of contributors
+
+        item {
+            HorizontalDivider()
+        }
 
         // Draw the list of payments
         divisionListForm(

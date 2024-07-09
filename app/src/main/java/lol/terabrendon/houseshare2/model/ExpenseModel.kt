@@ -27,6 +27,7 @@ data class ExpenseModel(
     val id: Long,
     val amount: Double,
     val expenseOwner: UserModel,
+    val expensePayer: UserModel,
     val category: ExpenseCategory,
     val title: String,
     val description: String?,
@@ -39,11 +40,12 @@ data class ExpenseModel(
             id = expense.expense.id,
             amount = expense.expense.amount,
             expenseOwner = UserModel.from(expense.owner),
+            expensePayer = UserModel.from(expense.payer),
             category = expense.expense.category,
             title = expense.expense.title,
             description = expense.expense.description,
             creationTimestamp = expense.expense.creationTimestamp,
-            userExpenses = expense.expensesWithUser.map { UserExpenseModel.from(it) }
+            userExpenses = expense.expensesWithUser.map { UserExpenseModel.from(it) },
         )
 
         @JvmStatic
@@ -51,6 +53,7 @@ data class ExpenseModel(
             id = 0,
             amount = 0.0,
             expenseOwner = UserModel.default(),
+            expensePayer = UserModel.default(),
             category = ExpenseCategory.Car,
             title = "Title",
             description = "Description",
@@ -62,17 +65,18 @@ data class ExpenseModel(
 
 data class UserExpenseModel(
     val user: UserModel,
-    val amount: Double,
+    val partAmount: Double,
 ) {
     companion object {
         @JvmStatic
         fun from(payment: PaymentWithUser): UserExpenseModel = UserExpenseModel(
             user = UserModel.from(payment.user),
-            amount = payment.payment.amount,
+            partAmount = payment.payment.partAmount,
         )
 
         @JvmStatic
-        fun default(): UserExpenseModel = UserExpenseModel(user = UserModel.default(), amount = 0.0)
+        fun default(): UserExpenseModel =
+            UserExpenseModel(user = UserModel.default(), partAmount = 0.0)
 
     }
 }

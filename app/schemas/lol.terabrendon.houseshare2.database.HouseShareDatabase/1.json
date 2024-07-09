@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "881aaf2a5df0e9408fc7c43015234c77",
+    "identityHash": "56abf086898132560559b5b535243a83",
     "entities": [
       {
         "tableName": "ShoppingItem",
@@ -77,7 +77,7 @@
       },
       {
         "tableName": "Expense",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `ownerId` INTEGER NOT NULL, `category` TEXT NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `creationTimestamp` TEXT NOT NULL DEFAULT (datetime('now', 'localtime')), FOREIGN KEY(`ownerId`) REFERENCES `User`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `ownerId` INTEGER NOT NULL, `payerId` INTEGER NOT NULL, `category` TEXT NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `creationTimestamp` TEXT NOT NULL DEFAULT (datetime('now', 'localtime')), FOREIGN KEY(`ownerId`) REFERENCES `User`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -94,6 +94,12 @@
           {
             "fieldPath": "ownerId",
             "columnName": "ownerId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payerId",
+            "columnName": "payerId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -138,6 +144,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_Expense_ownerId` ON `${TABLE_NAME}` (`ownerId`)"
+          },
+          {
+            "name": "index_Expense_payerId",
+            "unique": false,
+            "columnNames": [
+              "payerId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Expense_payerId` ON `${TABLE_NAME}` (`payerId`)"
           }
         ],
         "foreignKeys": [
@@ -156,7 +171,7 @@
       },
       {
         "tableName": "Payment",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`expenseId` INTEGER NOT NULL, `userId` INTEGER NOT NULL, `amount` REAL NOT NULL, PRIMARY KEY(`expenseId`, `userId`), FOREIGN KEY(`userId`) REFERENCES `User`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`expenseId`) REFERENCES `Expense`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`expenseId` INTEGER NOT NULL, `userId` INTEGER NOT NULL, `partAmount` REAL NOT NULL, PRIMARY KEY(`expenseId`, `userId`), FOREIGN KEY(`userId`) REFERENCES `User`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`expenseId`) REFERENCES `Expense`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "expenseId",
@@ -171,8 +186,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "amount",
-            "columnName": "amount",
+            "fieldPath": "partAmount",
+            "columnName": "partAmount",
             "affinity": "REAL",
             "notNull": true
           }
@@ -233,7 +248,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '881aaf2a5df0e9408fc7c43015234c77')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '56abf086898132560559b5b535243a83')"
     ]
   }
 }

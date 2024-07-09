@@ -25,8 +25,16 @@ data class Expense(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     val amount: Double,
+    /**
+     * The user who created the expense
+     */
     @ColumnInfo(index = true)
     val ownerId: Long,
+    /**
+     * The user who payed the expense
+     */
+    @ColumnInfo(index = true)
+    val payerId: Long,
     val category: ExpenseCategory,
     val title: String,
     val description: String?,
@@ -49,6 +57,7 @@ data class Expense(
             id = expense.id,
             amount = expense.amount,
             ownerId = expense.expenseOwner.id,
+            payerId = expense.expensePayer.id,
             title = expense.title,
             category = expense.category,
             description = expense.description,
@@ -57,6 +66,10 @@ data class Expense(
     }
 }
 
+/**
+ * This class represent if the user has contributed to the payment of the expense
+ * and what part he has to take
+ */
 @Entity(
     primaryKeys = ["expenseId", "userId"],
     foreignKeys = [
@@ -80,7 +93,8 @@ data class Payment(
     val expenseId: Long,
     @ColumnInfo(index = true)
     val userId: Long,
-    val amount: Double,
+    /** What are the total user expenses in the expense */
+    val partAmount: Double,
 )
 
 data class PaymentWithUser(
@@ -97,10 +111,15 @@ data class ExpenseWithUsers(
     @Embedded
     val expense: Expense,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "ownerId",
         entityColumn = "id",
     )
     val owner: User,
+    @Relation(
+        parentColumn = "payerId",
+        entityColumn = "id",
+    )
+    val payer: User,
     @Relation(
         entity = Payment::class,
         parentColumn = "id",

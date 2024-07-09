@@ -23,7 +23,7 @@ class ExpenseRepositoryImpl @Inject constructor(
                 Payment(
                     expenseId = expense.id,
                     userId = it.user.id,
-                    amount = it.amount,
+                    partAmount = it.partAmount,
                 )
             }
         )

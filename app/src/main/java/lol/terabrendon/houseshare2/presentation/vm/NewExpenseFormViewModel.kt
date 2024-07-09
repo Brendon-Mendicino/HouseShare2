@@ -1,6 +1,7 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.model.ExpenseCategory
 import lol.terabrendon.houseshare2.model.ExpenseModel
 import lol.terabrendon.houseshare2.model.UserExpenseModel
+import lol.terabrendon.houseshare2.model.UserModel
 import lol.terabrendon.houseshare2.presentation.billing.PaymentUnit
 import lol.terabrendon.houseshare2.presentation.billing.UserPaymentState
 import lol.terabrendon.houseshare2.repository.ExpenseRepository
@@ -26,6 +28,7 @@ import javax.inject.Inject
 class NewExpenseFormViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val userRepository: UserRepository,
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     companion object {
         private const val TAG = "NewExpenseFormViewModel"
@@ -70,6 +73,10 @@ class NewExpenseFormViewModel @Inject constructor(
 
     private var _category = MutableStateFlow<ExpenseCategory?>(null)
     val category: StateFlow<ExpenseCategory?> = _category
+
+    // TODO: add current user as default
+    private var _payer = MutableStateFlow<UserModel?>(null)
+    val payer: StateFlow<UserModel?> = _payer
 
     private var paymentUnits = MutableStateFlow(listOf<PaymentUnit>())
 
@@ -166,16 +173,17 @@ class NewExpenseFormViewModel @Inject constructor(
             amount = moneyAmount.value,
             // TODO: modify when we'll the current user
             expenseOwner = users.value.first(),
-            category = category.value!!,
+            expensePayer = payer.value ?: return,
+            category = category.value ?: return,
             title = title.value,
             description = description.value,
             creationTimestamp = LocalDateTime.now(),
             userExpenses = payments.value.map {
                 UserExpenseModel(
                     user = it.user,
-                    amount = it.amountMoney,
+                    partAmount = it.amountMoney,
                 )
-            }
+            },
         )
 
         viewModelScope.launch {
