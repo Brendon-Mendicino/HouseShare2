@@ -5,6 +5,8 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,18 +42,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.model.ExpenseModel
-import lol.terabrendon.houseshare2.model.UserExpenseModel
+import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel
 import lol.terabrendon.houseshare2.util.currencyFormat
 import lol.terabrendon.houseshare2.util.inlineFormat
@@ -80,14 +83,22 @@ private val tabItems = listOf(
     ),
 )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun BillingScreen() {
-    val billingViewModel: BillingViewModel =
-        hiltViewModel(LocalView.current.findViewTreeViewModelStoreOwner()!!)
-
+fun BillingScreen(
+    billingViewModel: BillingViewModel = hiltViewModel()
+) {
     val expenses by billingViewModel.expenses.collectAsStateWithLifecycle()
+    val balances by billingViewModel.balances.collectAsStateWithLifecycle()
 
+    BillingInnerScreen(expenses = expenses, balances = balances)
+}
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun BillingInnerScreen(
+    expenses: List<ExpenseModel>,
+    balances: List<BillingBalanceModel>,
+) {
     val pagerState = rememberPagerState { tabItems.size }
     val scope = rememberCoroutineScope()
 
@@ -115,9 +126,59 @@ fun BillingScreen() {
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { pageIndex ->
             when (pageIndex) {
                 0 -> ExpenseList(expenses = expenses, modifier = Modifier.fillMaxSize())
-                1 -> Text("1")
+                1 -> AccountBalance(balances = balances, modifier = Modifier.fillMaxSize())
                 else -> Text("2")
             }
+        }
+    }
+}
+
+@Composable
+private fun AccountBalance(modifier: Modifier = Modifier, balances: List<BillingBalanceModel>) {
+    LazyColumn(modifier = modifier) {
+        items(balances, key = { it.user.id }) { balance ->
+            AccountBalanceItem(modifier = Modifier.fillMaxWidth(), billingBalance = balance)
+        }
+    }
+}
+
+@Composable
+private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: BillingBalanceModel) {
+    val userBillingColor = if (billingBalance.finalBalance > 0) Color.Green else Color.Red
+
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 0.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(Modifier.requiredWidth(16.dp))
+
+            AvatarIcon(
+                firstName = billingBalance.user.username,
+                lastName = billingBalance.user.username
+            )
+
+            Spacer(Modifier.requiredWidth(16.dp))
+
+            Text(
+                text = billingBalance.user.username,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Spacer(
+                Modifier
+                    .requiredWidth(16.dp)
+                    .weight(1f)
+            )
+
+            Text(
+                text = billingBalance.finalBalance.currencyFormat(),
+                fontWeight = FontWeight.Bold,
+                color = userBillingColor,
+            )
+
+            Spacer(Modifier.requiredWidth(8.dp))
         }
     }
 }
@@ -194,12 +255,20 @@ private fun ExpenseItem(modifier: Modifier = Modifier, expense: ExpenseModel) {
 @Preview(showBackground = true)
 @Composable
 fun ExpensesPreview() {
-    val e = (0..5L).map {
-        ExpenseModel.default().copy(
-            id = it,
-            userExpenses = (0..10).map { UserExpenseModel.default() }.toList()
-        )
-    }.toList()
+    val e = (0..5L).map { ExpenseModel.default().copy(id = it) }.toList()
 
     ExpenseList(expenses = e)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AccountBalancePreview() {
+    val balances = generateSequence { BillingBalanceModel.default() }.mapIndexed { i, b ->
+        b.copy(
+            user = b.user.copy(id = i.toLong()),
+            finalBalance = if (i % 2 == 0) 10.0 else -10.0,
+        )
+    }.take(5).toList()
+
+    AccountBalance(balances = balances)
 }

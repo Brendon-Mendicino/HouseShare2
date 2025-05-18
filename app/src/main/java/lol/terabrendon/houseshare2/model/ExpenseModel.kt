@@ -22,7 +22,17 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.entity.ExpenseWithUsers
 import lol.terabrendon.houseshare2.entity.PaymentWithUser
 import java.time.LocalDateTime
+import java.util.UUID
+import kotlin.random.Random
+import kotlin.uuid.Uuid
 
+/**
+ * Represent a single expense. Like a receipt of a super-market
+ * to share among users.
+ *
+ * Each expense will contain how the users of the group
+ * have shared this expense.
+ */
 data class ExpenseModel(
     val id: Long,
     val amount: Double,
@@ -32,6 +42,7 @@ data class ExpenseModel(
     val title: String,
     val description: String?,
     val creationTimestamp: LocalDateTime,
+    // TODO: consider using a map with owner of the data
     val userExpenses: List<UserExpenseModel>,
 ) {
     companion object {
@@ -59,6 +70,28 @@ data class ExpenseModel(
             description = "Description",
             creationTimestamp = LocalDateTime.now(),
             userExpenses = listOf(),
+        )
+
+        fun random(
+            id: Long = Random.nextLong(),
+            amount: Double = Random.nextDouble(),
+            expenseOwner: UserModel = UserModel.default(),
+            expensePayer: UserModel = UserModel.default(),
+            category: ExpenseCategory = ExpenseCategory.Car,
+            title: String = UUID.randomUUID().toString(),
+            description: String = UUID.randomUUID().toString(),
+            creationTimestamp: LocalDateTime = LocalDateTime.now(),
+            userExpenses: List<UserExpenseModel> = listOf(),
+        ) = ExpenseModel(
+            id = id,
+            amount = amount,
+            expenseOwner = expenseOwner,
+            expensePayer = expensePayer,
+            category = category,
+            title = title,
+            description = description,
+            creationTimestamp = creationTimestamp,
+            userExpenses = userExpenses,
         )
     }
 }

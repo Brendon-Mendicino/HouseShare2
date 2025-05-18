@@ -56,8 +56,8 @@ private const val TAG = "HouseShareMain"
 
 @Composable
 fun HouseShareMain(
+    mainViewModel: MainViewModel = hiltViewModel()
 ) {
-    val mainViewModel: MainViewModel = hiltViewModel()
     val currentDestination by mainViewModel.currentDestination.collectAsStateWithLifecycle()
 
     HouseShareMainInner(
