@@ -5,8 +5,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -144,7 +142,11 @@ private fun AccountBalance(modifier: Modifier = Modifier, balances: List<Billing
 
 @Composable
 private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: BillingBalanceModel) {
-    val userBillingColor = if (billingBalance.finalBalance > 0) Color.Green else Color.Red
+    val userBillingColor = when {
+        billingBalance.finalBalance > 0 -> Color(168, 213, 186)
+        billingBalance.finalBalance < 0 -> MaterialTheme.colorScheme.error
+        else -> Color.Gray
+    }
 
     Column(modifier = modifier) {
         Row(
@@ -223,7 +225,7 @@ private fun ExpenseItem(modifier: Modifier = Modifier, expense: ExpenseModel) {
                 Text(
                     stringResource(
                         R.string.paid,
-                        expense.expenseOwner,
+                        expense.expenseOwner.username,
                         expense.amount.currencyFormat()
                     )
                 )
@@ -266,9 +268,13 @@ fun AccountBalancePreview() {
     val balances = generateSequence { BillingBalanceModel.default() }.mapIndexed { i, b ->
         b.copy(
             user = b.user.copy(id = i.toLong()),
-            finalBalance = if (i % 2 == 0) 10.0 else -10.0,
+            finalBalance = when (i % 3) {
+                0 -> 10.0
+                1 -> -10.0
+                else -> 0.0
+            },
         )
-    }.take(5).toList()
+    }.take(6).toList()
 
     AccountBalance(balances = balances)
 }
