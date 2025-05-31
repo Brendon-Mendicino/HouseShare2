@@ -5,4 +5,13 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.daggerHilt) apply false
+    alias(libs.plugins.idea)
 }
+
+idea {
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
+}
+
