@@ -62,6 +62,7 @@ fun NewExpenseForm(
     onFinish: () -> Unit,
 ) {
     var categoryExpended by remember { mutableStateOf(false) }
+    var payerExpanded by remember { mutableStateOf(false) }
 
     val moneyAmount by newExpenseFormViewModel.moneyAmount.collectAsStateWithLifecycle()
     val description by newExpenseFormViewModel.description.collectAsStateWithLifecycle()
@@ -70,18 +71,22 @@ fun NewExpenseForm(
     val payments by newExpenseFormViewModel.payments.collectAsStateWithLifecycle()
     val payer by newExpenseFormViewModel.payer.collectAsStateWithLifecycle()
     val isFinished by newExpenseFormViewModel.isFinished.collectAsStateWithLifecycle()
+    val users by newExpenseFormViewModel.users.collectAsStateWithLifecycle()
 
     val amountError = { moneyAmount <= 0.0 }
     val categoryError = { category == null }
+    val payerError = { payer == null }
     val titleError = { title.isEmpty() }
     val paymentsMoneyError = { payments.any { it.amountMoney < 0 } }
     val paymentsUnitError = { payments.any { it.amountUnit < 0 } }
     val moneySumError =
         { payments.sumOf { it.amountMoney }.currencyFormat() != moneyAmount.currencyFormat() }
+
     val errors =
         listOf(
             amountError,
             categoryError,
+            payerError,
             titleError,
             paymentsMoneyError,
             paymentsUnitError,
@@ -204,6 +209,53 @@ fun NewExpenseForm(
         }
 
         item {
+            ExposedDropdownMenuBox(
+                expanded = payerExpanded,
+                onExpandedChange = { payerExpanded = it }
+            ) {
+                var used by rememberSaveable { mutableStateOf(false) }
+                val isError = if (!used) false else payerError()
+
+                OutlinedTextField(
+                    modifier = Modifier
+                        .animateContentSize()
+                        .menuAnchor(),
+                    readOnly = true,
+                    maxLines = 1,
+                    value = payer?.username ?: "",
+                    onValueChange = {},
+                    isError = isError,
+                    supportingText = if (!isError) null else ({
+                        Text(stringResource(R.string.you_should_choose_a_payer))
+                    }),
+                    label = { Text(stringResource(R.string.category), maxLines = 1) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = payerExpanded,
+                        )
+                    }
+                )
+
+                ExposedDropdownMenu(
+                    expanded = payerExpanded,
+                    onDismissRequest = { payerExpanded = false }
+                ) {
+                    users.forEach { user ->
+                        DropdownMenuItem(
+                            text = { Text(user.username, maxLines = 1) },
+                            onClick = {
+                                newExpenseFormViewModel.onPayerChange(user)
+                                payerExpanded = false
+                                used = true
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
             FormTextField(
                 value = description ?: "",
                 onValueChange = { newExpenseFormViewModel.onDescriptionChange(it) },
@@ -247,10 +299,17 @@ fun NewExpenseForm(
                         onClick = {
                             newExpenseFormViewModel.onConfirm()
                         },
-                        enabled = !errors.any { isError -> isError() }
+                        enabled = !errors.any { isError -> isError() },
                     ) {
                         Text(stringResource(R.string.confirm))
                     }
+                }
+
+                errors.firstOrNull { isError -> isError() }?.let { error ->
+                    Text(
+                        text = error::class.simpleName ?: "boh",
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
 
                 if (moneySumError()) {

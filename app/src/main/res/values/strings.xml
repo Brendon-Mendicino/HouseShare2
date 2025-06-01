@@ -43,4 +43,5 @@
     <string name="quota">Quota</string>
     <string name="you_should_choose_a_category">You should choose a category!</string>
     <string name="the_sum_of_the_money_should_equal_the_total_amount">The sum of the money should equal the total amount!</string>
+    <string name="you_should_choose_a_payer">You should choose a payer!</string>
 </resources>

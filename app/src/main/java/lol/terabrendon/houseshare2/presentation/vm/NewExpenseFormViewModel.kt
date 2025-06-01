@@ -52,7 +52,7 @@ class NewExpenseFormViewModel @Inject constructor(
 
 
     // TODO: use real users of the group
-    private val users = userRepository.findAll()
+    val users = userRepository.findAll()
         .onEach {
             Log.i(TAG, "Getting updated list of users from the database.")
             updatePaymentUnits(it.size)
@@ -149,6 +149,10 @@ class NewExpenseFormViewModel @Inject constructor(
         _category.value = category
     }
 
+    fun onPayerChange(payer: UserModel) {
+        _payer.value = payer
+    }
+
     fun onUnitChange(index: Int, newUnit: PaymentUnit) {
         paymentUnits.update { units ->
             Log.i(TAG, "Updating paymentUnits with index $index")
@@ -168,13 +172,16 @@ class NewExpenseFormViewModel @Inject constructor(
     }
 
     fun onConfirm() {
+        val payer = payer.value ?: return
+        val category = category.value ?: return
+
         val expense = ExpenseModel(
             id = 0,
             amount = moneyAmount.value,
             // TODO: modify when we'll the current user
             expenseOwner = users.value.first(),
-            expensePayer = payer.value ?: return,
-            category = category.value ?: return,
+            expensePayer = payer,
+            category = category,
             title = title.value,
             description = description.value,
             creationTimestamp = LocalDateTime.now(),
