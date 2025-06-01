@@ -8,10 +8,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,8 +21,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,6 +56,7 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.model.ExpenseModel
+import lol.terabrendon.houseshare2.model.UserExpenseModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel
 import lol.terabrendon.houseshare2.util.currencyFormat
@@ -121,10 +126,10 @@ private fun BillingInnerScreen(
             }
         }
 
-        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { pageIndex ->
+        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth()) { pageIndex ->
             when (pageIndex) {
-                0 -> ExpenseList(expenses = expenses, modifier = Modifier.fillMaxSize())
-                1 -> AccountBalance(balances = balances, modifier = Modifier.fillMaxSize())
+                0 -> ExpenseList(expenses = expenses, modifier = Modifier.fillMaxWidth())
+                1 -> AccountBalance(balances = balances, modifier = Modifier.fillMaxWidth())
                 else -> Text("2")
             }
         }
@@ -189,7 +194,14 @@ private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: Bi
 private fun ExpenseList(modifier: Modifier = Modifier, expenses: List<ExpenseModel>) {
     LazyColumn(modifier = modifier) {
         items(expenses, key = { it.id }) { expense ->
-            ExpenseItem(expense = expense, modifier = Modifier.fillMaxWidth())
+            var isExpanded by rememberSaveable { mutableStateOf(false) }
+
+            ExpenseItem(
+                expense = expense,
+                modifier = Modifier.fillMaxWidth(),
+                isExpanded = isExpanded,
+                onExpandedToggle = { isExpanded = !isExpanded },
+            )
             HorizontalDivider()
         }
     }
@@ -197,15 +209,20 @@ private fun ExpenseList(modifier: Modifier = Modifier, expenses: List<ExpenseMod
 
 
 @Composable
-private fun ExpenseItem(modifier: Modifier = Modifier, expense: ExpenseModel) {
-    var isExpanded by rememberSaveable { mutableStateOf(false) }
-
+private fun ExpenseItem(
+    modifier: Modifier = Modifier,
+    expense: ExpenseModel,
+    isExpanded: Boolean = false,
+    onExpandedToggle: () -> Unit = {}
+) {
     Column(
         modifier
             .animateContentSize()
-            .clickable { isExpanded = !isExpanded }) {
+            .clickable { onExpandedToggle() },
+    ) {
         Row(modifier = Modifier.padding(horizontal = 0.dp, vertical = 8.dp)) {
             Spacer(Modifier.requiredWidth(16.dp))
+
             Icon(
                 expense.category.toImageVector(),
                 contentDescription = null,
@@ -214,13 +231,15 @@ private fun ExpenseItem(modifier: Modifier = Modifier, expense: ExpenseModel) {
                     .clip(CircleShape)
                     .background(color = MaterialTheme.colorScheme.surfaceBright)
             )
+
             Spacer(Modifier.requiredWidth(16.dp))
 
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     "${expense.title} • ${expense.creationTimestamp.inlineFormat()}",
-                    maxLines = 1,
-                    style = MaterialTheme.typography.titleMedium
+                    maxLines = if (!isExpanded) 1 else Int.MAX_VALUE,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
                     stringResource(
@@ -231,23 +250,40 @@ private fun ExpenseItem(modifier: Modifier = Modifier, expense: ExpenseModel) {
                 )
             }
 
-            Spacer(
-                Modifier
-                    .requiredWidth(16.dp)
-                    .weight(1f)
-            )
+            Spacer(Modifier.requiredWidth(16.dp))
+
             Icon(
-                Icons.Filled.Visibility,
+                if (!isExpanded) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .requiredSize(24.dp),
             )
+
             Spacer(Modifier.requiredWidth(16.dp))
         }
 
         if (isExpanded) {
-            Column(modifier = Modifier.fillMaxHeight()) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                HorizontalDivider()
+
+                Spacer(Modifier.requiredHeight(8.dp))
+
+                Text(stringResource(R.string.expense_shares))
+
                 expense.userExpenses.forEach { item ->
-                    Text("${item.partAmount} ${item.user.username}")
+                    Row(
+                        Modifier
+                            .padding(vertical = 8.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Filled.Person, contentDescription = null)
+
+                        Spacer(Modifier.requiredWidth(16.dp))
+
+                        Text("${item.user.username}: ${item.partAmount.currencyFormat()}")
+                    }
                 }
             }
         }
@@ -257,9 +293,23 @@ private fun ExpenseItem(modifier: Modifier = Modifier, expense: ExpenseModel) {
 @Preview(showBackground = true)
 @Composable
 fun ExpensesPreview() {
-    val e = (0..5L).map { ExpenseModel.default().copy(id = it) }.toList()
+    val e = (0..5L).map { ExpenseModel.default().copy(id = it) }.toMutableList()
+    e[0] = e[0].copy(title = "Very looooooooooooooooooong title")
 
-    ExpenseList(expenses = e)
+    ExpenseList(expenses = e, modifier = Modifier.fillMaxWidth())
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExpenseItemPreview(
+    expense: ExpenseModel = ExpenseModel.default()
+        .copy(
+            userExpenses = (0..5).map { UserExpenseModel.default() }.toList(),
+            title = "Very looooooooooooooooooooooooooooooooooooooooooooooooooong title",
+        )
+) {
+
+    ExpenseItem(expense = expense, modifier = Modifier.fillMaxWidth(), isExpanded = true)
 }
 
 @Preview(showBackground = true)

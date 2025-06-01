@@ -5,10 +5,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -42,13 +45,13 @@ class NewExpenseFormViewModel @Inject constructor(
         paymentValueUnits.value = (0..size).map { 0.0 }
     }
 
-    private val _isFinished = MutableStateFlow(false)
+    private val finishedChannel = Channel<Unit>()
 
     /**
-     * This value is used to terminate the screen when all the operations
+     * This channel is used to terminate the screen when all the operations
      * are finished
      */
-    val isFinished: StateFlow<Boolean> = _isFinished
+    val finishedChannelFlow: Flow<Unit> = finishedChannel.receiveAsFlow()
 
 
     // TODO: use real users of the group
@@ -82,7 +85,7 @@ class NewExpenseFormViewModel @Inject constructor(
 
     private var paymentValueUnits = MutableStateFlow(listOf<Double>())
 
-    private var _payments =
+    val payments =
         combineState(
             viewModelScope,
             _moneyAmount,
@@ -131,7 +134,6 @@ class NewExpenseFormViewModel @Inject constructor(
                 }
             }
         }
-    val payments: StateFlow<List<UserPaymentState>> = _payments
 
     fun onMoneyAmountChange(money: Double) {
         _moneyAmount.value = money
@@ -196,7 +198,7 @@ class NewExpenseFormViewModel @Inject constructor(
         viewModelScope.launch {
             Log.i(TAG, "Inserting a new expense with title \"${expense.title}\" to the repository")
             expenseRepository.insert(expense)
-            _isFinished.value = true
+            finishedChannel.send(Unit)
         }
     }
 }

@@ -168,7 +168,13 @@ private fun HouseShareMainInner(
                                 shoppingViewModel.addShoppingItem(item)
                                 onBack()
                             },
-                            onBack = { onBack() },
+                            onBack = {
+                                Log.i(
+                                    TAG,
+                                    "HouseShareMainInner: ShoppingItemForm form onFinish called."
+                                )
+                                onBack()
+                            },
                             modifier = Modifier
                                 .padding(4.dp)
                                 .fillMaxSize()
@@ -180,7 +186,10 @@ private fun HouseShareMainInner(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         NewExpenseForm(
-                            onFinish = { onBack() },
+                            onFinish = {
+                                Log.i(TAG, "HouseShareMainInner: NewExpense form onFinish called.")
+                                onBack()
+                            },
                         )
                     }
 

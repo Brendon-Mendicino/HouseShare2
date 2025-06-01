@@ -32,7 +32,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +51,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.model.ExpenseCategory
 import lol.terabrendon.houseshare2.model.UserModel
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
+import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import lol.terabrendon.houseshare2.util.currencyFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,7 +70,6 @@ fun NewExpenseForm(
     val category by newExpenseFormViewModel.category.collectAsStateWithLifecycle()
     val payments by newExpenseFormViewModel.payments.collectAsStateWithLifecycle()
     val payer by newExpenseFormViewModel.payer.collectAsStateWithLifecycle()
-    val isFinished by newExpenseFormViewModel.isFinished.collectAsStateWithLifecycle()
     val users by newExpenseFormViewModel.users.collectAsStateWithLifecycle()
 
     val amountError = { moneyAmount <= 0.0 }
@@ -93,8 +92,8 @@ fun NewExpenseForm(
             moneySumError,
         )
 
-    LaunchedEffect(isFinished) {
-        if (isFinished) onFinish()
+    ObserveAsEvent(newExpenseFormViewModel.finishedChannelFlow) {
+        onFinish()
     }
 
     LazyColumn(
@@ -228,7 +227,7 @@ fun NewExpenseForm(
                     supportingText = if (!isError) null else ({
                         Text(stringResource(R.string.you_should_choose_a_payer))
                     }),
-                    label = { Text(stringResource(R.string.category), maxLines = 1) },
+                    label = { Text(stringResource(R.string.payed_by)) },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(
                             expanded = payerExpanded,
