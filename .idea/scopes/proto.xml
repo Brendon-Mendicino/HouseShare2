@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="proto" pattern="file[HouseShare2.app.main]:proto/*" />
+</component>
