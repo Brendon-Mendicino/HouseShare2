@@ -37,7 +37,7 @@ sealed class Result<T, E> {
      */
     fun <R> map(f: (T) -> R): Result<R, E> = when (this) {
         is Ok -> Ok(f(this.t))
-        is Err -> Err(this.err)
+        is Err -> Err(this.err, this.stackTrace)
     }
 
     /**
@@ -70,7 +70,7 @@ sealed class Result<T, E> {
      */
     fun <F> mapErr(op: (E) -> F): Result<T, F> = when (this) {
         is Ok -> Ok(this.t)
-        is Err -> Err(op(this.err))
+        is Err -> Err(op(this.err), this.stackTrace)
     }
 
     /**
@@ -81,7 +81,7 @@ sealed class Result<T, E> {
      */
     fun <R> and(res: Result<R, E>): Result<R, E> = when (this) {
         is Ok -> res
-        is Err -> Err(this.err)
+        is Err -> Err(this.err, this.stackTrace)
     }
 
     /**
@@ -91,7 +91,7 @@ sealed class Result<T, E> {
      */
     fun <R> andThen(f: (T) -> Result<R, E>): Result<R, E> = when (this) {
         is Ok -> f(this.t)
-        is Err -> Err(this.err)
+        is Err -> Err(this.err, this.stackTrace)
     }
 
     /**
@@ -112,7 +112,14 @@ sealed class Result<T, E> {
      */
     fun <F> orElse(f: (E) -> Result<T, F>): Result<T, F> = when (this) {
         is Ok -> Ok(this.t)
-        is Err -> f(this.err)
+        is Err -> {
+            val res = f(this.err)
+
+            when (res) {
+                is Ok -> res
+                is Err -> Err(res.err, Throwable(this.stackTrace))
+            }
+        }
     }
 
     fun unwrap(): T = (this as Ok).t
@@ -135,6 +142,17 @@ sealed class Result<T, E> {
         is Ok -> this.t
         is Err -> f(this.err)
     }
+
+    /**
+     * Returns the contained [Ok] value or throws an exception with a message from the closure.
+     */
+    fun unwrapOrThrow(f: (E) -> String?): T = when (this) {
+        is Ok -> this.t
+        is Err -> {
+            val msg = f(this.err)
+            throw Exception(msg, this.stackTrace)
+        }
+    }
 }
 
 /**
@@ -145,4 +163,4 @@ data class Ok<T, E>(val t: T) : Result<T, E>()
 /**
  * Contains the error value
  */
-data class Err<T, E>(val err: E) : Result<T, E>()
+data class Err<T, E>(val err: E, val stackTrace: Throwable? = Throwable()) : Result<T, E>()

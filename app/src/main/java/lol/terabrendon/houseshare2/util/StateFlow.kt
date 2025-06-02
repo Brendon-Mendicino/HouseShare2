@@ -30,6 +30,15 @@ fun <T, U, M> StateFlow<T>.combineState(
     transform(value, flow.value)
 )
 
+fun <T1, T2, M> combineState(
+    coroutineScope: CoroutineScope,
+    flow1: StateFlow<T1>,
+    flow2: StateFlow<T2>,
+    started: SharingStarted = SharingStarted.WhileSubscribed(5000),
+    transform: (T1, T2) -> M,
+): StateFlow<M> = combine(flow1, flow2) { f1, f2 -> transform(f1, f2) }
+    .stateIn(coroutineScope, started, transform(flow1.value, flow2.value))
+
 fun <T1, T2, T3, M> combineState(
     coroutineScope: CoroutineScope,
     flow1: StateFlow<T1>,
