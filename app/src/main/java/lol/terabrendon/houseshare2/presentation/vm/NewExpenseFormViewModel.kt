@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
@@ -22,6 +21,7 @@ import lol.terabrendon.houseshare2.presentation.billing.PaymentUnit
 import lol.terabrendon.houseshare2.presentation.billing.UserPaymentState
 import lol.terabrendon.houseshare2.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.repository.UserRepository
+import lol.terabrendon.houseshare2.util.CombinedStateFlow
 import lol.terabrendon.houseshare2.util.combineState
 import javax.inject.Inject
 
@@ -50,14 +50,31 @@ class NewExpenseFormViewModel @Inject constructor(
     val users = userRepository.findAll()
         .onEach {
             Log.i(TAG, "onEach: Getting updated list of users from the database.")
-            updatePaymentUnitsSize(it.size)
-            updatePaymentValueUnitsSize(it.size)
         }
         .stateIn(
             viewModelScope, SharingStarted.WhileSubscribed(5000), listOf()
         )
 
-    private var _expenseFormState = MutableStateFlow(ExpenseFormState())
+    private var _expenseFormState =
+        CombinedStateFlow(ExpenseFormState(), viewModelScope, users) { formState, users ->
+            // Keep the formState lists updated in case their sizes differs from
+            // the number of users.
+            val size = users.size
+
+            if (size == formState.paymentUnits.size)
+                return@CombinedStateFlow formState
+
+            Log.i(
+                TAG,
+                "CombinedStateFlow: updating _expenseFormSate lists because their sizes differ from the one the user! users.size=$size, formState.paymentUnits.size=${formState.paymentUnits.size}"
+            )
+
+            formState.copy(
+                paymentUnits = (0..<size).map { PaymentUnit.Additive },
+                paymentValueUnits = (0..<size).map { null },
+            )
+        }
+
     val expenseFormState = _expenseFormState.asStateFlow()
 
     val payments =
@@ -121,22 +138,6 @@ class NewExpenseFormViewModel @Inject constructor(
                     user.copy(amountUnit = amountUnit ?: "")
                 }
         }
-
-    private fun updatePaymentUnitsSize(size: Int) {
-        _expenseFormState.update {
-            it.copy(
-                paymentUnits = (0..size).map { PaymentUnit.Additive }
-            )
-        }
-    }
-
-    private fun updatePaymentValueUnitsSize(size: Int) {
-        _expenseFormState.update {
-            it.copy(
-                paymentValueUnits = (0..size).map { null }
-            )
-        }
-    }
 
     fun onEvent(event: ExpenseFormEvent) {
         when (event) {
