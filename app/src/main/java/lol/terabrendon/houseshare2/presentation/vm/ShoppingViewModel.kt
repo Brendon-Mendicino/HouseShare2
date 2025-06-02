@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.model.ShoppingItemModel
-import lol.terabrendon.houseshare2.repository.ShoppingItemRepository
+import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
+import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import lol.terabrendon.houseshare2.util.mapState
 import javax.inject.Inject
 

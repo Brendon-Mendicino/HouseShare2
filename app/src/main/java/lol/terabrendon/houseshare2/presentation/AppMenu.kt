@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.model.UserModel
+import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.vm.AppMenuViewModel
 
 private enum class MenuDialog {

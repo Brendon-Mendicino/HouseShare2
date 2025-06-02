@@ -9,11 +9,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.UserPreferences
-import lol.terabrendon.houseshare2.dao.ExpenseDao
-import lol.terabrendon.houseshare2.dao.ShoppingItemDao
-import lol.terabrendon.houseshare2.dao.UserDao
-import lol.terabrendon.houseshare2.database.HouseShareDatabase
-import lol.terabrendon.houseshare2.preferences.userPreferencesStore
+import lol.terabrendon.houseshare2.data.dao.ExpenseDao
+import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
+import lol.terabrendon.houseshare2.data.dao.UserDao
+import lol.terabrendon.houseshare2.data.database.HouseShareDatabase
+import lol.terabrendon.houseshare2.data.preferences.userPreferencesStore
 import javax.inject.Singleton
 
 @Module

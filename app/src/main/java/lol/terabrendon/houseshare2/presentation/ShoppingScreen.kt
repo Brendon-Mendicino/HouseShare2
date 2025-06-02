@@ -49,7 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 import java.time.LocalDateTime
 

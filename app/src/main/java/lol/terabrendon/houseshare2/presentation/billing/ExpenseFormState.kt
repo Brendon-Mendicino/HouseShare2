@@ -1,7 +1,7 @@
 package lol.terabrendon.houseshare2.presentation.billing
 
-import lol.terabrendon.houseshare2.model.ExpenseCategory
-import lol.terabrendon.houseshare2.model.UserModel
+import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
+import lol.terabrendon.houseshare2.domain.model.UserModel
 
 data class ExpenseFormState(
     val moneyAmount: Double = 0.0,

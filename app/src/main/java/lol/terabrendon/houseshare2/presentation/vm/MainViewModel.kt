@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
 import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
-import lol.terabrendon.houseshare2.repository.UserPreferencesRepository
 import javax.inject.Inject
 
 @HiltViewModel

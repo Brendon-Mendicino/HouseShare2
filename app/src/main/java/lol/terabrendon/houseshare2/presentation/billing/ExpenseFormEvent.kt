@@ -1,7 +1,7 @@
 package lol.terabrendon.houseshare2.presentation.billing
 
-import lol.terabrendon.houseshare2.model.ExpenseCategory
-import lol.terabrendon.houseshare2.model.UserModel
+import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
+import lol.terabrendon.houseshare2.domain.model.UserModel
 
 sealed class ExpenseFormEvent {
     data class MoneyAmountChanged(val money: Double) : ExpenseFormEvent()

@@ -54,9 +54,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.model.BillingBalanceModel
-import lol.terabrendon.houseshare2.model.ExpenseModel
-import lol.terabrendon.houseshare2.model.UserExpenseModel
+import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
+import lol.terabrendon.houseshare2.domain.model.ExpenseModel
+import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel
 import lol.terabrendon.houseshare2.util.currencyFormat

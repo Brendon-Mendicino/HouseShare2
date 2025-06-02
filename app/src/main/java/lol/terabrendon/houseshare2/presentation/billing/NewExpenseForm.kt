@@ -47,8 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.model.ExpenseCategory
-import lol.terabrendon.houseshare2.model.UserModel
+import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
+import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import lol.terabrendon.houseshare2.util.currencyFormat

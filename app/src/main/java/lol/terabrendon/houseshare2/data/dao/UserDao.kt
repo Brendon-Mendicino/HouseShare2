@@ -1,0 +1,22 @@
+package lol.terabrendon.houseshare2.data.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
+import lol.terabrendon.houseshare2.data.entity.User
+
+@Dao
+interface UserDao {
+    @Query("select * from User")
+    fun findAll(): Flow<List<User>>
+
+    @Query("select * from User where id=:id")
+    fun findById(id: Long): Flow<User?>
+
+    @Query("select * from User where id in (:ids)")
+    fun findAllById(ids: List<Long>): Flow<List<User>>
+
+    @Insert
+    suspend fun insert(user: User): Long
+}

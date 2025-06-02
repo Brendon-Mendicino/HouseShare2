@@ -4,14 +4,14 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import lol.terabrendon.houseshare2.repository.ExpenseRepository
-import lol.terabrendon.houseshare2.repository.ExpenseRepositoryImpl
-import lol.terabrendon.houseshare2.repository.ShoppingItemRepository
-import lol.terabrendon.houseshare2.repository.ShoppingItemRepositoryImpl
-import lol.terabrendon.houseshare2.repository.UserPreferencesRepository
-import lol.terabrendon.houseshare2.repository.UserPreferencesRepositoryImpl
-import lol.terabrendon.houseshare2.repository.UserRepository
-import lol.terabrendon.houseshare2.repository.UserRepositoryImpl
+import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
+import lol.terabrendon.houseshare2.data.repository.ExpenseRepositoryImpl
+import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
+import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepositoryImpl
+import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
+import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepositoryImpl
+import lol.terabrendon.houseshare2.data.repository.UserRepository
+import lol.terabrendon.houseshare2.data.repository.UserRepositoryImpl
 import javax.inject.Singleton
 
 @Suppress("unused")

@@ -6,8 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import lol.terabrendon.houseshare2.mapper.ExpenseBalanceMapper
-import lol.terabrendon.houseshare2.repository.ExpenseRepository
+import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
+import lol.terabrendon.houseshare2.domain.mapper.ExpenseBalanceMapper
 import javax.inject.Inject
 
 @HiltViewModel

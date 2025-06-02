@@ -14,13 +14,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.mapper.ExpenseModelMapper
+import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
+import lol.terabrendon.houseshare2.data.repository.UserRepository
+import lol.terabrendon.houseshare2.domain.mapper.ExpenseModelMapper
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormEvent
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormState
 import lol.terabrendon.houseshare2.presentation.billing.PaymentUnit
 import lol.terabrendon.houseshare2.presentation.billing.UserPaymentState
-import lol.terabrendon.houseshare2.repository.ExpenseRepository
-import lol.terabrendon.houseshare2.repository.UserRepository
 import lol.terabrendon.houseshare2.util.CombinedStateFlow
 import lol.terabrendon.houseshare2.util.combineState
 import javax.inject.Inject
