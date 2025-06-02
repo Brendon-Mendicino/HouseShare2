@@ -10,6 +10,6 @@ sealed class ExpenseFormEvent {
     data class CategoryChanged(val category: ExpenseCategory?) : ExpenseFormEvent()
     data class PayerChanged(val payer: UserModel) : ExpenseFormEvent()
     data class UnitChanged(val index: Int, val newUnit: PaymentUnit) : ExpenseFormEvent()
-    data class ValueUnitChanged(val index: Int, val newValue: Double) : ExpenseFormEvent()
+    data class ValueUnitChanged(val index: Int, val newValue: String?) : ExpenseFormEvent()
     object Submit : ExpenseFormEvent()
 }

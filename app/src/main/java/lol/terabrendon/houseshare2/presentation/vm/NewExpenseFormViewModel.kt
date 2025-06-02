@@ -68,48 +68,58 @@ class NewExpenseFormViewModel @Inject constructor(
         ) { users, formState ->
             val totalMoney = formState.moneyAmount
             val paymentUnits = formState.paymentUnits
-            val paymentValueUnits = formState.paymentValueUnits
+            val paymentValueUnits = formState.paymentValueUnits.map { it?.toDoubleOrNull() ?: 0.0 }
 
-            val nonQuotaMoney = paymentUnits.zip(paymentValueUnits).sumOf { (unit, value) ->
-                when (unit) {
-                    PaymentUnit.Additive -> value
-                    PaymentUnit.Percentage -> totalMoney * value
-                    PaymentUnit.Quota -> 0.0
+            val nonQuotaMoney = paymentUnits
+                .zip(paymentValueUnits)
+                .sumOf { (unit, value) ->
+                    when (unit) {
+                        PaymentUnit.Additive -> value
+                        PaymentUnit.Percentage -> totalMoney * (value / 100.0)
+                        PaymentUnit.Quota -> 0.0
+                    }
                 }
-            }
 
             val totalQuotes = paymentUnits.zip(paymentValueUnits)
                 .sumOf { (unit, value) -> if (unit == PaymentUnit.Quota) value else 0.0 }
 
-            users.zip(paymentUnits).zip(paymentValueUnits).map { (pair, amountUnit) ->
-                val (user, unit) = pair
-                val moneyPerQuota =
-                    if (totalQuotes != 0.0) (totalMoney - nonQuotaMoney) * amountUnit / totalQuotes else 0.0
+            users
+                .zip(paymentUnits)
+                .zip(paymentValueUnits)
+                .map { (pair, amountUnit) ->
+                    val (user, unit) = pair
+                    val moneyPerQuota =
+                        if (totalQuotes != 0.0) (totalMoney - nonQuotaMoney) * amountUnit / totalQuotes else 0.0
 
-                when (unit) {
-                    PaymentUnit.Additive -> UserPaymentState(
-                        user = user,
-                        unit = unit,
-                        amountUnit = amountUnit,
-                        amountMoney = amountUnit,
-                    )
+                    when (unit) {
+                        PaymentUnit.Additive -> UserPaymentState(
+                            user = user,
+                            unit = unit,
+                            amountUnit = "",
+                            amountMoney = amountUnit,
+                        )
 
-                    PaymentUnit.Percentage -> UserPaymentState(
-                        user = user,
-                        unit = unit,
-                        amountUnit = amountUnit,
-                        amountMoney = amountUnit * totalMoney,
-                    )
+                        PaymentUnit.Percentage -> UserPaymentState(
+                            user = user,
+                            unit = unit,
+                            amountUnit = "",
+                            amountMoney = (amountUnit / 100.0) * totalMoney,
+                        )
 
-                    PaymentUnit.Quota -> UserPaymentState(
-                        user = user,
-                        unit = unit,
-                        amountUnit = amountUnit,
-                        amountMoney = moneyPerQuota,
-                    )
+                        PaymentUnit.Quota -> UserPaymentState(
+                            user = user,
+                            unit = unit,
+                            amountUnit = "",
+                            amountMoney = moneyPerQuota,
+                        )
 
+                    }
                 }
-            }
+                // Fill the payments with the current string values in the form
+                .zip(formState.paymentValueUnits)
+                .map { (user, amountUnit) ->
+                    user.copy(amountUnit = amountUnit ?: "")
+                }
         }
 
     private fun updatePaymentUnitsSize(size: Int) {
@@ -123,7 +133,7 @@ class NewExpenseFormViewModel @Inject constructor(
     private fun updatePaymentValueUnitsSize(size: Int) {
         _expenseFormState.update {
             it.copy(
-                paymentValueUnits = (0..size).map { 0.0 }
+                paymentValueUnits = (0..size).map { null }
             )
         }
     }

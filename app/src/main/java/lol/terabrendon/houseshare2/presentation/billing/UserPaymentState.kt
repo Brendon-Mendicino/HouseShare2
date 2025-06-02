@@ -5,14 +5,14 @@ import lol.terabrendon.houseshare2.model.UserModel
 data class UserPaymentState(
     val user: UserModel,
     val unit: PaymentUnit,
-    val amountUnit: Double,
+    val amountUnit: String,
     val amountMoney: Double,
 ) {
     companion object {
         fun default() = UserPaymentState(
             user = UserModel.default(),
             unit = PaymentUnit.Additive,
-            amountUnit = 0.0,
+            amountUnit = "",
             amountMoney = 0.0,
         )
     }

@@ -22,7 +22,7 @@ class ExpenseModelMapper {
                 id = 0,
                 amount = formState.moneyAmount,
                 expenseOwner = expenseOwner,
-                expensePayer = null ?: return Err("Payer from formState was null!"),
+                expensePayer = formState.payer ?: return Err("Payer from formState was null!"),
                 category = formState.category ?: return Err("Category from formState was null!"),
                 title = formState.title,
                 description = formState.description,

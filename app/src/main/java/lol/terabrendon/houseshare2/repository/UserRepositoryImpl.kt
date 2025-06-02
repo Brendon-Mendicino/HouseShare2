@@ -1,5 +1,6 @@
 package lol.terabrendon.houseshare2.repository
 
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import lol.terabrendon.houseshare2.dao.UserDao
@@ -10,6 +11,10 @@ import javax.inject.Inject
 class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
 ) : UserRepository {
+    companion object {
+        private const val TAG = "UserRepository"
+    }
+
     override fun findAll(): Flow<List<UserModel>> = userDao.findAll().map { users ->
         users.map { UserModel.from(it) }
     }
@@ -21,6 +26,9 @@ class UserRepositoryImpl @Inject constructor(
         userDao.findAllById(ids).map { users -> users.map { UserModel.from(it) } }
 
     override suspend fun insert(user: UserModel) {
-        userDao.insert(User.from(user))
+        val user = User.from(user)
+        val newId = userDao.insert(user)
+
+        Log.i(TAG, "insert: added new user: ${user.copy(id = newId)}")
     }
 }

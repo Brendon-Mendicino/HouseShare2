@@ -99,12 +99,12 @@ fun NewExpenseFormInner(
     val payer = expenseFormState.payer
 
 
+    // TODO: in the future... handle errors from the viewmodel
     val amountError = { moneyAmount <= 0.0 }
     val categoryError = { category == null }
     val payerError = { payer == null }
     val titleError = { title.isEmpty() }
     val paymentsMoneyError = { payments.any { it.amountMoney < 0 } }
-    val paymentsUnitError = { payments.any { it.amountUnit < 0 } }
     val moneySumError =
         { payments.sumOf { it.amountMoney }.currencyFormat() != moneyAmount.currencyFormat() }
 
@@ -115,7 +115,6 @@ fun NewExpenseFormInner(
             payerError,
             titleError,
             paymentsMoneyError,
-            paymentsUnitError,
             moneySumError,
         )
 
@@ -391,22 +390,13 @@ private fun FormTextField(
 private fun LazyListScope.divisionListForm(
     payments: List<UserPaymentState>,
     onUpdateUnit: (index: Int, newUnit: PaymentUnit) -> Unit,
-    onValueUnitChange: (index: Int, newValue: Double) -> Unit,
+    onValueUnitChange: (index: Int, newValue: String?) -> Unit,
 ) {
     itemsIndexed(payments) { index, payment ->
         var expanded by rememberSaveable { mutableStateOf(false) }
-        val textValue = if (payment.amountUnit == 0.0) {
-            ""
-        } else {
-            if (payment.unit == PaymentUnit.Percentage)
-                (payment.amountUnit * 100).toString()
-            else
-                payment.amountUnit.toString()
-        }
 
-        val unitError = { payment.amountUnit < 0 }
         val valueError = { payment.amountMoney < 0 }
-        val errors = listOf(unitError, valueError)
+        val errors = listOf(valueError)
         val error = errors.any { isError -> isError() }
 
         Box {
@@ -415,12 +405,9 @@ private fun LazyListScope.divisionListForm(
                     .animateContentSize()
                     .fillMaxWidth(),
                 maxLines = 1,
-                value = textValue,
+                value = payment.amountUnit,
                 onValueChange = { newValue ->
-                    onValueUnitChange(
-                        index,
-                        (newValue.toDoubleOrNull() ?: 0.0)
-                            .let { if (payment.unit == PaymentUnit.Percentage) it / 100.0 else it })
+                    onValueUnitChange(index, newValue)
                 },
                 leadingIcon = {
                     IconButton(onClick = { expanded = !expanded }) {
@@ -487,7 +474,7 @@ fun FormPreview(
 fun UserListPreview() {
     val payments = rememberSaveable {
         mutableStateListOf(*(0..5).map {
-            UserPaymentState(UserModel.default(), PaymentUnit.Additive, 0.0, 0.0)
+            UserPaymentState.default()
         }.toTypedArray())
     }
 

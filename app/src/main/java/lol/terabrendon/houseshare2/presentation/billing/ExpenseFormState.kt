@@ -10,5 +10,5 @@ data class ExpenseFormState(
     val category: ExpenseCategory? = null,
     val payer: UserModel? = null,
     val paymentUnits: List<PaymentUnit> = emptyList(),
-    val paymentValueUnits: List<Double> = emptyList(),
+    val paymentValueUnits: List<String?> = emptyList(),
 )
