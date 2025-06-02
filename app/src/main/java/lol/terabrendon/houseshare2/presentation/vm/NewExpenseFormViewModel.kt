@@ -9,22 +9,20 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.model.ExpenseCategory
-import lol.terabrendon.houseshare2.model.ExpenseModel
-import lol.terabrendon.houseshare2.model.UserExpenseModel
-import lol.terabrendon.houseshare2.model.UserModel
+import lol.terabrendon.houseshare2.mapper.ExpenseModelMapper
+import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormEvent
+import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormState
 import lol.terabrendon.houseshare2.presentation.billing.PaymentUnit
 import lol.terabrendon.houseshare2.presentation.billing.UserPaymentState
 import lol.terabrendon.houseshare2.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.repository.UserRepository
 import lol.terabrendon.houseshare2.util.combineState
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,13 +35,7 @@ class NewExpenseFormViewModel @Inject constructor(
         private const val TAG = "NewExpenseFormViewModel"
     }
 
-    private fun updatePaymentUnits(size: Int) {
-        paymentUnits.value = (0..size).map { PaymentUnit.Additive }
-    }
-
-    private fun updatePaymentValueUnits(size: Int) {
-        paymentValueUnits.value = (0..size).map { 0.0 }
-    }
+    private val expenseModelMapper: ExpenseModelMapper = ExpenseModelMapper()
 
     private val finishedChannel = Channel<Unit>()
 
@@ -57,42 +49,27 @@ class NewExpenseFormViewModel @Inject constructor(
     // TODO: use real users of the group
     val users = userRepository.findAll()
         .onEach {
-            Log.i(TAG, "Getting updated list of users from the database.")
-            updatePaymentUnits(it.size)
-            updatePaymentValueUnits(it.size)
+            Log.i(TAG, "onEach: Getting updated list of users from the database.")
+            updatePaymentUnitsSize(it.size)
+            updatePaymentValueUnitsSize(it.size)
         }
         .stateIn(
             viewModelScope, SharingStarted.WhileSubscribed(5000), listOf()
         )
 
-    private var _moneyAmount = MutableStateFlow(0.0)
-    val moneyAmount: StateFlow<Double> = _moneyAmount
-
-    private var _description = MutableStateFlow<String?>(null)
-    val description: StateFlow<String?> = _description
-
-    private var _title = MutableStateFlow("")
-    val title: StateFlow<String> = _title
-
-    private var _category = MutableStateFlow<ExpenseCategory?>(null)
-    val category: StateFlow<ExpenseCategory?> = _category
-
-    // TODO: add current user as default
-    private var _payer = MutableStateFlow<UserModel?>(null)
-    val payer: StateFlow<UserModel?> = _payer
-
-    private var paymentUnits = MutableStateFlow(listOf<PaymentUnit>())
-
-    private var paymentValueUnits = MutableStateFlow(listOf<Double>())
+    private var _expenseFormState = MutableStateFlow(ExpenseFormState())
+    val expenseFormState = _expenseFormState.asStateFlow()
 
     val payments =
         combineState(
             viewModelScope,
-            _moneyAmount,
             users,
-            paymentUnits,
-            paymentValueUnits,
-        ) { totalMoney, users, paymentUnits, paymentValueUnits ->
+            expenseFormState,
+        ) { users, formState ->
+            val totalMoney = formState.moneyAmount
+            val paymentUnits = formState.paymentUnits
+            val paymentValueUnits = formState.paymentValueUnits
+
             val nonQuotaMoney = paymentUnits.zip(paymentValueUnits).sumOf { (unit, value) ->
                 when (unit) {
                     PaymentUnit.Additive -> value
@@ -135,70 +112,92 @@ class NewExpenseFormViewModel @Inject constructor(
             }
         }
 
-    fun onMoneyAmountChange(money: Double) {
-        _moneyAmount.value = money
-    }
-
-    fun onTitleChange(title: String) {
-        _title.value = title
-    }
-
-    fun onDescriptionChange(description: String?) {
-        _description.value = description
-    }
-
-    fun onCategoryChange(category: ExpenseCategory?) {
-        _category.value = category
-    }
-
-    fun onPayerChange(payer: UserModel) {
-        _payer.value = payer
-    }
-
-    fun onUnitChange(index: Int, newUnit: PaymentUnit) {
-        paymentUnits.update { units ->
-            Log.i(TAG, "Updating paymentUnits with index $index")
-            units.toMutableList().apply {
-                this[index] = newUnit
-            }
+    private fun updatePaymentUnitsSize(size: Int) {
+        _expenseFormState.update {
+            it.copy(
+                paymentUnits = (0..size).map { PaymentUnit.Additive }
+            )
         }
     }
 
-    fun onValueUnitChange(index: Int, newValue: Double) {
-        paymentValueUnits.update { values ->
-            Log.i(TAG, "Updating paymentValueUnits with index $index")
-            values.toMutableList().apply {
-                this[index] = newValue
-            }
+    private fun updatePaymentValueUnitsSize(size: Int) {
+        _expenseFormState.update {
+            it.copy(
+                paymentValueUnits = (0..size).map { 0.0 }
+            )
         }
     }
 
-    fun onConfirm() {
-        val payer = payer.value ?: return
-        val category = category.value ?: return
+    fun onEvent(event: ExpenseFormEvent) {
+        when (event) {
+            is ExpenseFormEvent.CategoryChanged -> {
+                _expenseFormState.update { it.copy(category = event.category) }
+            }
 
-        val expense = ExpenseModel(
-            id = 0,
-            amount = moneyAmount.value,
-            // TODO: modify when we'll the current user
-            expenseOwner = users.value.first(),
-            expensePayer = payer,
-            category = category,
-            title = title.value,
-            description = description.value,
-            creationTimestamp = LocalDateTime.now(),
-            userExpenses = payments.value.map {
-                UserExpenseModel(
-                    user = it.user,
-                    partAmount = it.amountMoney,
-                )
-            },
-        )
+            is ExpenseFormEvent.DescriptionChanged -> {
+                _expenseFormState.update { it.copy(description = event.description) }
+            }
+
+            is ExpenseFormEvent.MoneyAmountChanged -> {
+                _expenseFormState.update { it.copy(moneyAmount = event.money) }
+            }
+
+            is ExpenseFormEvent.PayerChanged -> {
+                _expenseFormState.update { it.copy(payer = event.payer) }
+            }
+
+            is ExpenseFormEvent.TitleChanged -> {
+                _expenseFormState.update { it.copy(title = event.title) }
+            }
+
+            is ExpenseFormEvent.UnitChanged -> {
+                Log.i(TAG, "Updating paymentUnits with index ${event.index}")
+                _expenseFormState.update {
+                    it.copy(
+                        paymentUnits = it.paymentUnits.toMutableList().apply {
+                            this[event.index] = event.newUnit
+                        },
+                    )
+                }
+            }
+
+            is ExpenseFormEvent.ValueUnitChanged -> {
+                Log.i(TAG, "Updating paymentValueUnits with index ${event.index}")
+                _expenseFormState.update {
+                    it.copy(
+                        paymentValueUnits = it.paymentValueUnits.toMutableList().apply {
+                            this[event.index] = event.newValue
+                        },
+                    )
+                }
+            }
+
+            ExpenseFormEvent.Submit -> onConfirm()
+        }
+    }
+
+    private fun onConfirm() {
+        val owner = users.value.first()
+
+        val expense = expenseModelMapper
+            .map(
+                formState = expenseFormState.value,
+                expenseOwner = owner,
+                payments = payments.value,
+            )
+            .unwrapOrThrow {
+                Log.e(TAG, "onConfirm: expense model mapping failed! Error msg: $it")
+                it
+            }
 
         viewModelScope.launch {
             Log.i(TAG, "Inserting a new expense with title \"${expense.title}\" to the repository")
+
             expenseRepository.insert(expense)
+
             finishedChannel.send(Unit)
+
+            _expenseFormState.value = ExpenseFormState()
         }
     }
 }

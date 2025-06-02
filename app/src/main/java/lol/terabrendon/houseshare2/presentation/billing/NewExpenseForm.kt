@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
@@ -61,16 +60,44 @@ fun NewExpenseForm(
     newExpenseFormViewModel: NewExpenseFormViewModel = hiltViewModel(),
     onFinish: () -> Unit,
 ) {
+    val expenseFormState by newExpenseFormViewModel.expenseFormState.collectAsStateWithLifecycle()
+    val payments by newExpenseFormViewModel.payments.collectAsStateWithLifecycle()
+    val users by newExpenseFormViewModel.users.collectAsStateWithLifecycle()
+
+    ObserveAsEvent(newExpenseFormViewModel.finishedChannelFlow) {
+        onFinish()
+    }
+
+    NewExpenseFormInner(
+        modifier = modifier,
+        expenseFormState = expenseFormState,
+        users = users,
+        payments = payments,
+        onFinish = onFinish,
+        onEvent = newExpenseFormViewModel::onEvent,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NewExpenseFormInner(
+    modifier: Modifier = Modifier,
+    expenseFormState: ExpenseFormState,
+    users: List<UserModel>,
+    payments: List<UserPaymentState>,
+    onEvent: (ExpenseFormEvent) -> Unit = {},
+    onFinish: () -> Unit = {},
+) {
     var categoryExpended by remember { mutableStateOf(false) }
     var payerExpanded by remember { mutableStateOf(false) }
 
-    val moneyAmount by newExpenseFormViewModel.moneyAmount.collectAsStateWithLifecycle()
-    val description by newExpenseFormViewModel.description.collectAsStateWithLifecycle()
-    val title by newExpenseFormViewModel.title.collectAsStateWithLifecycle()
-    val category by newExpenseFormViewModel.category.collectAsStateWithLifecycle()
-    val payments by newExpenseFormViewModel.payments.collectAsStateWithLifecycle()
-    val payer by newExpenseFormViewModel.payer.collectAsStateWithLifecycle()
-    val users by newExpenseFormViewModel.users.collectAsStateWithLifecycle()
+
+    val moneyAmount = expenseFormState.moneyAmount
+    val description = expenseFormState.description
+    val title = expenseFormState.title
+    val category = expenseFormState.category
+    val payer = expenseFormState.payer
+
 
     val amountError = { moneyAmount <= 0.0 }
     val categoryError = { category == null }
@@ -91,10 +118,6 @@ fun NewExpenseForm(
             paymentsUnitError,
             moneySumError,
         )
-
-    ObserveAsEvent(newExpenseFormViewModel.finishedChannelFlow) {
-        onFinish()
-    }
 
     LazyColumn(
         modifier.padding(8.dp),
@@ -119,8 +142,10 @@ fun NewExpenseForm(
             FormTextField(
                 value = if (moneyAmount != 0.0) moneyAmount.currencyFormat() else "",
                 onValueChange = {
-                    newExpenseFormViewModel.onMoneyAmountChange(
-                        it.currencyFormat() ?: 0.0
+                    onEvent(
+                        ExpenseFormEvent.MoneyAmountChanged(
+                            it.currencyFormat() ?: 0.0
+                        )
                     )
                 },
                 isError = amountError,
@@ -139,7 +164,7 @@ fun NewExpenseForm(
         item {
             FormTextField(
                 value = title,
-                onValueChange = { newExpenseFormViewModel.onTitleChange(it) },
+                onValueChange = { onEvent(ExpenseFormEvent.TitleChanged(it)) },
                 label = { Text(stringResource(R.string.title), maxLines = 1) },
                 isError = titleError,
                 errorText = { Text(stringResource(R.string.title_should_not_be_empty)) },
@@ -196,7 +221,7 @@ fun NewExpenseForm(
                                 Icon(entry.toImageVector(), contentDescription = null)
                             },
                             onClick = {
-                                newExpenseFormViewModel.onCategoryChange(if (entry == category) null else entry)
+                                onEvent(ExpenseFormEvent.CategoryChanged(if (entry == category) null else entry))
                                 categoryExpended = false
                                 used = true
                             },
@@ -243,7 +268,7 @@ fun NewExpenseForm(
                         DropdownMenuItem(
                             text = { Text(user.username, maxLines = 1) },
                             onClick = {
-                                newExpenseFormViewModel.onPayerChange(user)
+                                onEvent(ExpenseFormEvent.PayerChanged(user))
                                 payerExpanded = false
                                 used = true
                             },
@@ -257,7 +282,7 @@ fun NewExpenseForm(
         item {
             FormTextField(
                 value = description ?: "",
-                onValueChange = { newExpenseFormViewModel.onDescriptionChange(it) },
+                onValueChange = { onEvent(ExpenseFormEvent.DescriptionChanged(it)) },
                 label = {
                     Text(stringResource(R.string.description))
                 },
@@ -279,8 +304,12 @@ fun NewExpenseForm(
         // Draw the list of payments
         divisionListForm(
             payments = payments,
-            onUpdateUnit = newExpenseFormViewModel::onUnitChange,
-            onValueUnitChange = newExpenseFormViewModel::onValueUnitChange
+            onUpdateUnit = { index, unit ->
+                onEvent(ExpenseFormEvent.UnitChanged(index, unit))
+            },
+            onValueUnitChange = { index, value ->
+                onEvent(ExpenseFormEvent.ValueUnitChanged(index, value))
+            }
         )
 
 
@@ -296,19 +325,12 @@ fun NewExpenseForm(
 
                     TextButton(
                         onClick = {
-                            newExpenseFormViewModel.onConfirm()
+                            onEvent(ExpenseFormEvent.Submit)
                         },
                         enabled = !errors.any { isError -> isError() },
                     ) {
                         Text(stringResource(R.string.confirm))
                     }
-                }
-
-                errors.firstOrNull { isError -> isError() }?.let { error ->
-                    Text(
-                        text = error::class.simpleName ?: "boh",
-                        color = MaterialTheme.colorScheme.error
-                    )
                 }
 
                 if (moneySumError()) {
@@ -453,8 +475,11 @@ private fun LazyListScope.divisionListForm(
 
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
-fun FormPreview() {
-    NewExpenseForm(onFinish = {}, modifier = Modifier.fillMaxSize())
+fun FormPreview(
+    state: ExpenseFormState = ExpenseFormState(),
+    payments: List<UserPaymentState> = (0..2).map { UserPaymentState.default() }
+) {
+    NewExpenseFormInner(expenseFormState = state, payments = payments, users = emptyList())
 }
 
 @Preview(showBackground = true)

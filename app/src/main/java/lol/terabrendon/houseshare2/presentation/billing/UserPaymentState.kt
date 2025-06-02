@@ -7,4 +7,13 @@ data class UserPaymentState(
     val unit: PaymentUnit,
     val amountUnit: Double,
     val amountMoney: Double,
-)
+) {
+    companion object {
+        fun default() = UserPaymentState(
+            user = UserModel.default(),
+            unit = PaymentUnit.Additive,
+            amountUnit = 0.0,
+            amountMoney = 0.0,
+        )
+    }
+}
