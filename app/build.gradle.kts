@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.daggerHilt)
     alias(libs.plugins.protobuf)
+    alias(libs.plugins.android.junit5)
 }
 
 android {
@@ -141,7 +142,7 @@ dependencies {
     coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)
 
     ksp(libs.com.google.dagger.hilt.compiler)
-    testImplementation(libs.junit)
+    testImplementation(libs.bundles.unittest)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

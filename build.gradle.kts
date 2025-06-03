@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.daggerHilt) apply false
+    alias(libs.plugins.android.junit5) apply false
     alias(libs.plugins.idea)
 }
 
