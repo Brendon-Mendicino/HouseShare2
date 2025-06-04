@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.michaelbull.result.getOrElse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -196,9 +197,10 @@ class NewExpenseFormViewModel @Inject constructor(
                 expenseOwner = owner,
                 payments = payments.value,
             )
-            .unwrapOrThrow {
-                Log.e(TAG, "onConfirm: expense model mapping failed! Error msg: $it")
-                it
+            .getOrElse {
+                val msg = "expense model mapping failed! Error msg: $it"
+                Log.e(TAG, "onConfirm: $msg")
+                throw RuntimeException(msg)
             }
 
         viewModelScope.launch {

@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
-import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -20,12 +21,12 @@ class MainViewModel @Inject constructor(
     }
 
 
-    val currentDestination = userPreferencesRepository
+    val currentNavigation = userPreferencesRepository
         .userPreferencesFlow
-        .map { MainDestination.from(it.mainDestination) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MainDestination.Loading)
+        .map { MainNavigation.from(it.mainDestination) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MainNavigation.Loading)
 
-    fun setCurrentDestination(destination: MainDestination) {
+    fun setCurrentNavigation(destination: KClass<out MainNavigation>) {
         viewModelScope.launch {
             userPreferencesRepository.updateMainDestination(destination)
         }
