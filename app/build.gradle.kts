@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.daggerHilt)
     alias(libs.plugins.protobuf)
     alias(libs.plugins.android.junit5)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -121,6 +122,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.bundles.kotlin.result)
 
     implementation(libs.com.google.dagger.hilt)
     ksp(libs.com.google.dagger.hilt.compiler)
