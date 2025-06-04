@@ -1,5 +1,6 @@
 package lol.terabrendon.houseshare2.presentation
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
@@ -28,10 +29,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,9 +46,10 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
 import lol.terabrendon.houseshare2.presentation.billing.NewExpenseForm
-import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
+import kotlin.reflect.KClass
 
 private const val TAG = "HouseShareMain"
 
@@ -58,55 +57,61 @@ private const val TAG = "HouseShareMain"
 fun HouseShareMain(
     mainViewModel: MainViewModel = hiltViewModel()
 ) {
-    val currentDestination by mainViewModel.currentDestination.collectAsStateWithLifecycle()
+    val currentNavigation by mainViewModel.currentNavigation.collectAsStateWithLifecycle()
 
     HouseShareMainInner(
-        currentDestination = currentDestination,
-        setCurrentDestination = mainViewModel::setCurrentDestination,
+        currentNavigation = currentNavigation,
+        setCurrentNavigation = mainViewModel::setCurrentNavigation,
         appBarActions = {
-            AppBarActions(mainDestination = currentDestination)
+            AppBarActions(mainNavigation = currentNavigation)
         },
     )
 }
 
+@SuppressLint("RestrictedApi")
 @Composable
 private fun HouseShareMainInner(
-    currentDestination: MainDestination,
-    setCurrentDestination: (MainDestination) -> Unit,
-    appBarActions: @Composable (MainDestination) -> Unit,
+    currentNavigation: MainNavigation,
+    setCurrentNavigation: (KClass<out MainNavigation>) -> Unit,
+    appBarActions: @Composable (MainNavigation) -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val navController = rememberNavController()
-    var previousDestination by rememberSaveable {
-        mutableStateOf(currentDestination)
-    }
+//    var previousNavigation by rememberSaveable {
+//        mutableStateOf(currentNavigation)
+//    }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = currentDestination) {
-        if (currentDestination != previousDestination && previousDestination != MainDestination.Loading) {
-            navController.navigate(currentDestination.name) {
-                popUpTo(previousDestination.name) {
-                    inclusive = true
-                }
-            }
-        }
+    LaunchedEffect(key1 = currentNavigation) {
+        // TODO: check if previouisNavigation con be used and if the backstack is popped
+//        if (currentNavigation != previousNavigation && previousNavigation::class != MainNavigation.Loading::class) {
+//            navController.navigate(currentNavigation) {
+//                popUpTo(previousNavigation::class) {
+//                    inclusive = true
+//                }
+//            }
+//        }
 
-        previousDestination = currentDestination
+//        previousNavigation = currentNavigation
 
+        if (currentNavigation::class != MainNavigation.Loading::class)
+            navController.navigate(currentNavigation)
+
+        Log.i(TAG, "HouseShareMainInner: ${navController.currentBackStack.value}")
         drawerState.close()
     }
 
     ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
         MainDrawerSheet(
-            currentDestination = currentDestination,
-            onDestinationClick = { newDest -> setCurrentDestination(newDest) }
+            currentNavigation = currentNavigation,
+            onNavigationClick = { newDest -> setCurrentNavigation(newDest) }
         )
     }) {
         Box {
             Scaffold(
                 topBar = {
                     MainTopBar(
-                        mainDestination = currentDestination,
+                        mainNavigation = currentNavigation,
                         onNavigationClick = { scope.launch { drawerState.open() } },
                         actions = appBarActions
                     )
@@ -114,7 +119,7 @@ private fun HouseShareMainInner(
                 modifier = Modifier.fillMaxSize()
             ) { contentPadding ->
 
-                if (currentDestination == MainDestination.Loading) {
+                if (currentNavigation::class == MainNavigation.Loading::class) {
                     Log.d(TAG, "HouseShareMain: starting loading screen")
                     // TODO: extract into splash screen
                     Box(
@@ -130,24 +135,25 @@ private fun HouseShareMainInner(
 
                 NavHost(
                     navController = navController,
-                    startDestination = currentDestination.name,
+                    startDestination = currentNavigation::class,
                     modifier = Modifier.padding(contentPadding)
                 ) {
-                    composable(route = MainDestination.Cleaning.name) {
+                    composable(route = MainNavigation.Cleaning::class) {
                         CleaningScreen()
                         Text(text = "Cleaning")
                     }
-                    composable(route = MainDestination.Shopping.name) {
+                    composable(route = MainNavigation.Shopping::class) {
                         ShoppingScreen()
                     }
-                    composable(route = MainDestination.Billing.name) {
+                    composable(route = MainNavigation.Billing::class) {
                         BillingScreen()
                     }
                 }
             }
 
+            // TODO: refactor this mess...
             AnimatedFab(
-                currentDestination = currentDestination,
+                currentDestination = currentNavigation,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
             ) { onBack ->
@@ -158,8 +164,8 @@ private fun HouseShareMainInner(
                     onBack()
                 }
 
-                when (currentDestination) {
-                    MainDestination.Shopping -> Card(
+                when (currentNavigation) {
+                    is MainNavigation.Shopping -> Card(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -181,7 +187,7 @@ private fun HouseShareMainInner(
                         )
                     }
 
-                    MainDestination.Billing -> Card(
+                    is MainNavigation.Billing -> Card(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -193,9 +199,9 @@ private fun HouseShareMainInner(
                         )
                     }
 
-                    MainDestination.Cleaning -> {}
+                    is MainNavigation.Cleaning -> {}
 
-                    MainDestination.Loading -> onBack()
+                    is MainNavigation.Loading -> onBack()
                 }
             }
         }
@@ -205,8 +211,8 @@ private fun HouseShareMainInner(
 @Composable
 private fun MainDrawerSheet(
     modifier: Modifier = Modifier,
-    onDestinationClick: (MainDestination) -> Unit,
-    currentDestination: MainDestination,
+    onNavigationClick: (KClass<out MainNavigation>) -> Unit,
+    currentNavigation: MainNavigation,
 ) {
     val textPadding = PaddingValues(horizontal = 28.dp, vertical = 16.dp)
     val itemPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
@@ -217,22 +223,22 @@ private fun MainDrawerSheet(
         NavigationDrawerItem(
             label = { Text(stringResource(R.string.cleaning)) },
             icon = { Icon(Icons.Filled.CleaningServices, contentDescription = null) },
-            selected = currentDestination == MainDestination.Cleaning,
-            onClick = { onDestinationClick(MainDestination.Cleaning) },
+            selected = currentNavigation::class == MainNavigation.Cleaning::class,
+            onClick = { onNavigationClick(MainNavigation.Cleaning::class) },
             modifier = Modifier.padding(itemPadding)
         )
         NavigationDrawerItem(
             label = { Text(stringResource(R.string.shopping_list)) },
             icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) },
-            selected = currentDestination == MainDestination.Shopping,
-            onClick = { onDestinationClick(MainDestination.Shopping) },
+            selected = currentNavigation::class == MainNavigation.Shopping::class,
+            onClick = { onNavigationClick(MainNavigation.Shopping::class) },
             modifier = Modifier.padding(itemPadding)
         )
         NavigationDrawerItem(
             label = { Text(stringResource(R.string.billing)) },
             icon = { Icon(Icons.Filled.Payments, contentDescription = null) },
-            selected = currentDestination == MainDestination.Billing,
-            onClick = { onDestinationClick(MainDestination.Billing) },
+            selected = currentNavigation::class == MainNavigation.Billing::class,
+            onClick = { onNavigationClick(MainNavigation.Billing::class) },
             modifier = Modifier.padding(itemPadding)
         )
     }

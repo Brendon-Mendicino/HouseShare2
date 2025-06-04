@@ -31,13 +31,13 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.unit.dp
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.state.MainFabContainerState
 
 @Composable
 fun AnimatedFab(
     modifier: Modifier = Modifier,
-    currentDestination: MainDestination,
+    currentDestination: MainNavigation,
     fullscreen: @Composable (onBack: () -> Unit) -> Unit
 ) {
     val animationLabel = "MainFabAnimation"
@@ -56,10 +56,10 @@ fun AnimatedFab(
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
 
     val fabIcon = when (currentDestination) {
-        MainDestination.Shopping -> Icons.Filled.AddShoppingCart
-        MainDestination.Cleaning -> Icons.Filled.Add
-        MainDestination.Billing -> Icons.Filled.Receipt
-        MainDestination.Loading -> Icons.Filled.Add
+        is MainNavigation.Shopping -> Icons.Filled.AddShoppingCart
+        is MainNavigation.Cleaning -> Icons.Filled.Add
+        is MainNavigation.Billing -> Icons.Filled.Receipt
+        is MainNavigation.Loading -> Icons.Filled.Add
     }
 
     LaunchedEffect(containerState) {
@@ -74,7 +74,8 @@ fun AnimatedFab(
         }
     }
 
-    AnimatedContent(targetState = containerState,
+    AnimatedContent(
+        targetState = containerState,
         label = animationLabel,
         modifier = modifier
             .drawBehind {

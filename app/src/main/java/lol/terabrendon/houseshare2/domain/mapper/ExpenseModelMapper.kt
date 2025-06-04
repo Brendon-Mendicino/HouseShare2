@@ -1,13 +1,13 @@
 package lol.terabrendon.houseshare2.domain.mapper
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormState
 import lol.terabrendon.houseshare2.presentation.billing.UserPaymentState
-import lol.terabrendon.houseshare2.util.Err
-import lol.terabrendon.houseshare2.util.Ok
-import lol.terabrendon.houseshare2.util.Result
 import java.time.LocalDateTime
 
 class ExpenseModelMapper {

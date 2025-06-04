@@ -11,7 +11,7 @@ lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.8.2"
 composeBom = "2024.04.00"
 viewmodelCompose = "2.7.0"
-navigationCompose = "2.7.7"
+navigationCompose = "2.9.0"
 hilt = "2.51"
 #hiltCompiler = "2.45.0"
 #hiltLifecycle = "1.0.0"
@@ -26,6 +26,8 @@ roomCompiler = "2.6.1"
 roomKtx = "2.6.1"
 desugar = "2.0.4"
 android-junit5 = "1.12.2.0"
+kotlinxSerialzation = "1.8.1"
+kotlinResult = "2.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -53,6 +55,8 @@ androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "l
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialzation" }
+
 # Hilt
 com-google-dagger-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 com-google-dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
@@ -73,6 +77,10 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 # Desugaring
 com-android-tools-desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 
+# Result type
+kotlin-result = { group = "com.michael-bull.kotlin-result", name = "kotlin-result", version.ref = "kotlinResult" }
+kotlin-result-coroutines = { group = "com.michael-bull.kotlin-result", name = "kotlin-result-coroutines", version.ref = "kotlinResult" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -82,6 +90,8 @@ daggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
 android-junit5 = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
 idea = { id = "idea" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [bundles]
 unittest = ["junit-jupiter-api", "junit-jupiter-engine", "junit-jupiter-params", "assertk"]
+kotlin-result = ["kotlin-result", "kotlin-result-coroutines"]

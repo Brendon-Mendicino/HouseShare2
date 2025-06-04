@@ -18,7 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.presentation.navigation.MainDestination
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 
 private enum class DialogKind {
@@ -27,7 +27,7 @@ private enum class DialogKind {
 
 @Composable
 fun AppBarActions(
-    mainDestination: MainDestination,
+    mainNavigation: MainNavigation,
 ) {
     var showDialog by rememberSaveable { mutableStateOf<DialogKind?>(null) }
 
@@ -46,8 +46,8 @@ fun AppBarActions(
             })
     }
 
-    when (mainDestination) {
-        MainDestination.Shopping -> {
+    when (mainNavigation) {
+        is MainNavigation.Shopping -> {
             if (!selected) return
 
             IconButton(onClick = { showDialog = DialogKind.Shopping }) {
