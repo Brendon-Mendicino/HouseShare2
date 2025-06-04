@@ -67,7 +67,7 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 # Proto DataStore
 androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore" }
 com-google-protobuf-javalite = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "protobufJavalite" }
-#com-google-protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobufJavalite" }
+com-google-protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobufJavalite" }
 
 # Room
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }

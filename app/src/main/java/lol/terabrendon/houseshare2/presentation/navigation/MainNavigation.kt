@@ -22,23 +22,17 @@ sealed class MainNavigation {
     @Serializable
     object Billing : MainNavigation()
 
-    companion object {
-        @JvmStatic
-        fun from(dest: UserPreferences.MainDestination) = when (dest) {
-            // TODO: double check this routes (especially UNRECOGNIZED)
-            UserPreferences.MainDestination.CLEANING -> Cleaning
-            UserPreferences.MainDestination.SHOPPING -> Shopping
-            UserPreferences.MainDestination.BILLING -> Billing
-            UserPreferences.MainDestination.UNSPECIFIED -> Cleaning
-            UserPreferences.MainDestination.UNRECOGNIZED -> Cleaning
-        }
+    @Serializable
+    data class Groups(val currentUserId: Long) : MainNavigation()
 
+    companion object {
         fun KClass<out MainNavigation>.toPreferences(): Result<UserPreferences.MainDestination, Throwable> {
             return Ok(
                 when (this) {
                     Cleaning::class -> UserPreferences.MainDestination.CLEANING
                     Shopping::class -> UserPreferences.MainDestination.SHOPPING
                     Billing::class -> UserPreferences.MainDestination.BILLING
+                    Groups::class -> UserPreferences.MainDestination.GROUPS
                     else -> return Err(Throwable("Cannot call toPreferences of ${this.qualifiedName}."))
                 }
             )
@@ -50,6 +44,7 @@ sealed class MainNavigation {
         Cleaning -> R.string.cleaning
         Shopping -> R.string.shopping_list
         Billing -> R.string.billing
+        is Groups -> R.string.groups
         Loading -> R.string.loading
     }
 }

@@ -2,6 +2,7 @@ package lol.terabrendon.houseshare2.data.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 
 @Entity(
     primaryKeys = ["groupId", "userId"],
@@ -20,6 +21,10 @@ import androidx.room.ForeignKey
             onDelete = ForeignKey.CASCADE,
             onUpdate = ForeignKey.CASCADE,
         ),
+    ],
+    indices = [
+        Index(value = ["userId"]),
+        Index(value = ["groupId"]),
     ]
 )
 data class GroupUserCrossRef(

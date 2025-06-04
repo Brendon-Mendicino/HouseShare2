@@ -9,6 +9,9 @@ message UserPreferences {
     CLEANING = 1;
     SHOPPING = 2;
     BILLING = 3;
+    GROUPS = 4;
   }
+
   MainDestination mainDestination = 1;
+  uint64 currentLoggedUserId = 2;
 }

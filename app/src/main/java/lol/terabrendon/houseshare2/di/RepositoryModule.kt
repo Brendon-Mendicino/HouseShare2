@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepositoryImpl
+import lol.terabrendon.houseshare2.data.repository.GroupRepository
+import lol.terabrendon.houseshare2.data.repository.GroupRepositoryImpl
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepositoryImpl
 import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
@@ -42,4 +44,10 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         repo: UserRepositoryImpl
     ): UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGroupRepository(
+        repo: GroupRepositoryImpl
+    ): GroupRepository
 }

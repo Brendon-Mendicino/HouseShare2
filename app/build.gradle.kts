@@ -1,3 +1,4 @@
+import com.google.protobuf.gradle.id
 import org.gradle.internal.extensions.stdlib.capitalized
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -79,12 +80,12 @@ protobuf {
     generateProtoTasks {
         all().forEach { task ->
             task.builtins {
-                create("java") {
+                id("java") {
                     option("lite")
                 }
-//                create("kotlin") {
-//                    option("lite")
-//                }
+                id("kotlin") {
+                    option("lite")
+                }
             }
         }
     }
@@ -135,7 +136,7 @@ dependencies {
     // Proto DataSource
     implementation(libs.androidx.datastore)
     implementation(libs.com.google.protobuf.javalite)
-//    implementation(libs.com.google.protobuf.kotlin.lite)
+    implementation(libs.com.google.protobuf.kotlin.lite)
 
     // Room
     implementation(libs.androidx.room.runtime)

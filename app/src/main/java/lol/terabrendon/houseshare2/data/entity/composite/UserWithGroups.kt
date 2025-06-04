@@ -7,18 +7,18 @@ import lol.terabrendon.houseshare2.data.entity.Group
 import lol.terabrendon.houseshare2.data.entity.GroupUserCrossRef
 import lol.terabrendon.houseshare2.data.entity.User
 
-data class GroupWithUsers(
+data class UserWithGroups(
     @Embedded
-    val group: Group,
+    val user: User,
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        entity = User::class,
+        entity = Group::class,
         associateBy = Junction(
             value = GroupUserCrossRef::class,
-            parentColumn = "groupId",
-            entityColumn = "userId",
+            parentColumn = "userId",
+            entityColumn = "groupId",
         )
     )
-    val users: List<User>
+    val groups: List<Group>,
 )

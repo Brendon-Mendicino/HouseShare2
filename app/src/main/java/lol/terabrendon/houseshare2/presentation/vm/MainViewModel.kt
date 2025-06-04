@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
@@ -22,8 +21,7 @@ class MainViewModel @Inject constructor(
 
 
     val currentNavigation = userPreferencesRepository
-        .userPreferencesFlow
-        .map { MainNavigation.from(it.mainDestination) }
+        .savedDestination
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MainNavigation.Loading)
 
     fun setCurrentNavigation(destination: KClass<out MainNavigation>) {

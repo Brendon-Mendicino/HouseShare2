@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CleaningServices
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
@@ -46,6 +47,7 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
 import lol.terabrendon.houseshare2.presentation.billing.NewExpenseForm
+import lol.terabrendon.houseshare2.presentation.groups.GroupsScreen
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
@@ -135,8 +137,8 @@ private fun HouseShareMainInner(
 
                 NavHost(
                     navController = navController,
-                    startDestination = currentNavigation::class,
-                    modifier = Modifier.padding(contentPadding)
+                    startDestination = currentNavigation,
+                    modifier = Modifier.padding(contentPadding),
                 ) {
                     composable(route = MainNavigation.Cleaning::class) {
                         CleaningScreen()
@@ -147,6 +149,9 @@ private fun HouseShareMainInner(
                     }
                     composable(route = MainNavigation.Billing::class) {
                         BillingScreen()
+                    }
+                    composable(route = MainNavigation.Groups::class) {
+                        GroupsScreen()
                     }
                 }
             }
@@ -201,6 +206,7 @@ private fun HouseShareMainInner(
 
                     is MainNavigation.Cleaning -> {}
 
+                    is MainNavigation.Groups -> TODO()
                     is MainNavigation.Loading -> onBack()
                 }
             }
@@ -239,6 +245,13 @@ private fun MainDrawerSheet(
             icon = { Icon(Icons.Filled.Payments, contentDescription = null) },
             selected = currentNavigation::class == MainNavigation.Billing::class,
             onClick = { onNavigationClick(MainNavigation.Billing::class) },
+            modifier = Modifier.padding(itemPadding)
+        )
+        NavigationDrawerItem(
+            label = { Text(stringResource(R.string.groups)) },
+            icon = { Icon(Icons.Filled.Groups, contentDescription = null) },
+            selected = currentNavigation::class == MainNavigation.Groups::class,
+            onClick = { onNavigationClick(MainNavigation.Groups::class) },
             modifier = Modifier.padding(itemPadding)
         )
     }

@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import lol.terabrendon.houseshare2.data.dao.UserDao
 import lol.terabrendon.houseshare2.data.entity.User
+import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import javax.inject.Inject
 
@@ -31,4 +32,10 @@ class UserRepositoryImpl @Inject constructor(
 
         Log.i(TAG, "insert: added new user: ${user.copy(id = newId)}")
     }
+
+    override fun findGroupsByUserId(userId: Long): Flow<List<GroupInfoModel>> = userDao
+        .findGroupsByUserId(userId)
+        .map { groups ->
+            groups?.groups?.map { GroupInfoModel(groupId = it.id, name = it.name) } ?: emptyList()
+        }
 }

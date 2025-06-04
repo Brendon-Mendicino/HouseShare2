@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import com.github.michaelbull.result.getOrElse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import lol.terabrendon.houseshare2.UserPreferences
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation.Companion.toPreferences
@@ -13,14 +14,14 @@ import javax.inject.Inject
 import kotlin.reflect.KClass
 
 class UserPreferencesRepositoryImpl @Inject constructor(
-    private val userPreferencesStore: DataStore<UserPreferences>
+    private val userPreferencesStore: DataStore<UserPreferences>,
 ) : UserPreferencesRepository {
     companion object {
         private const val TAG = "UserPreferencesRepositoryImpl"
     }
 
     // TODO: remove this function, it should expose classes from data layer!
-    override val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
+    private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
         .catch { exception ->
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (exception is IOException) {
@@ -28,6 +29,19 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 emit(UserPreferences.getDefaultInstance())
             } else {
                 throw exception
+            }
+        }
+
+    override val savedDestination: Flow<MainNavigation> = userPreferencesFlow
+        .map {
+            when (it.mainDestination) {
+                // TODO: double check this routes (especially UNRECOGNIZED)
+                UserPreferences.MainDestination.CLEANING -> MainNavigation.Cleaning
+                UserPreferences.MainDestination.SHOPPING -> MainNavigation.Shopping
+                UserPreferences.MainDestination.BILLING -> MainNavigation.Billing
+                UserPreferences.MainDestination.GROUPS -> MainNavigation.Groups(it.currentLoggedUserId)
+                UserPreferences.MainDestination.UNSPECIFIED -> MainNavigation.Cleaning
+                UserPreferences.MainDestination.UNRECOGNIZED -> MainNavigation.Cleaning
             }
         }
 

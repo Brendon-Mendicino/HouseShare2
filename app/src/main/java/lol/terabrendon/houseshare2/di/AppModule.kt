@@ -10,6 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.UserPreferences
 import lol.terabrendon.houseshare2.data.dao.ExpenseDao
+import lol.terabrendon.houseshare2.data.dao.GroupDao
 import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.data.dao.UserDao
 import lol.terabrendon.houseshare2.data.database.HouseShareDatabase
@@ -44,4 +45,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideUserDao(db: HouseShareDatabase): UserDao = db.userDao()
+
+    @Provides
+    @Singleton
+    fun provideGroupDao(db: HouseShareDatabase): GroupDao = db.groupDao()
 }
