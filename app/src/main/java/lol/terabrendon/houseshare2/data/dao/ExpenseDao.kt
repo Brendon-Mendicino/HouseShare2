@@ -6,8 +6,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.data.entity.Expense
-import lol.terabrendon.houseshare2.data.entity.ExpenseWithUsers
 import lol.terabrendon.houseshare2.data.entity.Payment
+import lol.terabrendon.houseshare2.data.entity.composite.ExpenseWithUsers
 
 @Dao
 interface ExpenseDao {

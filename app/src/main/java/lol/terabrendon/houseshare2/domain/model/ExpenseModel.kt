@@ -19,8 +19,8 @@ import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.ui.graphics.vector.ImageVector
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.data.entity.ExpenseWithUsers
-import lol.terabrendon.houseshare2.data.entity.PaymentWithUser
+import lol.terabrendon.houseshare2.data.entity.composite.ExpenseWithUsers
+import lol.terabrendon.houseshare2.data.entity.composite.PaymentWithUser
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.random.Random
