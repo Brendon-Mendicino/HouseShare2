@@ -61,6 +61,7 @@ fun AnimatedFab(
         is MainNavigation.Billing -> Icons.Filled.Receipt
         is MainNavigation.Loading -> Icons.Filled.Add
         is MainNavigation.Groups -> Icons.Filled.Add
+        is MainNavigation.GroupForm -> TODO()
     }
 
     LaunchedEffect(containerState) {

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
@@ -23,6 +24,15 @@ class MainViewModel @Inject constructor(
     val currentNavigation = userPreferencesRepository
         .savedDestination
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MainNavigation.Loading)
+
+    val startingDestination = userPreferencesRepository
+        .savedDestination
+        .take(1)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MainNavigation.Loading)
+
+    val topLevelRoutes = userPreferencesRepository
+        .topLevelRoutes
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     fun setCurrentNavigation(destination: KClass<out MainNavigation>) {
         viewModelScope.launch {

@@ -45,9 +45,19 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             }
         }
 
+    override val topLevelRoutes: Flow<List<MainNavigation>> = userPreferencesFlow
+        .map {
+            listOf(
+                MainNavigation.Cleaning,
+                MainNavigation.Shopping,
+                MainNavigation.Billing,
+                MainNavigation.Groups(it.currentLoggedUserId),
+            )
+        }
+
     override suspend fun updateMainDestination(destination: KClass<out MainNavigation>) {
         userPreferencesStore.updateData { preferences ->
-            Log.i(TAG, "updateMainDestination: saving $destination to DataStore.")
+            Log.i(TAG, "updateMainDestination: saving ${destination.qualifiedName} to DataStore.")
             preferences.toBuilder()
                 .setMainDestination(destination.toPreferences().getOrElse {
                     val msg =

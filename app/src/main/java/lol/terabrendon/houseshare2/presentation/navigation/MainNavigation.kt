@@ -25,6 +25,9 @@ sealed class MainNavigation {
     @Serializable
     data class Groups(val currentUserId: Long) : MainNavigation()
 
+    @Serializable
+    object GroupForm : MainNavigation()
+
     companion object {
         fun KClass<out MainNavigation>.toPreferences(): Result<UserPreferences.MainDestination, Throwable> {
             return Ok(
@@ -46,6 +49,7 @@ sealed class MainNavigation {
         Billing -> R.string.billing
         is Groups -> R.string.groups
         Loading -> R.string.loading
+        GroupForm -> TODO()
     }
 }
 

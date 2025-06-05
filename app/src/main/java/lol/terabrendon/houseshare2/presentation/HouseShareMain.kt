@@ -25,6 +25,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -37,11 +38,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
@@ -55,14 +62,25 @@ import kotlin.reflect.KClass
 
 private const val TAG = "HouseShareMain"
 
+data class TopLevelRoute(
+    @StringRes
+    val name: Int,
+    val route: MainNavigation,
+    val icon: ImageVector,
+)
+
 @Composable
 fun HouseShareMain(
     mainViewModel: MainViewModel = hiltViewModel()
 ) {
+    val startingDestination by mainViewModel.startingDestination.collectAsStateWithLifecycle()
     val currentNavigation by mainViewModel.currentNavigation.collectAsStateWithLifecycle()
+    val topLevelRoutes by mainViewModel.topLevelRoutes.collectAsStateWithLifecycle()
 
     HouseShareMainInner(
+        startingDestination = startingDestination,
         currentNavigation = currentNavigation,
+        topLevelRoutes = topLevelRoutes,
         setCurrentNavigation = mainViewModel::setCurrentNavigation,
         appBarActions = {
             AppBarActions(mainNavigation = currentNavigation)
@@ -73,18 +91,20 @@ fun HouseShareMain(
 @SuppressLint("RestrictedApi")
 @Composable
 private fun HouseShareMainInner(
+    startingDestination: MainNavigation,
     currentNavigation: MainNavigation,
+    topLevelRoutes: List<MainNavigation>,
     setCurrentNavigation: (KClass<out MainNavigation>) -> Unit,
     appBarActions: @Composable (MainNavigation) -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val navController = rememberNavController()
-//    var previousNavigation by rememberSaveable {
-//        mutableStateOf(currentNavigation)
-//    }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentBackStackDestination = navBackStackEntry?.destination
+
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = currentNavigation) {
+    LaunchedEffect(currentBackStackDestination) {
         // TODO: check if previouisNavigation con be used and if the backstack is popped
 //        if (currentNavigation != previousNavigation && previousNavigation::class != MainNavigation.Loading::class) {
 //            navController.navigate(currentNavigation) {
@@ -96,17 +116,49 @@ private fun HouseShareMainInner(
 
 //        previousNavigation = currentNavigation
 
-        if (currentNavigation::class != MainNavigation.Loading::class)
-            navController.navigate(currentNavigation)
+//        if (currentNavigation::class != MainNavigation.Loading::class)
+//            navController.navigate(currentNavigation)
 
-        Log.i(TAG, "HouseShareMainInner: ${navController.currentBackStack.value}")
+        topLevelRoutes
+            .firstOrNull { topLevelRoute ->
+                currentBackStackDestination?.hierarchy?.any {
+                    it.hasRoute(topLevelRoute::class)
+                } == true
+            }
+            ?.let {
+                setCurrentNavigation(it::class)
+            }
+
+        Log.i(TAG, "HouseShareMainInner: ${navController.currentBackStack.value.toList()}")
         drawerState.close()
     }
 
     ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
         MainDrawerSheet(
-            currentNavigation = currentNavigation,
-            onNavigationClick = { newDest -> setCurrentNavigation(newDest) }
+            topLevelRoutes = topLevelRoutes,
+            itemSelected = { topLevelRoute ->
+                currentBackStackDestination?.hierarchy?.any {
+                    it.hasRoute(
+                        topLevelRoute.route::class
+                    )
+                } == true
+            },
+            onItemClick = { topLevelRoute ->
+                navController.navigate(topLevelRoute.route) {
+                    // Pop up to the start destination of the graph to
+                    // avoid building up a large stack of destinations
+                    // on the back stack as users select items
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                        inclusive = true
+                    }
+                    // Avoid multiple copies of the same destination when
+                    // reselecting the same item
+                    launchSingleTop = true
+                    // Restore state when reselecting a previously selected item
+                    restoreState = true
+                }
+            },
         )
     }) {
         Box {
@@ -121,7 +173,7 @@ private fun HouseShareMainInner(
                 modifier = Modifier.fillMaxSize()
             ) { contentPadding ->
 
-                if (currentNavigation::class == MainNavigation.Loading::class) {
+                if (startingDestination::class == MainNavigation.Loading::class) {
                     Log.d(TAG, "HouseShareMain: starting loading screen")
                     // TODO: extract into splash screen
                     Box(
@@ -137,7 +189,7 @@ private fun HouseShareMainInner(
 
                 NavHost(
                     navController = navController,
-                    startDestination = currentNavigation,
+                    startDestination = startingDestination,
                     modifier = Modifier.padding(contentPadding),
                 ) {
                     composable(route = MainNavigation.Cleaning::class) {
@@ -152,6 +204,15 @@ private fun HouseShareMainInner(
                     }
                     composable(route = MainNavigation.Groups::class) {
                         GroupsScreen()
+                    }
+
+                    dialog(
+                        route = MainNavigation.GroupForm::class,
+                        dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+                    ) {
+                        Surface(Modifier.fillMaxSize()) {
+                            Text("skdjf")
+                        }
                     }
                 }
             }
@@ -206,7 +267,8 @@ private fun HouseShareMainInner(
 
                     is MainNavigation.Cleaning -> {}
 
-                    is MainNavigation.Groups -> TODO()
+                    is MainNavigation.Groups -> navController.navigate(MainNavigation.GroupForm)
+                    is MainNavigation.GroupForm -> TODO()
                     is MainNavigation.Loading -> onBack()
                 }
             }
@@ -214,46 +276,65 @@ private fun HouseShareMainInner(
     }
 }
 
+fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
+    when (navigation) {
+        is MainNavigation.Cleaning -> TopLevelRoute(
+            name = R.string.cleaning,
+            route = navigation,
+            icon = Icons.Filled.CleaningServices
+        )
+
+        is MainNavigation.Shopping -> TopLevelRoute(
+            name = R.string.shopping_list,
+            route = navigation,
+            icon = Icons.Filled.ShoppingCart
+        )
+
+        is MainNavigation.Billing -> TopLevelRoute(
+            name = R.string.billing,
+            route = navigation,
+            icon = Icons.Filled.Payments
+        )
+
+        is MainNavigation.Groups -> TopLevelRoute(
+            name = R.string.groups,
+            route = navigation,
+            icon = Icons.Filled.Groups
+        )
+
+        is MainNavigation.Loading -> TODO()
+        is MainNavigation.GroupForm -> TODO()
+    }
+
 @Composable
 private fun MainDrawerSheet(
     modifier: Modifier = Modifier,
-    onNavigationClick: (KClass<out MainNavigation>) -> Unit,
-    currentNavigation: MainNavigation,
+    topLevelRoutes: List<MainNavigation>,
+    itemSelected: (TopLevelRoute) -> Boolean,
+    onItemClick: (TopLevelRoute) -> Unit,
 ) {
     val textPadding = PaddingValues(horizontal = 28.dp, vertical = 16.dp)
     val itemPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
 
+    val mappedTopLevelRoutes = topLevelRoutes.map(::mapNavigationToRoute)
+
     ModalDrawerSheet(modifier) {
         Text(stringResource(R.string.house_activities), modifier = Modifier.padding(textPadding))
 
-        NavigationDrawerItem(
-            label = { Text(stringResource(R.string.cleaning)) },
-            icon = { Icon(Icons.Filled.CleaningServices, contentDescription = null) },
-            selected = currentNavigation::class == MainNavigation.Cleaning::class,
-            onClick = { onNavigationClick(MainNavigation.Cleaning::class) },
-            modifier = Modifier.padding(itemPadding)
-        )
-        NavigationDrawerItem(
-            label = { Text(stringResource(R.string.shopping_list)) },
-            icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) },
-            selected = currentNavigation::class == MainNavigation.Shopping::class,
-            onClick = { onNavigationClick(MainNavigation.Shopping::class) },
-            modifier = Modifier.padding(itemPadding)
-        )
-        NavigationDrawerItem(
-            label = { Text(stringResource(R.string.billing)) },
-            icon = { Icon(Icons.Filled.Payments, contentDescription = null) },
-            selected = currentNavigation::class == MainNavigation.Billing::class,
-            onClick = { onNavigationClick(MainNavigation.Billing::class) },
-            modifier = Modifier.padding(itemPadding)
-        )
-        NavigationDrawerItem(
-            label = { Text(stringResource(R.string.groups)) },
-            icon = { Icon(Icons.Filled.Groups, contentDescription = null) },
-            selected = currentNavigation::class == MainNavigation.Groups::class,
-            onClick = { onNavigationClick(MainNavigation.Groups::class) },
-            modifier = Modifier.padding(itemPadding)
-        )
+        mappedTopLevelRoutes.forEach { topLevelRoute ->
+            NavigationDrawerItem(
+                modifier = Modifier.padding(itemPadding),
+                label = { Text(stringResource(topLevelRoute.name)) },
+                icon = {
+                    Icon(
+                        topLevelRoute.icon,
+                        contentDescription = stringResource(topLevelRoute.name)
+                    )
+                },
+                selected = itemSelected(topLevelRoute),
+                onClick = { onItemClick(topLevelRoute) },
+            )
+        }
     }
 }
 

@@ -7,5 +7,7 @@ import kotlin.reflect.KClass
 interface UserPreferencesRepository {
     val savedDestination: Flow<MainNavigation>
 
+    val topLevelRoutes: Flow<List<MainNavigation>>
+
     suspend fun updateMainDestination(destination: KClass<out MainNavigation>)
 }
