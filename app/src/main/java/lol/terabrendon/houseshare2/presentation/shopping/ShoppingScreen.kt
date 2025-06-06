@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.presentation
+package lol.terabrendon.houseshare2.presentation.shopping
 
 import android.icu.text.NumberFormat
 import android.icu.util.Currency

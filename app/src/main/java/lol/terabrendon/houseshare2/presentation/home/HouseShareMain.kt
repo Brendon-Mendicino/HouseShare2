@@ -1,29 +1,16 @@
-package lol.terabrendon.houseshare2.presentation
+package lol.terabrendon.houseshare2.presentation.home
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CleaningServices
-import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,9 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,23 +36,19 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.presentation.MainTopBar
 import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
 import lol.terabrendon.houseshare2.presentation.billing.NewExpenseForm
+import lol.terabrendon.houseshare2.presentation.cleaning.CleaningScreen
 import lol.terabrendon.houseshare2.presentation.groups.GroupsScreen
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.shopping.ShoppingItemForm
+import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreen
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 import kotlin.reflect.KClass
 
 private const val TAG = "HouseShareMain"
-
-data class TopLevelRoute(
-    @StringRes
-    val name: Int,
-    val route: MainNavigation,
-    val icon: ImageVector,
-)
 
 @Composable
 fun HouseShareMain(
@@ -88,7 +69,6 @@ fun HouseShareMain(
     )
 }
 
-@SuppressLint("RestrictedApi")
 @Composable
 private fun HouseShareMainInner(
     startingDestination: MainNavigation,
@@ -105,20 +85,7 @@ private fun HouseShareMainInner(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(currentBackStackDestination) {
-        // TODO: check if previouisNavigation con be used and if the backstack is popped
-//        if (currentNavigation != previousNavigation && previousNavigation::class != MainNavigation.Loading::class) {
-//            navController.navigate(currentNavigation) {
-//                popUpTo(previousNavigation::class) {
-//                    inclusive = true
-//                }
-//            }
-//        }
-
-//        previousNavigation = currentNavigation
-
-//        if (currentNavigation::class != MainNavigation.Loading::class)
-//            navController.navigate(currentNavigation)
-
+        // Update the current navigation in the datastore when the currentBackStack changes
         topLevelRoutes
             .firstOrNull { topLevelRoute ->
                 currentBackStackDestination?.hierarchy?.any {
@@ -129,7 +96,6 @@ private fun HouseShareMainInner(
                 setCurrentNavigation(it::class)
             }
 
-        Log.i(TAG, "HouseShareMainInner: ${navController.currentBackStack.value.toList()}")
         drawerState.close()
     }
 
@@ -153,9 +119,9 @@ private fun HouseShareMainInner(
                         inclusive = true
                     }
                     // Avoid multiple copies of the same destination when
-                    // reselecting the same item
+                    // re-selecting the same item
                     launchSingleTop = true
-                    // Restore state when reselecting a previously selected item
+                    // Restore state when re-selecting a previously selected item
                     restoreState = true
                 }
             },
@@ -276,84 +242,3 @@ private fun HouseShareMainInner(
     }
 }
 
-fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
-    when (navigation) {
-        is MainNavigation.Cleaning -> TopLevelRoute(
-            name = R.string.cleaning,
-            route = navigation,
-            icon = Icons.Filled.CleaningServices
-        )
-
-        is MainNavigation.Shopping -> TopLevelRoute(
-            name = R.string.shopping_list,
-            route = navigation,
-            icon = Icons.Filled.ShoppingCart
-        )
-
-        is MainNavigation.Billing -> TopLevelRoute(
-            name = R.string.billing,
-            route = navigation,
-            icon = Icons.Filled.Payments
-        )
-
-        is MainNavigation.Groups -> TopLevelRoute(
-            name = R.string.groups,
-            route = navigation,
-            icon = Icons.Filled.Groups
-        )
-
-        is MainNavigation.Loading -> TODO()
-        is MainNavigation.GroupForm -> TODO()
-    }
-
-@Composable
-private fun MainDrawerSheet(
-    modifier: Modifier = Modifier,
-    topLevelRoutes: List<MainNavigation>,
-    itemSelected: (TopLevelRoute) -> Boolean,
-    onItemClick: (TopLevelRoute) -> Unit,
-) {
-    val textPadding = PaddingValues(horizontal = 28.dp, vertical = 16.dp)
-    val itemPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-
-    val mappedTopLevelRoutes = topLevelRoutes.map(::mapNavigationToRoute)
-
-    ModalDrawerSheet(modifier) {
-        Text(stringResource(R.string.house_activities), modifier = Modifier.padding(textPadding))
-
-        mappedTopLevelRoutes.forEach { topLevelRoute ->
-            NavigationDrawerItem(
-                modifier = Modifier.padding(itemPadding),
-                label = { Text(stringResource(topLevelRoute.name)) },
-                icon = {
-                    Icon(
-                        topLevelRoute.icon,
-                        contentDescription = stringResource(topLevelRoute.name)
-                    )
-                },
-                selected = itemSelected(topLevelRoute),
-                onClick = { onItemClick(topLevelRoute) },
-            )
-        }
-    }
-}
-
-@Composable
-fun MainFab(
-    modifier: Modifier = Modifier,
-    icon: ImageVector,
-    @StringRes text: Int,
-    onClick: () -> Unit
-) {
-    ExtendedFloatingActionButton(
-        text = { Text(stringResource(text)) },
-        icon = {
-            Icon(
-                imageVector = icon,
-                contentDescription = stringResource(text)
-            )
-        },
-        onClick = { onClick() },
-        modifier = modifier.animateContentSize()
-    )
-}

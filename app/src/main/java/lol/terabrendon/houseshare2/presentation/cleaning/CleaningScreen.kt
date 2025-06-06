@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.presentation
+package lol.terabrendon.houseshare2.presentation.cleaning
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable

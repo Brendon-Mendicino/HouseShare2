@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.presentation
+package lol.terabrendon.houseshare2.presentation.home
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
@@ -101,7 +102,7 @@ fun AnimatedFab(
                     containerState = MainFabContainerState.Fullscreen
                 },
                 icon = fabIcon,
-                text = R.string.create
+                text = stringResource(R.string.create),
             )
 
             MainFabContainerState.Fullscreen -> fullscreen {

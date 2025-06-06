@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.presentation
+package lol.terabrendon.houseshare2.presentation.home
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert

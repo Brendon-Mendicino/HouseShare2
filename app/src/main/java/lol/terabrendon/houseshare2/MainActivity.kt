@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
-import lol.terabrendon.houseshare2.presentation.HouseShareMain
+import lol.terabrendon.houseshare2.presentation.home.HouseShareMain
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 
 @AndroidEntryPoint
