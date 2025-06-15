@@ -1,5 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,6 +37,7 @@ class MainViewModel @Inject constructor(
 
     fun setCurrentNavigation(destination: KClass<out MainNavigation>) {
         viewModelScope.launch {
+            Log.i(TAG, "setCurrentNavigation: new destination: $destination")
             userPreferencesRepository.updateMainDestination(destination)
         }
     }

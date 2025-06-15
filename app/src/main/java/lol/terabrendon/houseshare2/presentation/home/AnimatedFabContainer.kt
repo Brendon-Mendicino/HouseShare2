@@ -32,6 +32,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.state.MainFabContainerState
 
@@ -63,6 +64,8 @@ fun AnimatedFab(
         is MainNavigation.Loading -> Icons.Filled.Add
         is MainNavigation.Groups -> Icons.Filled.Add
         is MainNavigation.GroupForm -> TODO()
+        is GroupFormNavigation.GroupInfo -> TODO()
+        is GroupFormNavigation.SelectUsers -> TODO()
     }
 
     LaunchedEffect(containerState) {
@@ -95,7 +98,8 @@ fun AnimatedFab(
             fadeIn(animationSpec = tween(durationIn, delay)).togetherWith(
                 fadeOut(animationSpec = tween(delay))
             ).using(SizeTransform(clip = false) { _, _ -> tween(durationTot) })
-        }) { state ->
+        },
+    ) { state ->
         when (state) {
             MainFabContainerState.Fab -> MainFab(
                 onClick = {

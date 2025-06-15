@@ -47,4 +47,5 @@
     <string name="expense_shares">Expense shares</string>
     <string name="payed_by">Paid by</string>
     <string name="groups">Groups</string>
+    <string name="group_name">Group name</string>
 </resources>

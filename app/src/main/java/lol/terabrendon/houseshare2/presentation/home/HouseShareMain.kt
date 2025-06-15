@@ -12,18 +12,17 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
@@ -33,7 +32,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.dialog
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.presentation.MainTopBar
@@ -41,9 +40,13 @@ import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
 import lol.terabrendon.houseshare2.presentation.billing.NewExpenseForm
 import lol.terabrendon.houseshare2.presentation.cleaning.CleaningScreen
 import lol.terabrendon.houseshare2.presentation.groups.GroupsScreen
+import lol.terabrendon.houseshare2.presentation.groups.form.GroupInfoFormScreen
+import lol.terabrendon.houseshare2.presentation.groups.form.GroupUsersFormScreen
+import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingItemForm
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreen
+import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 import kotlin.reflect.KClass
@@ -158,26 +161,32 @@ private fun HouseShareMainInner(
                     startDestination = startingDestination,
                     modifier = Modifier.padding(contentPadding),
                 ) {
-                    composable(route = MainNavigation.Cleaning::class) {
+                    composable<MainNavigation.Cleaning> {
                         CleaningScreen()
                         Text(text = "Cleaning")
                     }
-                    composable(route = MainNavigation.Shopping::class) {
+                    composable<MainNavigation.Shopping> {
                         ShoppingScreen()
                     }
-                    composable(route = MainNavigation.Billing::class) {
+                    composable<MainNavigation.Billing> {
                         BillingScreen()
                     }
-                    composable(route = MainNavigation.Groups::class) {
+                    composable<MainNavigation.Groups> {
                         GroupsScreen()
                     }
 
-                    dialog(
-                        route = MainNavigation.GroupForm::class,
-                        dialogProperties = DialogProperties(usePlatformDefaultWidth = false),
-                    ) {
-                        Surface(Modifier.fillMaxSize()) {
-                            Text("skdjf")
+                    navigation<MainNavigation.GroupForm>(startDestination = GroupFormNavigation.SelectUsers) {
+                        composable<GroupFormNavigation.SelectUsers> { entry ->
+                            val parentEntry =
+                                remember(entry) { navController.getBackStackEntry<MainNavigation.GroupForm>() }
+                            val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
+                            GroupUsersFormScreen(viewModel = viewModel)
+                        }
+                        composable<GroupFormNavigation.GroupInfo> { entry ->
+                            val parentEntry =
+                                remember(entry) { navController.getBackStackEntry<MainNavigation.GroupForm>() }
+                            val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
+                            GroupInfoFormScreen(viewModel = viewModel)
                         }
                     }
                 }
@@ -236,6 +245,8 @@ private fun HouseShareMainInner(
                     is MainNavigation.Groups -> navController.navigate(MainNavigation.GroupForm)
                     is MainNavigation.GroupForm -> TODO()
                     is MainNavigation.Loading -> onBack()
+                    GroupFormNavigation.GroupInfo -> TODO()
+                    GroupFormNavigation.SelectUsers -> TODO()
                 }
             }
         }

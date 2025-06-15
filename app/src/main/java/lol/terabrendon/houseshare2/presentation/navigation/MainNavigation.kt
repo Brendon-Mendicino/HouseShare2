@@ -44,12 +44,14 @@ sealed class MainNavigation {
 
     @StringRes
     fun asResource() = when (this) {
-        Cleaning -> R.string.cleaning
-        Shopping -> R.string.shopping_list
-        Billing -> R.string.billing
+        is Cleaning -> R.string.cleaning
+        is Shopping -> R.string.shopping_list
+        is Billing -> R.string.billing
         is Groups -> R.string.groups
-        Loading -> R.string.loading
-        GroupForm -> TODO()
+        is Loading -> R.string.loading
+        is GroupForm -> TODO()
+        is GroupFormNavigation.GroupInfo -> TODO()
+        is GroupFormNavigation.SelectUsers -> TODO()
     }
 }
 

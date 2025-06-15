@@ -106,7 +106,7 @@ androidComponents {
 
 kotlin {
     sourceSets.all {
-        languageSettings.enableLanguageFeature("ExplicitBackingFields")
+//        languageSettings.enableLanguageFeature("ExplicitBackingFields")
     }
 }
 
@@ -142,6 +142,9 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+
+    implementation(libs.bundles.aformvalidator)
+    ksp(libs.aformvalidator.processor)
 
     // Desugar
     coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)

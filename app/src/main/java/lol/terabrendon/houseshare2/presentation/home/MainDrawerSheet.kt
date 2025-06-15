@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 
 fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
@@ -47,6 +48,8 @@ fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
 
         is MainNavigation.Loading -> TODO()
         is MainNavigation.GroupForm -> TODO()
+        is GroupFormNavigation.GroupInfo -> TODO()
+        is GroupFormNavigation.SelectUsers -> TODO()
     }
 
 @Composable

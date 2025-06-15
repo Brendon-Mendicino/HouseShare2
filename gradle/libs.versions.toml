@@ -28,6 +28,7 @@ desugar = "2.0.4"
 android-junit5 = "1.12.2.0"
 kotlinxSerialzation = "1.8.1"
 kotlinResult = "2.0.1"
+aformvalidator = "0.2.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -77,6 +78,10 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 # Desugaring
 com-android-tools-desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 
+# Form validator
+aformvalidator-annotation = { group = "io.github.brendon-mendicino", name = "aformvalidator-annotation", version.ref = "aformvalidator" }
+aformvalidator-processor = { group = "io.github.brendon-mendicino", name = "aformvalidator-processor", version.ref = "aformvalidator" }
+
 # Result type
 kotlin-result = { group = "com.michael-bull.kotlin-result", name = "kotlin-result", version.ref = "kotlinResult" }
 kotlin-result-coroutines = { group = "com.michael-bull.kotlin-result", name = "kotlin-result-coroutines", version.ref = "kotlinResult" }
@@ -95,3 +100,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 [bundles]
 unittest = ["junit-jupiter-api", "junit-jupiter-engine", "junit-jupiter-params", "assertk"]
 kotlin-result = ["kotlin-result", "kotlin-result-coroutines"]
+aformvalidator = ["aformvalidator-annotation", "aformvalidator-processor"]

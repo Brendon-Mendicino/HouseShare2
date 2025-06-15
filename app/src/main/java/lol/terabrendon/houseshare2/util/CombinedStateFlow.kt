@@ -13,6 +13,25 @@ import kotlinx.coroutines.launch
  * This combined flow keeps the current state updated in case the actual
  * value is updated, or if the other flow emits a new value. The state
  * is always computed by applying the [transform] function.
+ *
+ * # Examples
+ *
+ * ```
+ * private var _expenseFormState =
+ *     CombinedStateFlow(ExpenseFormState(), viewModelScope, users) { formState, users ->
+ *         // Keep the formState lists updated in case their sizes differs from
+ *         // the number of users.
+ *         val size = users.size
+ *
+ *         if (size == formState.paymentUnits.size)
+ *             return@CombinedStateFlow formState
+ *
+ *         formState.copy(
+ *             paymentUnits = (0..<size).map { PaymentUnit.Additive },
+ *             paymentValueUnits = (0..<size).map { null },
+ *         )
+ *     }
+ * ```
  */
 @Suppress("FunctionName")
 fun <T, U> CombinedStateFlow(

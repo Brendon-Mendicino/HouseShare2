@@ -3,6 +3,7 @@ package lol.terabrendon.houseshare2.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.data.entity.User
 import lol.terabrendon.houseshare2.data.entity.composite.UserWithGroups
@@ -16,6 +17,7 @@ interface UserDao {
     fun findById(id: Long): Flow<User?>
 
     @Query("select * from User where id=:userId")
+    @Transaction
     fun findGroupsByUserId(userId: Long): Flow<UserWithGroups?>
 
     @Query("select * from User where id in (:ids)")
