@@ -37,6 +37,7 @@ import lol.terabrendon.houseshare2.presentation.groups.form.GroupUsersFormScreen
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreen
+import lol.terabrendon.houseshare2.presentation.util.currentRoute
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import kotlin.reflect.KClass
@@ -92,105 +93,117 @@ private fun HouseShareMainInner(
         drawerState.close()
     }
 
-    ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
-        MainDrawerSheet(
-            topLevelRoutes = topLevelRoutes,
-            itemSelected = { topLevelRoute ->
-                currentBackStackDestination?.hierarchy?.any {
-                    it.hasRoute(
-                        topLevelRoute.route::class
-                    )
-                } == true
-            },
-            onItemClick = { topLevelRoute ->
-                navController.navigate(topLevelRoute.route) {
-                    // Pop up to the start destination of the graph to
-                    // avoid building up a large stack of destinations
-                    // on the back stack as users select items
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
-                        inclusive = true
-                    }
-                    // Avoid multiple copies of the same destination when
-                    // re-selecting the same item
-                    launchSingleTop = true
-                    // Restore state when re-selecting a previously selected item
-                    restoreState = true
-                }
-            },
-        )
-    }) {
-        Box {
-            Scaffold(
-                topBar = {
-                    MainTopBar(
-                        mainNavigation = currentNavigation,
-                        onNavigationClick = { scope.launch { drawerState.open() } },
-                        actions = appBarActions
-                    )
+    LocalFabActionManagerProvider { fabActionManager ->
+        ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
+            MainDrawerSheet(
+                topLevelRoutes = topLevelRoutes,
+                itemSelected = { topLevelRoute ->
+                    currentBackStackDestination?.hierarchy?.any {
+                        it.hasRoute(
+                            topLevelRoute.route::class
+                        )
+                    } == true
                 },
-                floatingActionButton = {
-                    MainFab(
-                        currentDestination = currentNavigation,
-                        onClick = {
-                            when (currentNavigation) {
-                                is MainNavigation.Groups -> navController.navigate(
-                                    GroupFormNavigation.SelectUsers
-                                )
-
-                                else -> TODO()
-                            }
-                        },
-                    )
-                },
-                modifier = Modifier.fillMaxSize()
-            ) { contentPadding ->
-
-                if (startingDestination::class == MainNavigation.Loading::class) {
-                    Log.d(TAG, "HouseShareMain: starting loading screen")
-                    // TODO: extract into splash screen
-                    Box(
-                        modifier = Modifier
-                            .padding(contentPadding)
-                            .fillMaxSize()
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-
-                    return@Scaffold
-                }
-
-                NavHost(
-                    navController = navController,
-                    startDestination = startingDestination,
-                    modifier = Modifier.padding(contentPadding),
-                ) {
-                    composable<MainNavigation.Cleaning> {
-                        CleaningScreen()
-                        Text(text = "Cleaning")
-                    }
-                    composable<MainNavigation.Shopping> {
-                        ShoppingScreen()
-                    }
-                    composable<MainNavigation.Billing> {
-                        BillingScreen()
-                    }
-                    composable<MainNavigation.Groups> {
-                        GroupsScreen()
-                    }
-
-                    navigation<MainNavigation.GroupForm>(startDestination = GroupFormNavigation.SelectUsers) {
-                        composable<GroupFormNavigation.SelectUsers> { entry ->
-                            val parentEntry =
-                                remember(entry) { navController.getBackStackEntry<MainNavigation.GroupForm>() }
-                            val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
-                            GroupUsersFormScreen(viewModel = viewModel)
+                onItemClick = { topLevelRoute ->
+                    navController.navigate(topLevelRoute.route) {
+                        // Pop up to the start destination of the graph to
+                        // avoid building up a large stack of destinations
+                        // on the back stack as users select items
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                            inclusive = true
                         }
-                        composable<GroupFormNavigation.GroupInfo> { entry ->
-                            val parentEntry =
-                                remember(entry) { navController.getBackStackEntry<MainNavigation.GroupForm>() }
-                            val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
-                            GroupInfoFormScreen(viewModel = viewModel)
+                        // Avoid multiple copies of the same destination when
+                        // re-selecting the same item
+                        launchSingleTop = true
+                        // Restore state when re-selecting a previously selected item
+                        restoreState = true
+                    }
+                },
+            )
+        }) {
+            Box {
+                Scaffold(
+                    topBar = {
+                        MainTopBar(
+                            mainNavigation = currentNavigation,
+                            onNavigationClick = { scope.launch { drawerState.open() } },
+                            actions = appBarActions
+                        )
+                    },
+                    floatingActionButton = {
+                        MainFab(
+                            currentEntry = navBackStackEntry,
+                            onClick = {
+                                when (navBackStackEntry?.currentRoute()) {
+                                    null -> {}
+                                    is MainNavigation.Groups -> navController.navigate(
+                                        GroupFormNavigation.SelectUsers
+                                    )
+
+                                    is GroupFormNavigation.SelectUsers -> navController.navigate(
+                                        GroupFormNavigation.GroupInfo
+                                    )
+
+                                    is GroupFormNavigation.GroupInfo -> fabActionManager.fabAction.value?.invoke()
+
+                                    else -> TODO()
+                                }
+                            },
+                        )
+                    },
+                    modifier = Modifier.fillMaxSize()
+                ) { contentPadding ->
+
+                    if (startingDestination::class == MainNavigation.Loading::class) {
+                        Log.d(TAG, "HouseShareMain: starting loading screen")
+                        // TODO: extract into splash screen
+                        Box(
+                            modifier = Modifier
+                                .padding(contentPadding)
+                                .fillMaxSize()
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+
+                        return@Scaffold
+                    }
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = startingDestination,
+                        modifier = Modifier.padding(contentPadding),
+                    ) {
+                        composable<MainNavigation.Cleaning> {
+                            CleaningScreen()
+                            Text(text = "Cleaning")
+                        }
+                        composable<MainNavigation.Shopping> {
+                            ShoppingScreen()
+                        }
+                        composable<MainNavigation.Billing> {
+                            BillingScreen()
+                        }
+                        composable<MainNavigation.Groups> {
+                            GroupsScreen()
+                        }
+
+                        navigation<MainNavigation.GroupForm>(startDestination = GroupFormNavigation.SelectUsers) {
+                            composable<GroupFormNavigation.SelectUsers> { entry ->
+                                val parentEntry =
+                                    remember(entry) { navController.getBackStackEntry<MainNavigation.GroupForm>() }
+                                val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
+                                GroupUsersFormScreen(viewModel = viewModel)
+                            }
+                            composable<GroupFormNavigation.GroupInfo> { entry ->
+                                val parentEntry =
+                                    remember(entry) { navController.getBackStackEntry<MainNavigation.GroupForm>() }
+                                val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
+                                GroupInfoFormScreen(
+                                    viewModel = viewModel,
+                                    navController = navController
+                                )
+                            }
                         }
                     }
                 }

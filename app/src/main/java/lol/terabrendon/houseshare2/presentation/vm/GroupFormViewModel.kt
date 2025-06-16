@@ -99,7 +99,15 @@ class GroupFormViewModel @Inject constructor(
     }
 
     private fun onSubmit() {
-        val newGroup = groupFormStateMapper.map(_groupFormState.value.toData())
+        val formState = _groupFormState.value
+
+        if (formState.isError) {
+            val msg = "onSubmit: the formState was being submitted in error state! state=$formState"
+            Log.e(TAG, msg)
+            throw IllegalStateException(msg)
+        }
+
+        val newGroup = groupFormStateMapper.map(formState.toData())
 
         viewModelScope.launch {
             groupRepository.insert(newGroup)

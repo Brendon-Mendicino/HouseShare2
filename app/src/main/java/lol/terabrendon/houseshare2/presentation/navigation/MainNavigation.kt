@@ -40,6 +40,17 @@ sealed class MainNavigation {
                 }
             )
         }
+
+        fun subclasses(): List<KClass<out MainNavigation>> = listOf(
+            Cleaning::class,
+            Shopping::class,
+            Billing::class,
+            Groups::class,
+            Loading::class,
+            GroupForm::class,
+            GroupFormNavigation.GroupInfo::class,
+            GroupFormNavigation.SelectUsers::class,
+        )
     }
 
     @StringRes
