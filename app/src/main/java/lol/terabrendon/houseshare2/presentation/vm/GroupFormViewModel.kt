@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -17,6 +19,7 @@ import lol.terabrendon.houseshare2.domain.model.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupFormEvent
+import lol.terabrendon.houseshare2.presentation.groups.form.GroupFormUiEvent
 import lol.terabrendon.houseshare2.util.CombinedStateFlow
 import lol.terabrendon.houseshare2.util.mapState
 import javax.inject.Inject
@@ -31,6 +34,9 @@ class GroupFormViewModel @Inject constructor(
     }
 
     private val groupFormStateMapper = GroupFormStateMapper()
+
+    private var _uiEvent = Channel<GroupFormUiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     // TODO: the current logged in user should be in the list by default
     private var _selectedUsers = MutableStateFlow<MutableMap<Long, UserModel>>(linkedMapOf())
@@ -102,15 +108,29 @@ class GroupFormViewModel @Inject constructor(
         val formState = _groupFormState.value
 
         if (formState.isError) {
-            val msg = "onSubmit: the formState was being submitted in error state! state=$formState"
-            Log.e(TAG, msg)
-            throw IllegalStateException(msg)
+//            val msg = "onSubmit: the formState was being submitted in error state! state=$formState"
+//            Log.e(TAG, msg)
+//            throw IllegalStateException(msg)
+            viewModelScope.launch {
+                _uiEvent.send(GroupFormUiEvent.SubmitFailure(formState.errors.first()))
+            }
+            return
         }
 
         val newGroup = groupFormStateMapper.map(formState.toData())
 
         viewModelScope.launch {
+            Log.i(
+                TAG,
+                "onSubmit: Inserting a new group with name \"${newGroup.info.name}\" to the repository"
+            )
+
             groupRepository.insert(newGroup)
+
+            _uiEvent.send(GroupFormUiEvent.SubmitSuccess)
+
+            _selectedUsers.value = mutableMapOf()
+            _groupFormState.value = GroupFormState().toValidator()
         }
     }
 }

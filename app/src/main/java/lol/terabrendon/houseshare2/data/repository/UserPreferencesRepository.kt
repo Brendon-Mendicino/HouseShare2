@@ -9,5 +9,9 @@ interface UserPreferencesRepository {
 
     val topLevelRoutes: Flow<List<MainNavigation>>
 
+    val currentLoggedUserId: Flow<Long?>
+
     suspend fun updateMainDestination(destination: KClass<out MainNavigation>)
+
+    suspend fun updateCurrentLoggedUser(userId: Long)
 }

@@ -49,4 +49,8 @@
     <string name="groups">Groups</string>
     <string name="group_name">Group name</string>
     <string name="selected_user">Selected user</string>
+    <string name="group_description">Group description</string>
+    <string name="should_not_be_blank">%1$s should not be blank!</string>
+    <string name="does_not_match_the_correct_pattern">%1$s does not match the correct pattern!</string>
+    <string name="does_not_match_the_correct_size">%1$s does not match the correct size!</string>
 </resources>

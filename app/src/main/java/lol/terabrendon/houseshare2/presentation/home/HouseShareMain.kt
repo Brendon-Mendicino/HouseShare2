@@ -8,6 +8,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -37,9 +40,11 @@ import lol.terabrendon.houseshare2.presentation.groups.form.GroupUsersFormScreen
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreen
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.currentRoute
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
+import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import kotlin.reflect.KClass
 
 private const val TAG = "HouseShareMain"
@@ -75,6 +80,7 @@ private fun HouseShareMainInner(
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentBackStackDestination = navBackStackEntry?.destination
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val scope = rememberCoroutineScope()
 
@@ -91,6 +97,22 @@ private fun HouseShareMainInner(
             }
 
         drawerState.close()
+    }
+
+    ObserveAsEvent(SnackbarController.events, snackbarHostState) { event ->
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+
+            val result = snackbarHostState.showSnackbar(
+                message = event.message,
+                actionLabel = event.action?.name,
+                duration = event.duration,
+            )
+
+            if (result == SnackbarResult.ActionPerformed) {
+                event.action?.action?.invoke()
+            }
+        }
     }
 
     LocalFabActionManagerProvider { fabActionManager ->
@@ -152,7 +174,12 @@ private fun HouseShareMainInner(
                             },
                         )
                     },
-                    modifier = Modifier.fillMaxSize()
+                    snackbarHost = {
+                        SnackbarHost(
+                            hostState = snackbarHostState,
+                        )
+                    },
+                    modifier = Modifier.fillMaxSize(),
                 ) { contentPadding ->
 
                     if (startingDestination::class == MainNavigation.Loading::class) {

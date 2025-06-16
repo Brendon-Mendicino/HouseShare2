@@ -2,23 +2,30 @@ package lol.terabrendon.houseshare2.presentation.groups.form
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
-import lol.terabrendon.houseshare2.presentation.util.LocalFabActionManager
+import lol.terabrendon.houseshare2.presentation.fab.RegisterFabAction
+import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
+import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
+import lol.terabrendon.houseshare2.util.ObserveAsEvent
 
 private const val TAG: String = "GroupInfoFormScreen"
 
@@ -28,19 +35,22 @@ fun GroupInfoFormScreen(
     navController: NavController,
 ) {
     val formState by viewModel.groupFormState.collectAsState()
-    val fabActionManager = LocalFabActionManager.current
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        Log.i(TAG, "GroupInfoFormScreen: setting fabActionManager")
-        fabActionManager.setFabAction {
-            viewModel.onEvent(GroupFormEvent.Submit)
-        }
+    RegisterFabAction {
+        Log.d(TAG, "GroupInfoFormScreen: fab has been clicked")
+        viewModel.onEvent(GroupFormEvent.Submit)
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            Log.d(TAG, "GroupInfoFormScreen: resetting fabActionManager")
-            fabActionManager.setFabAction(null)
+    ObserveAsEvent(viewModel.uiEvent) {
+        when (it) {
+            is GroupFormUiEvent.SubmitFailure -> scope.launch {
+                SnackbarController.sendEvent(SnackbarEvent(message = "erroreeee"))
+            }
+
+            GroupFormUiEvent.SubmitSuccess -> navController.popBackStack<GroupFormNavigation.SelectUsers>(
+                inclusive = true
+            )
         }
     }
 
@@ -56,17 +66,19 @@ private fun GroupInfoFormScreenInner(
     onEvent: (GroupFormEvent) -> Unit = {}
 ) {
 
-    Column {
+    Column(modifier = Modifier.padding(8.dp)) {
         FormOutlinedTextField(
             param = groupFormState.name,
-            label = { Text(stringResource(R.string.name)) },
+            labelText = stringResource(R.string.group_name),
             onValueChange = { onEvent(GroupFormEvent.NameChanged(it)) },
+            modifier = Modifier.fillMaxWidth(),
         )
 
         FormOutlinedTextField(
             param = groupFormState.description,
+            labelText = stringResource(R.string.group_description),
             onValueChange = { onEvent(GroupFormEvent.DescriptionChanged(it)) },
-            label = { Text(stringResource(R.string.group_name)) },
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

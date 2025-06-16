@@ -1,5 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,8 +17,15 @@ class GroupsViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+    companion object {
+        private const val TAG: String = "GroupsViewModel"
+    }
 
     private val args = savedStateHandle.toRoute<MainNavigation.Groups>()
+
+    init {
+        Log.i(TAG, ": args=$args")
+    }
 
     val groups = userRepository.findGroupsByUserId(args.currentUserId).stateIn(
         viewModelScope,

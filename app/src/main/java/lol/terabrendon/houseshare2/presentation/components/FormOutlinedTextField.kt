@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import io.github.brendonmendicino.aformvalidator.annotation.ParamState
+import io.github.brendonmendicino.aformvalidator.annotation.ValidationError
+import lol.terabrendon.houseshare2.presentation.util.errorText
 
 /**
  * <a href="https://m3.material.io/components/text-fields/overview" class="external" target="_blank">Material Design outlined text field</a>.
@@ -91,13 +93,19 @@ fun <T : Any?, E : Any> FormOutlinedTextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    label: @Composable (() -> Unit)? = null,
+    labelText: String,
+    label: @Composable (() -> Unit)? = { Text(labelText) },
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     prefix: @Composable (() -> Unit)? = null,
     suffix: @Composable (() -> Unit)? = null,
-    errorConverter: (E) -> String = { it.toString() },
+    errorConverter: @Composable (E) -> String = {
+        when (it) {
+            is ValidationError -> it.errorText(labelText)
+            else -> it.toString()
+        }
+    },
     supportingText: @Composable (() -> Unit)? = {
         param.error?.let {
             if (param.used) {

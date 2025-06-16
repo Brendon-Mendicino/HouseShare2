@@ -2,6 +2,7 @@ package lol.terabrendon.houseshare2.data.repository
 
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import lol.terabrendon.houseshare2.data.dao.UserDao
 import lol.terabrendon.houseshare2.data.entity.User
@@ -11,6 +12,8 @@ import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
+    // TODO: REMOVE
+    private val sharedPreferencesRepository: UserPreferencesRepository,
 ) : UserRepository {
     companion object {
         private const val TAG = "UserRepository"
@@ -29,6 +32,10 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun insert(user: UserModel) {
         val user = User.from(user)
         val newId = userDao.insert(user)
+
+        // TODO: REMOVE
+        if (sharedPreferencesRepository.currentLoggedUserId.first() == null)
+            sharedPreferencesRepository.updateCurrentLoggedUser(newId)
 
         Log.i(TAG, "insert: added new user: ${user.copy(id = newId)}")
     }
