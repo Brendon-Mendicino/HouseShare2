@@ -18,41 +18,41 @@ import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupFormEvent
 import lol.terabrendon.houseshare2.util.CombinedStateFlow
+import lol.terabrendon.houseshare2.util.mapState
 import javax.inject.Inject
 
 @HiltViewModel
 class GroupFormViewModel @Inject constructor(
     private val groupRepository: GroupRepository,
-    private val userRepository: UserRepository,
+    userRepository: UserRepository,
 ) : ViewModel() {
-    init {
-        Log.d(TAG, "init: ")
-    }
-
     companion object {
         const val TAG: String = "GroupFormViewModel"
     }
 
     private val groupFormStateMapper = GroupFormStateMapper()
 
-    private var selectedUsers = MutableStateFlow<LinkedHashMap<Long, UserModel>>(linkedMapOf())
+    // TODO: the current logged in user should be in the list by default
+    private var _selectedUsers = MutableStateFlow<MutableMap<Long, UserModel>>(linkedMapOf())
+    val selectedUsers = _selectedUsers.mapState(viewModelScope) { it.keys.toSet() }
 
     private var _groupFormState =
         CombinedStateFlow(
             GroupFormState().toValidator(),
             viewModelScope,
-            selectedUsers,
+            _selectedUsers,
         ) { state, users ->
             val stateUsersSize = state.users.value.size
 
-            if (stateUsersSize == users.size) {
-                Log.d(TAG, "combinedstateflow: ${state}")
+            if (stateUsersSize == users.size)
                 return@CombinedStateFlow state
-            }
 
-            Log.d(TAG, "enteriiinggggg: ${state}")
-//            state.copy(users = state.users.copy(users.values.toList()))
-            state
+            Log.i(
+                TAG,
+                "CombinedStateFlow: updating _groupFormState.users because their sizes differ from the one the user! users.size=${users.size}, state.users.size=${state.users.value.size}"
+            )
+
+            state.copy(users = state.users.copy(users.values.toList()))
         }
 
     val groupFormState = _groupFormState.asStateFlow()
@@ -77,19 +77,20 @@ class GroupFormViewModel @Inject constructor(
             }
 
             is GroupFormEvent.UserListClicked -> {
-                selectedUsers.update {
+                _selectedUsers.update {
                     val userAlreadySelected = event.user.id in it
+                    Log.d(TAG, "onEvent: userAlreadySelected=$userAlreadySelected")
 
-                    LinkedHashMap(
-                        if (userAlreadySelected) it.apply { remove(event.user.id) }
-                        else it.apply { set(event.user.id, event.user) }
-                    )
+                    it.toMutableMap().apply {
+                        if (userAlreadySelected) remove(event.user.id)
+                        else set(event.user.id, event.user)
+                    }
                 }
             }
 
             is GroupFormEvent.UserSelectedClicked -> {
-                selectedUsers.update {
-                    LinkedHashMap(it.apply { remove(event.userId) })
+                _selectedUsers.update {
+                    it.toMutableMap().apply { remove(event.userId) }
                 }
             }
 

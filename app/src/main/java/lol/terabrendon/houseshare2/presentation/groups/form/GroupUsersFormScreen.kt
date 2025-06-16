@@ -1,6 +1,10 @@
 package lol.terabrendon.houseshare2.presentation.groups.form
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -13,29 +17,39 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
+import androidx.compose.material3.InputChipDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.model.UserModel
@@ -47,12 +61,16 @@ private const val TAG: String = "GroupUsersFormScreen"
 
 @Composable
 fun GroupUsersFormScreen(viewModel: GroupFormViewModel = hiltViewModel()) {
+    Log.d(TAG, "GroupUsersFormScreen: entering screen")
+
     val formState by viewModel.groupFormState.collectAsState()
     val users by viewModel.users.collectAsState()
+    val selectedUsers by viewModel.selectedUsers.collectAsState()
 
     GroupUsersFormScreenInner(
         groupFormState = formState,
         users = users,
+        selectedUsers = selectedUsers,
         onEvent = viewModel::onEvent,
     )
 }
@@ -62,11 +80,18 @@ fun GroupUsersFormScreen(viewModel: GroupFormViewModel = hiltViewModel()) {
 private fun GroupUsersFormScreenInner(
     groupFormState: GroupFormStateValidator,
     users: List<UserModel>,
+    selectedUsers: Set<Long>,
     onEvent: (GroupFormEvent) -> Unit,
 ) {
-    Log.d(TAG, "GroupUsersFormScreenInner: groupFormState=$groupFormState")
-    var selectedChip by remember { mutableStateOf<Int?>(null) }
+    var selectedChipUserId by remember { mutableStateOf<Long?>(null) }
     var chipBounds by remember { mutableStateOf<Rect?>(null) }
+
+    // When the selectedUsers are updated, remove the selectedChip if it's not
+    // contained in the users anymore
+    LaunchedEffect(selectedUsers) {
+        if (!selectedUsers.contains(selectedChipUserId))
+            selectedChipUserId = null
+    }
 
     LazyColumn {
         // Selected users
@@ -79,23 +104,37 @@ private fun GroupUsersFormScreenInner(
                     .pointerInput(chipBounds) {
                         detectTapGestures { offset ->
                             val isInsideChip = chipBounds?.contains(offset) == true
-                            if (!isInsideChip && selectedChip != null) {
-                                selectedChip = null
+                            if (!isInsideChip && selectedChipUserId != null) {
+                                selectedChipUserId = null
                             }
                         }
                     },
             ) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    groupFormState.users.value.forEachIndexed { index, user ->
-                        SelectedUserItem(
-                            user = user,
-                            selected = index == selectedChip,
-                            onSelected = {
-                                selectedChip = index
-                                chipBounds = it
-                            },
-                            onSelectedClick = { onEvent(GroupFormEvent.UserSelectedClicked(user.id)) },
-                        )
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .animateContentSize(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    groupFormState.users.value.forEach { user ->
+                        key(user.id) {
+                            SelectedUserItem(
+                                modifier = Modifier.animateItem(),
+                                user = user,
+                                selected = user.id == selectedChipUserId,
+                                onSelected = {
+                                    selectedChipUserId = user.id
+                                    chipBounds = it
+                                },
+                                onSelectedClick = {
+                                    onEvent(
+                                        GroupFormEvent.UserSelectedClicked(
+                                            user.id
+                                        )
+                                    )
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -104,42 +143,83 @@ private fun GroupUsersFormScreenInner(
         }
 
         // List of users to select from
-        items(users) { user ->
-            UserListItem(user = user, onClick = { onEvent(GroupFormEvent.UserListClicked(it)) })
+        items(users, key = { it.id }) { user ->
+            UserListItem(
+                user = user,
+                selected = selectedUsers.contains(user.id),
+                onClick = { onEvent(GroupFormEvent.UserListClicked(it)) },
+            )
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-private fun UserListItem(user: UserModel, onClick: (UserModel) -> Unit) {
-    Row(
+private fun UserListItem(user: UserModel, selected: Boolean, onClick: (UserModel) -> Unit) {
+    Box(
         modifier = Modifier
-            .padding(vertical = 8.dp, horizontal = 16.dp)
             .fillMaxWidth()
             .clickable {
                 onClick(user)
             },
     ) {
-        AvatarIcon(firstName = user.username)
+        Row(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+            Box {
+                AvatarIcon(firstName = user.username)
+                // Without the full import for
+                // some strange reason the compiler was picking up the
+                // RowScope.AnimatedVisibility composable
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = selected, modifier = Modifier.align(
+                        Alignment.BottomEnd
+                    )
+                ) {
+                    Box {
+                        Icon(
+                            modifier = Modifier
+                                .size(18.dp)
+                                .align(Alignment.Center),
+                            imageVector = Icons.Filled.Circle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.background,
+                        )
+                        Icon(
+                            modifier = Modifier
+                                .size(16.dp)
+                                .align(Alignment.Center),
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = stringResource(R.string.selected_user),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
+            }
 
-        Spacer(Modifier.requiredWidth(16.dp))
+            Spacer(Modifier.requiredWidth(16.dp))
 
-        Text(text = user.username)
+            Text(text = user.username)
+        }
+
     }
 }
 
 @Composable
 private fun SelectedUserItem(
+    modifier: Modifier = Modifier,
     user: UserModel,
     selected: Boolean,
     onSelected: (chipBounds: Rect?) -> Unit,
     onSelectedClick: (UserModel) -> Unit,
 ) {
     var chipBounds by remember { mutableStateOf<Rect?>(null) }
+    val backgroundColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
+        animationSpec = tween(300),
+        label = "InputChipBackgroundColor"
+    )
 
     InputChip(
-        modifier = Modifier
+        modifier = modifier
             .onGloballyPositioned { layoutCoordinates ->
                 val localBounds = layoutCoordinates.boundsInRoot()
                 chipBounds = Rect(
@@ -158,8 +238,14 @@ private fun SelectedUserItem(
         label = {
             Text(text = user.username)
         },
+        colors = InputChipDefaults.inputChipColors(
+            containerColor = backgroundColor,
+            selectedContainerColor = backgroundColor,
+        ),
         trailingIcon = {
-            Icon(Icons.Filled.Close, contentDescription = null)
+            AnimatedVisibility(visible = selected) {
+                Icon(Icons.Filled.Close, contentDescription = null)
+            }
         },
         avatar = {
             AvatarIcon(size = 24.dp, firstName = user.username)
@@ -170,9 +256,11 @@ private fun SelectedUserItem(
 @Preview(showBackground = true)
 @Composable
 fun GroupUsersFormScreenPreview() {
+    val selected = (0..3).map { UserModel.default().copy(id = it.toLong()) }
     GroupUsersFormScreenInner(
-        groupFormState = GroupFormState(users = (0..4).map { UserModel.default() }).toValidator(),
-        users = (0..4).map { UserModel.default() },
+        groupFormState = GroupFormState(users = selected).toValidator(),
+        users = (0..5).map { UserModel.default().copy(id = it.toLong()) },
+        selectedUsers = selected.map { it.id }.toSet(),
         onEvent = {},
     )
 }

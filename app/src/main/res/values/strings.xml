@@ -48,4 +48,5 @@
     <string name="payed_by">Paid by</string>
     <string name="groups">Groups</string>
     <string name="group_name">Group name</string>
+    <string name="selected_user">Selected user</string>
 </resources>
