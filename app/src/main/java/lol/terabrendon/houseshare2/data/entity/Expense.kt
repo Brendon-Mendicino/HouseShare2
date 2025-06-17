@@ -16,8 +16,16 @@ import java.time.LocalDateTime
             parentColumns = ["id"],
             childColumns = ["ownerId"],
             onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
         ),
-    ]
+        ForeignKey(
+            entity = Group::class,
+            parentColumns = ["id"],
+            childColumns = ["groupId"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
+        ),
+    ],
 )
 data class Expense(
     @PrimaryKey(autoGenerate = true)
@@ -33,6 +41,11 @@ data class Expense(
      */
     @ColumnInfo(index = true)
     val payerId: Long,
+    /**
+     * The group where this expense belongs
+     */
+    @ColumnInfo(index = true)
+    val groupId: Long,
     val category: ExpenseCategory,
     val title: String,
     val description: String?,
@@ -56,6 +69,7 @@ data class Expense(
             amount = expense.amount,
             ownerId = expense.expenseOwner.id,
             payerId = expense.expensePayer.id,
+            groupId = expense.groupId,
             title = expense.title,
             category = expense.category,
             description = expense.description,

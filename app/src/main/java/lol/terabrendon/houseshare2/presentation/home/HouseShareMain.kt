@@ -33,10 +33,13 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.presentation.MainTopBar
 import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
+import lol.terabrendon.houseshare2.presentation.billing.NewExpenseForm
 import lol.terabrendon.houseshare2.presentation.cleaning.CleaningScreen
+import lol.terabrendon.houseshare2.presentation.fab.MainFab
 import lol.terabrendon.houseshare2.presentation.groups.GroupsScreen
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupInfoFormScreen
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupUsersFormScreen
+import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreen
@@ -44,6 +47,7 @@ import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.currentRoute
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
+import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import kotlin.reflect.KClass
 
@@ -163,6 +167,10 @@ private fun HouseShareMainInner(
                                         GroupFormNavigation.SelectUsers
                                     )
 
+                                    is MainNavigation.Billing -> navController.navigate(
+                                        MainNavigation.ExpenseForm
+                                    )
+
                                     is GroupFormNavigation.SelectUsers -> navController.navigate(
                                         GroupFormNavigation.GroupInfo
                                     )
@@ -208,13 +216,31 @@ private fun HouseShareMainInner(
                         composable<MainNavigation.Shopping> {
                             ShoppingScreen()
                         }
+
                         composable<MainNavigation.Billing> {
                             BillingScreen()
                         }
+                        navigation<MainNavigation.ExpenseForm>(startDestination = ExpenseFormNavigation.Expense) {
+                            composable<ExpenseFormNavigation.Expense> { entry ->
+                                val parentEntry =
+                                    remember(entry) { navController.getBackStackEntry<MainNavigation.ExpenseForm>() }
+                                val viewModel = hiltViewModel<NewExpenseFormViewModel>(parentEntry)
+                                NewExpenseForm(viewModel = viewModel, onFinish = {
+                                    Log.i(
+                                        TAG,
+                                        "HouseShareMainInner: NewExpense form onFinish called."
+                                    )
+                                    navController.popBackStack<ExpenseFormNavigation.Expense>(
+                                        inclusive = true
+                                    )
+                                })
+                            }
+                        }
+
+
                         composable<MainNavigation.Groups> {
                             GroupsScreen()
                         }
-
                         navigation<MainNavigation.GroupForm>(startDestination = GroupFormNavigation.SelectUsers) {
                             composable<GroupFormNavigation.SelectUsers> { entry ->
                                 val parentEntry =

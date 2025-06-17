@@ -57,14 +57,14 @@ import lol.terabrendon.houseshare2.util.currencyFormat
 @Composable
 fun NewExpenseForm(
     modifier: Modifier = Modifier,
-    newExpenseFormViewModel: NewExpenseFormViewModel = hiltViewModel(),
+    viewModel: NewExpenseFormViewModel = hiltViewModel(),
     onFinish: () -> Unit,
 ) {
-    val expenseFormState by newExpenseFormViewModel.expenseFormState.collectAsStateWithLifecycle()
-    val payments by newExpenseFormViewModel.payments.collectAsStateWithLifecycle()
-    val users by newExpenseFormViewModel.users.collectAsStateWithLifecycle()
+    val expenseFormState by viewModel.expenseFormState.collectAsStateWithLifecycle()
+    val payments by viewModel.payments.collectAsStateWithLifecycle()
+    val users by viewModel.users.collectAsStateWithLifecycle()
 
-    ObserveAsEvent(newExpenseFormViewModel.finishedChannelFlow) {
+    ObserveAsEvent(viewModel.finishedChannelFlow) {
         onFinish()
     }
 
@@ -74,7 +74,7 @@ fun NewExpenseForm(
         users = users,
         payments = payments,
         onFinish = onFinish,
-        onEvent = newExpenseFormViewModel::onEvent,
+        onEvent = viewModel::onEvent,
     )
 }
 

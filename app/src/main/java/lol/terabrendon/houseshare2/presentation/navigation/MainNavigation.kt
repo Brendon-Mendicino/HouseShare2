@@ -28,6 +28,9 @@ sealed class MainNavigation {
     @Serializable
     object GroupForm : MainNavigation()
 
+    @Serializable
+    object ExpenseForm : MainNavigation()
+
     companion object {
         fun KClass<out MainNavigation>.toPreferences(): Result<UserPreferences.MainDestination, Throwable> {
             return Ok(
@@ -48,8 +51,10 @@ sealed class MainNavigation {
             Groups::class,
             Loading::class,
             GroupForm::class,
+            ExpenseForm::class,
             GroupFormNavigation.GroupInfo::class,
             GroupFormNavigation.SelectUsers::class,
+            ExpenseFormNavigation.Expense::class,
         )
     }
 
@@ -61,8 +66,10 @@ sealed class MainNavigation {
         is Groups -> R.string.groups
         is Loading -> R.string.loading
         is GroupForm -> TODO()
+        is ExpenseForm -> TODO()
         is GroupFormNavigation.GroupInfo -> TODO()
         is GroupFormNavigation.SelectUsers -> TODO()
+        is ExpenseFormNavigation.Expense -> TODO()
     }
 }
 

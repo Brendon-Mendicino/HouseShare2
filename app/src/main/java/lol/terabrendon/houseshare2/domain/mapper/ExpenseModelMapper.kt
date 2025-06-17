@@ -16,6 +16,7 @@ class ExpenseModelMapper {
         expenseOwner: UserModel,
         payments: List<UserPaymentState>,
         creationTimestamp: LocalDateTime = LocalDateTime.now(),
+        groupId: Long,
     ): Result<ExpenseModel, String> {
         return Ok(
             ExpenseModel(
@@ -23,6 +24,7 @@ class ExpenseModelMapper {
                 amount = formState.moneyAmount,
                 expenseOwner = expenseOwner,
                 expensePayer = formState.payer ?: return Err("Payer from formState was null!"),
+                groupId = groupId,
                 category = formState.category ?: return Err("Category from formState was null!"),
                 title = formState.title,
                 description = formState.description,

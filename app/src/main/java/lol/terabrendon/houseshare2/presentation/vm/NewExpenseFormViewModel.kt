@@ -1,7 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.getOrElse
@@ -10,14 +9,15 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
-import lol.terabrendon.houseshare2.data.repository.UserRepository
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseModelMapper
+import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormEvent
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormState
 import lol.terabrendon.houseshare2.presentation.billing.PaymentUnit
@@ -29,8 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewExpenseFormViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
-    private val userRepository: UserRepository,
-    private val savedStateHandle: SavedStateHandle,
+    getSelectedGroup: GetSelectedGroupUseCase,
 ) : ViewModel() {
     companion object {
         private const val TAG = "NewExpenseFormViewModel"
@@ -46,14 +45,17 @@ class NewExpenseFormViewModel @Inject constructor(
      */
     val finishedChannelFlow: Flow<Unit> = finishedChannel.receiveAsFlow()
 
+    private val selectedGroup = getSelectedGroup.execute()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    // TODO: use real users of the group
-    val users = userRepository.findAll()
+
+    val users = selectedGroup
+        .map { it?.users ?: emptyList() }
         .onEach {
             Log.i(TAG, "onEach: Getting updated list of users from the database.")
         }
         .stateIn(
-            viewModelScope, SharingStarted.WhileSubscribed(5000), listOf()
+            viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
         )
 
     private var _expenseFormState =
@@ -190,17 +192,25 @@ class NewExpenseFormViewModel @Inject constructor(
 
     private fun onConfirm() {
         val owner = users.value.first()
+        val groupId = selectedGroup.value?.info?.groupId
+            ?: run {
+                val msg =
+                    "There is not selectedGroup! Choose a group first and then proceed with the form!"
+                Log.e(TAG, "onConfirm: $msg")
+                throw IllegalStateException(msg)
+            }
 
         val expense = expenseModelMapper
             .map(
                 formState = expenseFormState.value,
                 expenseOwner = owner,
                 payments = payments.value,
+                groupId = groupId,
             )
             .getOrElse {
                 val msg = "expense model mapping failed! Error msg: $it"
                 Log.e(TAG, "onConfirm: $msg")
-                throw RuntimeException(msg)
+                throw IllegalStateException(msg)
             }
 
         viewModelScope.launch {
@@ -209,8 +219,6 @@ class NewExpenseFormViewModel @Inject constructor(
             expenseRepository.insert(expense)
 
             finishedChannel.send(Unit)
-
-            _expenseFormState.value = ExpenseFormState()
         }
     }
 }
