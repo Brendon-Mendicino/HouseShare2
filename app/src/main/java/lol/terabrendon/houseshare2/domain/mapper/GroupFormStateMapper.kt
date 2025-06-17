@@ -9,6 +9,7 @@ class GroupFormStateMapper {
         info = GroupInfoModel(
             groupId = 0,
             name = group.name,
+            description = group.description,
         ),
         users = group.users,
     )

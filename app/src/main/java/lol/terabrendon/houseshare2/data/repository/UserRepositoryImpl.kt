@@ -43,6 +43,12 @@ class UserRepositoryImpl @Inject constructor(
     override fun findGroupsByUserId(userId: Long): Flow<List<GroupInfoModel>> = userDao
         .findGroupsByUserId(userId)
         .map { groups ->
-            groups?.groups?.map { GroupInfoModel(groupId = it.id, name = it.name) } ?: emptyList()
+            groups?.groups?.map {
+                GroupInfoModel(
+                    groupId = it.id,
+                    name = it.name,
+                    description = it.description
+                )
+            } ?: emptyList()
         }
 }

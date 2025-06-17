@@ -11,7 +11,11 @@ interface UserPreferencesRepository {
 
     val currentLoggedUserId: Flow<Long?>
 
+    val selectedGroupId: Flow<Long?>
+
     suspend fun updateMainDestination(destination: KClass<out MainNavigation>)
 
     suspend fun updateCurrentLoggedUser(userId: Long)
+
+    suspend fun updateSelectedGroupId(groupId: Long?)
 }

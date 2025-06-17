@@ -10,6 +10,7 @@ class GroupEntityMapper {
         info = GroupInfoModel(
             groupId = group.group.id,
             name = group.group.name,
+            description = group.group.description,
         ),
         users = group.users.map { UserModel.from(it) },
     )

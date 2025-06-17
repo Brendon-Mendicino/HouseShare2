@@ -58,6 +58,9 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override val currentLoggedUserId: Flow<Long?>
         get() = userPreferencesFlow.map { if (it.currentLoggedUserId == 0L) null else it.currentLoggedUserId }
 
+    override val selectedGroupId: Flow<Long?>
+        get() = userPreferencesFlow.map { if (it.selectedGroupId == 0L) null else it.selectedGroupId }
+
     override suspend fun updateMainDestination(destination: KClass<out MainNavigation>) {
         userPreferencesStore.updateData { preferences ->
             Log.i(TAG, "updateMainDestination: saving ${destination.qualifiedName} to DataStore.")
@@ -78,6 +81,16 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             preferences
                 .toBuilder()
                 .setCurrentLoggedUserId(userId)
+                .build()
+        }
+    }
+
+    override suspend fun updateSelectedGroupId(groupId: Long?) {
+        userPreferencesStore.updateData { preferences ->
+            Log.i(TAG, "updateCurrentLoggedUser: save groupId=$groupId to DataStore.")
+            preferences
+                .toBuilder()
+                .setSelectedGroupId(groupId ?: 0)
                 .build()
         }
     }

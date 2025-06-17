@@ -108,9 +108,6 @@ class GroupFormViewModel @Inject constructor(
         val formState = _groupFormState.value
 
         if (formState.isError) {
-//            val msg = "onSubmit: the formState was being submitted in error state! state=$formState"
-//            Log.e(TAG, msg)
-//            throw IllegalStateException(msg)
             viewModelScope.launch {
                 _uiEvent.send(GroupFormUiEvent.SubmitFailure(formState.errors.first()))
             }
@@ -128,9 +125,6 @@ class GroupFormViewModel @Inject constructor(
             groupRepository.insert(newGroup)
 
             _uiEvent.send(GroupFormUiEvent.SubmitSuccess)
-
-            _selectedUsers.value = mutableMapOf()
-            _groupFormState.value = GroupFormState().toValidator()
         }
     }
 }
