@@ -69,7 +69,7 @@ fun ShoppingScreen(modifier: Modifier = Modifier) {
                     onChecked = { id, selected -> shoppingViewModel.onItemSelected(id, selected) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateItemPlacement()
+                        .animateItem()
                 )
             }
         }
@@ -147,7 +147,8 @@ fun ShoppingItemForm(
             ),
             modifier = textModifier
         )
-        FormTextField(value = price?.let { currencyFormat.format(it) } ?: "",
+        FormTextField(
+            value = price?.let { currencyFormat.format(it) } ?: "",
             onValueChange = { newPrice ->
                 price = currencyFormat.runCatching { parse(newPrice).toDouble() }.getOrNull()
             },

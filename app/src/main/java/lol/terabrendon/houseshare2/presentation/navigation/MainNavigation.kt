@@ -23,7 +23,7 @@ sealed class MainNavigation {
     object Billing : MainNavigation()
 
     @Serializable
-    data class Groups(val currentUserId: Long) : MainNavigation()
+    object Groups : MainNavigation()
 
     @Serializable
     object GroupForm : MainNavigation()

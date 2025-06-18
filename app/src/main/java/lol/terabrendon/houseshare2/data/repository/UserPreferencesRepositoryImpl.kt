@@ -39,7 +39,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 UserPreferences.MainDestination.CLEANING -> MainNavigation.Cleaning
                 UserPreferences.MainDestination.SHOPPING -> MainNavigation.Shopping
                 UserPreferences.MainDestination.BILLING -> MainNavigation.Billing
-                UserPreferences.MainDestination.GROUPS -> MainNavigation.Groups(it.currentLoggedUserId)
+                UserPreferences.MainDestination.GROUPS -> MainNavigation.Groups
                 UserPreferences.MainDestination.UNSPECIFIED -> MainNavigation.Cleaning
                 UserPreferences.MainDestination.UNRECOGNIZED -> MainNavigation.Cleaning
             }
@@ -51,7 +51,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 MainNavigation.Cleaning,
                 MainNavigation.Shopping,
                 MainNavigation.Billing,
-                MainNavigation.Groups(it.currentLoggedUserId),
+                MainNavigation.Groups,
             )
         }
 

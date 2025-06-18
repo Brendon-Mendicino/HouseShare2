@@ -97,7 +97,7 @@ fun MainDrawerSheetPreview() {
         MainNavigation.Cleaning,
         MainNavigation.Shopping,
         MainNavigation.Billing,
-        MainNavigation.Groups(0),
+        MainNavigation.Groups,
     )
 
     MainDrawerSheet(topLevelRoutes = topLevelRoutes)
