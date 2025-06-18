@@ -2,8 +2,9 @@ package lol.terabrendon.houseshare2.domain.mapper
 
 import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
+import javax.inject.Inject
 
-class ExpenseBalanceMapper {
+class ExpenseBalanceMapper @Inject constructor() {
     fun map(expenses: List<ExpenseModel>): List<BillingBalanceModel> = expenses
         .asSequence()
         // For each expense we need to computed the debt of the users with respect

@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseModelMapper
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormEvent
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormState
@@ -30,6 +31,7 @@ import javax.inject.Inject
 class NewExpenseFormViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     getSelectedGroup: GetSelectedGroupUseCase,
+    getLoggedUserUseCase: GetLoggedUserUseCase,
 ) : ViewModel() {
     companion object {
         private const val TAG = "NewExpenseFormViewModel"
@@ -44,6 +46,9 @@ class NewExpenseFormViewModel @Inject constructor(
      * are finished
      */
     val finishedChannelFlow: Flow<Unit> = finishedChannel.receiveAsFlow()
+
+    private val loggedUser = getLoggedUserUseCase.execute()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val selectedGroup = getSelectedGroup.execute()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -191,7 +196,10 @@ class NewExpenseFormViewModel @Inject constructor(
     }
 
     private fun onConfirm() {
-        val owner = users.value.first()
+        // The owner of the expense if the current logged user.
+        // TODO: refactor some failure event of some sort...
+        val owner = loggedUser.value ?: throw IllegalStateException("No logged users!")
+
         val groupId = selectedGroup.value?.info?.groupId
             ?: run {
                 val msg =

@@ -7,5 +7,7 @@ interface ExpenseRepository {
 
     fun findAll(): Flow<List<ExpenseModel>>
 
+    fun findByGroupId(groupId: Long): Flow<List<ExpenseModel>>
+
     suspend fun insert(expense: ExpenseModel)
 }

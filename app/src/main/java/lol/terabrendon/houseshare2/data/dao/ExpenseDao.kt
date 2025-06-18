@@ -28,6 +28,10 @@ interface ExpenseDao {
     @Transaction
     fun findAll(): Flow<List<ExpenseWithUsers>>
 
+    @Transaction
+    @Query("SELECT * FROM Expense WHERE groupId=:groupId")
+    fun findByGroupId(groupId: Long): Flow<List<ExpenseWithUsers>>
+
     @Query("SELECT * FROM Expense WHERE id=:expenseId")
     @Transaction
     fun findByExpenseId(expenseId: Int): Flow<ExpenseWithUsers>

@@ -16,6 +16,10 @@ class ExpenseRepositoryImpl @Inject constructor(
         expenses.map { ExpenseModel.from(it) }
     }
 
+    override fun findByGroupId(groupId: Long): Flow<List<ExpenseModel>> = expenseDao
+        .findByGroupId(groupId)
+        .map { expenses -> expenses.map { ExpenseModel.from(it) } }
+
     override suspend fun insert(expense: ExpenseModel) {
         expenseDao.insertExpense(
             expense = Expense.from(expense),

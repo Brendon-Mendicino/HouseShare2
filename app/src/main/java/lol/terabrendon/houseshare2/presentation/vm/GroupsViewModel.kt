@@ -31,7 +31,7 @@ class GroupsViewModel @Inject constructor(
 
     val selectedGroup = getSelectedGroup.execute()
         .map { it?.info }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val groups = getLoggedUser
