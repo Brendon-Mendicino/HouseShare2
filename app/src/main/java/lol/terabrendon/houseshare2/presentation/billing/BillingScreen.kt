@@ -244,7 +244,7 @@ private fun ExpenseItem(
                 Text(
                     stringResource(
                         R.string.paid,
-                        expense.expenseOwner.username,
+                        expense.expensePayer.username,
                         expense.amount.currencyFormat()
                     )
                 )

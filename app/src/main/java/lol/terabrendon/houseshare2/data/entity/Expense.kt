@@ -32,17 +32,17 @@ data class Expense(
     val id: Long,
     val amount: Double,
     /**
-     * The user who created the expense
+     * The [User] who created the [Expense]
      */
     @ColumnInfo(index = true)
     val ownerId: Long,
     /**
-     * The user who payed the expense
+     * The [User] who payed the [Expense]
      */
     @ColumnInfo(index = true)
     val payerId: Long,
     /**
-     * The group where this expense belongs
+     * The [Group] where this [Expense] belongs
      */
     @ColumnInfo(index = true)
     val groupId: Long,

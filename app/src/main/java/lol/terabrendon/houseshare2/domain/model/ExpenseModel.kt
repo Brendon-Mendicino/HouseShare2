@@ -35,7 +35,13 @@ import kotlin.random.Random
 data class ExpenseModel(
     val id: Long,
     val amount: Double,
+    /**
+     * The user whom created the expense.
+     */
     val expenseOwner: UserModel,
+    /**
+     * The user whom payed the expense.
+     */
     val expensePayer: UserModel,
     val groupId: Long,
     val category: ExpenseCategory,
