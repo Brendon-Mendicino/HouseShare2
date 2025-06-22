@@ -45,6 +45,7 @@ fun GroupInfoFormScreen(
     ObserveAsEvent(viewModel.uiEvent) {
         when (it) {
             is GroupFormUiEvent.SubmitFailure -> scope.launch {
+                // TODO: fix this!
                 SnackbarController.sendEvent(SnackbarEvent(message = "erroreeee"))
             }
 
@@ -68,17 +69,17 @@ private fun GroupInfoFormScreenInner(
 
     Column(modifier = Modifier.padding(8.dp)) {
         FormOutlinedTextField(
-            param = groupFormState.name,
-            labelText = stringResource(R.string.group_name),
-            onValueChange = { onEvent(GroupFormEvent.NameChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
+            param = groupFormState.name,
+            onValueChange = { onEvent(GroupFormEvent.NameChanged(it)) },
+            labelText = stringResource(R.string.group_name),
         )
 
         FormOutlinedTextField(
-            param = groupFormState.description,
-            labelText = stringResource(R.string.group_description),
-            onValueChange = { onEvent(GroupFormEvent.DescriptionChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
+            param = groupFormState.description,
+            onValueChange = { onEvent(GroupFormEvent.DescriptionChanged(it)) },
+            labelText = stringResource(R.string.group_description),
         )
     }
 }

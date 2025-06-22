@@ -20,6 +20,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
 
 fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
     when (navigation) {
@@ -53,6 +54,8 @@ fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
         is GroupFormNavigation.SelectUsers -> TODO()
         is ExpenseFormNavigation.Expense -> TODO()
         is MainNavigation.ExpenseForm -> TODO()
+        is MainNavigation.ShoppingForm -> TODO()
+        is ShoppingFormNavigation.ShoppingItem -> TODO()
     }
 
 @Composable

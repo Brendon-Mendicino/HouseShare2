@@ -1,13 +1,21 @@
 package lol.terabrendon.houseshare2.presentation.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -88,16 +96,19 @@ import lol.terabrendon.houseshare2.presentation.util.errorText
 fun <T : Any?, E : Any> FormOutlinedTextField(
     modifier: Modifier = Modifier,
     param: ParamState<T, E>,
+    supportParams: List<ParamState<out Any?, E>> = emptyList(),
+    used: Boolean = param.used || supportParams.any { it.used },
+    error: E? = param.error ?: supportParams.firstNotNullOfOrNull { it.error },
     onValueChange: (String) -> Unit,
-    value: String = param.value?.toString() ?: "",
+    labelText: String,
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    labelText: String,
-    label: @Composable (() -> Unit)? = { Text(labelText) },
+    singleLine: Boolean = false,
+    value: String = param.value?.toString() ?: "",
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
+    label: @Composable (() -> Unit)? = { Text(labelText) },
     prefix: @Composable (() -> Unit)? = null,
     suffix: @Composable (() -> Unit)? = null,
     errorConverter: @Composable (E) -> String = {
@@ -106,19 +117,36 @@ fun <T : Any?, E : Any> FormOutlinedTextField(
             else -> it.toString()
         }
     },
+    isError: Boolean = param.isError || supportParams.any { it.isError },
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    trailingIcon: @Composable (() -> Unit)? = {
+        val errorVisible = isError
+        val cancelVisible = value != "" && !isError
+
+        AnimatedVisibility(visible = errorVisible) {
+            Icon(
+                imageVector = Icons.Filled.Error,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+            )
+        }
+
+        AnimatedVisibility(visible = cancelVisible) {
+            IconButton(onClick = { onValueChange("") }) {
+                Icon(imageVector = Icons.Outlined.Cancel, contentDescription = null)
+            }
+        }
+    },
     supportingText: @Composable (() -> Unit)? = {
-        param.error?.let {
-            if (param.used) {
+        error?.let {
+            if (used) {
                 Text(errorConverter(it))
             }
         }
     },
-    isError: Boolean = param.isError,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    singleLine: Boolean = false,
-    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = OutlinedTextFieldDefaults.shape,

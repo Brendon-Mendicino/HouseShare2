@@ -21,6 +21,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
 import lol.terabrendon.houseshare2.presentation.util.currentRoute
 
 @Composable
@@ -67,6 +68,8 @@ private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is GroupFormNavigation.GroupInfo -> Icons.Filled.Check
     is ExpenseFormNavigation.Expense -> Icons.Filled.Check
     is MainNavigation.ExpenseForm -> TODO()
+    is MainNavigation.ShoppingForm -> TODO()
+    is ShoppingFormNavigation.ShoppingItem -> Icons.Filled.Check
 }
 
 @StringRes
@@ -86,6 +89,8 @@ private fun MainNavigation.fabExpanded(): Boolean = when (this) {
     MainNavigation.Shopping -> true
     is ExpenseFormNavigation.Expense -> false
     is MainNavigation.ExpenseForm -> false
+    is MainNavigation.ShoppingForm -> false
+    is ShoppingFormNavigation.ShoppingItem -> false
 }
 
 private fun MainNavigation.fabVisible(): Boolean = when (this) {
@@ -97,7 +102,10 @@ private fun MainNavigation.fabVisible(): Boolean = when (this) {
     is GroupFormNavigation.GroupInfo,
     is GroupFormNavigation.SelectUsers -> true
 
+    is MainNavigation.ShoppingForm,
+    is ShoppingFormNavigation.ShoppingItem,
     is MainNavigation.Loading,
     is MainNavigation.ExpenseForm,
     is ExpenseFormNavigation.Expense -> false
+
 }

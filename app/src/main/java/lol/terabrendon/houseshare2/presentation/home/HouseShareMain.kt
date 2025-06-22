@@ -42,7 +42,9 @@ import lol.terabrendon.houseshare2.presentation.groups.form.GroupUsersFormScreen
 import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreen
+import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormScreen
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.currentRoute
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
@@ -163,6 +165,11 @@ private fun HouseShareMainInner(
                             onClick = {
                                 when (navBackStackEntry?.currentRoute()) {
                                     null -> {}
+
+                                    is MainNavigation.Shopping -> navController.navigate(
+                                        MainNavigation.ShoppingForm
+                                    )
+
                                     is MainNavigation.Groups -> navController.navigate(
                                         GroupFormNavigation.SelectUsers
                                     )
@@ -215,6 +222,11 @@ private fun HouseShareMainInner(
                         }
                         composable<MainNavigation.Shopping> {
                             ShoppingScreen()
+                        }
+                        navigation<MainNavigation.ShoppingForm>(startDestination = ShoppingFormNavigation.ShoppingItem) {
+                            composable<ShoppingFormNavigation.ShoppingItem> {
+                                ShoppingItemFormScreen(navController = navController)
+                            }
                         }
 
                         composable<MainNavigation.Billing> {

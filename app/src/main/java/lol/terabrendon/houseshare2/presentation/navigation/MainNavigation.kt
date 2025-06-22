@@ -20,6 +20,9 @@ sealed class MainNavigation {
     object Shopping : MainNavigation()
 
     @Serializable
+    object ShoppingForm : MainNavigation()
+
+    @Serializable
     object Billing : MainNavigation()
 
     @Serializable
@@ -47,6 +50,8 @@ sealed class MainNavigation {
         fun subclasses(): List<KClass<out MainNavigation>> = listOf(
             Cleaning::class,
             Shopping::class,
+            ShoppingForm::class,
+            ShoppingFormNavigation.ShoppingItem::class,
             Billing::class,
             Groups::class,
             Loading::class,
@@ -70,6 +75,8 @@ sealed class MainNavigation {
         is GroupFormNavigation.GroupInfo -> TODO()
         is GroupFormNavigation.SelectUsers -> TODO()
         is ExpenseFormNavigation.Expense -> TODO()
+        is ShoppingForm -> TODO()
+        is ShoppingFormNavigation.ShoppingItem -> TODO()
     }
 }
 
