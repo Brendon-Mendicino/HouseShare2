@@ -1,5 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.shopping
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -12,23 +13,56 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FoodBank
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.presentation.provider.RegisterMenuAction
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
+
+private const val TAG: String = "ShoppingScreen"
 
 @Composable
 fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel = hiltViewModel()) {
     val shoppingItems by viewModel.shoppingItems.collectAsStateWithLifecycle()
+    val isAnySelected by viewModel.isAnySelected.collectAsStateWithLifecycle()
+    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+
+    RegisterMenuAction(TAG) {
+        AnimatedVisibility(visible = isAnySelected) {
+            IconButton(onClick = { showDeleteDialog = true }) {
+                Icon(imageVector = Icons.Filled.Delete, contentDescription = null)
+            }
+        }
+    }
+
+    if (showDeleteDialog) {
+        DeleteShoppingItemsDialog(
+            onConfirm = {
+                viewModel.onEvent(ShoppingScreenEvent.ItemsDeleted)
+                showDeleteDialog = false
+            },
+            onDismiss = { showDeleteDialog = false },
+        )
+    }
 
     ShoppingScreenInner(
         modifier = modifier,
@@ -103,4 +137,57 @@ private fun ShoppingListItem(
             Spacer(spacerModifier)
         }
     }
+}
+
+@Composable
+private fun DeleteShoppingItemsDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        icon = {
+            Icon(
+                Icons.Filled.Delete,
+                contentDescription = stringResource(R.string.delete_shopping_items)
+            )
+        },
+        title = {
+            Text(text = stringResource(R.string.delete_shopping_items))
+        },
+        text = {
+            Text(text = stringResource(R.string.the_current_selected_items_will_be_delete_permanently))
+        },
+        onDismissRequest = {
+            onDismiss()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirm()
+                }
+            ) {
+                Text(stringResource(R.string.confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismiss()
+                }
+            ) {
+                Text(stringResource(R.string.dismiss))
+            }
+        }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ShoppingScreenPreview() {
+    ShoppingScreenInner(
+        shoppingItems = List(6) {
+            ShoppingItemModel.default().copy(id = it.toLong(), name = "Item")
+        },
+        onEvent = {},
+    )
 }

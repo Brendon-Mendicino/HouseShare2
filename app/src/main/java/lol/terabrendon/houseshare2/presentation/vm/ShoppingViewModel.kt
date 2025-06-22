@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreenEvent
@@ -24,7 +25,7 @@ class ShoppingViewModel @Inject constructor(
         private const val TAG = "ShoppingViewModel"
     }
 
-    private val selectedItems = MutableStateFlow(mutableSetOf<Long>())
+    private val selectedItems = MutableStateFlow<Set<Long>>(mutableSetOf<Long>())
 
     val shoppingItems = shoppingItemRepository
         .getAll()
@@ -41,21 +42,27 @@ class ShoppingViewModel @Inject constructor(
 
     val isAnySelected = selectedItems.mapState(viewModelScope) { items -> items.isNotEmpty() }
 
-    fun onDeleteSelected() {
-        viewModelScope.launch {
-            val items = shoppingItems
-                .map { items -> items.filter { item -> item.selected } }
-                .first()
-
-            Log.i(TAG, "addShoppingItem: deleting ${items.size} ShoppingItems from the repository.")
-
-            shoppingItemRepository.deleteAll(items)
-
-            selectedItems.value = mutableSetOf()
-        }
-    }
-
     fun onEvent(event: ShoppingScreenEvent) {
+        when (event) {
+            is ShoppingScreenEvent.ItemChecked -> selectedItems.update {
+                Log.i(TAG, "onEvent: ShoppingItem@${event.item.id} was toggled")
+                it.toMutableSet().apply {
+                    if (!contains(event.item.id)) add(event.item.id)
+                    else remove(event.item.id)
+                }
+            }
 
+            is ShoppingScreenEvent.ItemsDeleted -> viewModelScope.launch {
+                val items = shoppingItems
+                    .map { items -> items.filter { item -> item.selected } }
+                    .first()
+
+                Log.i(TAG, "onEvent: deleting ${items.size} ShoppingItems from the repository.")
+
+                shoppingItemRepository.deleteAll(items)
+
+                selectedItems.value = mutableSetOf()
+            }
+        }
     }
 }

@@ -58,4 +58,5 @@
     <string name="should_not_be_less_than">%1$s should not be less than %2$s!</string>
     <string name="size_should_be_between_and">%1$s size should be between %2$s and %3$s</string>
     <string name="is_not_a_valid_number">%1$s is not a valid number!</string>
+    <string name="the_current_selected_items_will_be_delete_permanently">The current selected items will be delete permanently.</string>
 </resources>

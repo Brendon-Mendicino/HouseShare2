@@ -31,7 +31,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.presentation.MainTopBar
 import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
 import lol.terabrendon.houseshare2.presentation.billing.NewExpenseForm
 import lol.terabrendon.houseshare2.presentation.cleaning.CleaningScreen
@@ -43,7 +42,10 @@ import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
+import lol.terabrendon.houseshare2.presentation.provider.FabActionManager
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabActionManagerProvider
+import lol.terabrendon.houseshare2.presentation.provider.LocalMenuActionManagerProvider
+import lol.terabrendon.houseshare2.presentation.provider.MenuActionManager
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreen
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormScreen
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
@@ -69,9 +71,6 @@ fun HouseShareMain(
         currentNavigation = currentNavigation,
         topLevelRoutes = topLevelRoutes,
         setCurrentNavigation = mainViewModel::setCurrentNavigation,
-        appBarActions = {
-            AppBarActions(mainNavigation = currentNavigation)
-        },
     )
 }
 
@@ -81,7 +80,6 @@ private fun HouseShareMainInner(
     currentNavigation: MainNavigation,
     topLevelRoutes: List<MainNavigation>,
     setCurrentNavigation: (KClass<out MainNavigation>) -> Unit,
-    appBarActions: @Composable (MainNavigation) -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val navController = rememberNavController()
@@ -122,7 +120,7 @@ private fun HouseShareMainInner(
         }
     }
 
-    LocalFabActionManagerProvider { fabActionManager ->
+    MainProviders { fabActionManager, _ ->
         ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
             MainDrawerSheet(
                 topLevelRoutes = topLevelRoutes,
@@ -157,7 +155,6 @@ private fun HouseShareMainInner(
                         MainTopBar(
                             mainNavigation = currentNavigation,
                             onNavigationClick = { scope.launch { drawerState.open() } },
-                            actions = appBarActions
                         )
                     },
                     floatingActionButton = {
@@ -237,7 +234,8 @@ private fun HouseShareMainInner(
                             composable<ExpenseFormNavigation.Expense> { entry ->
                                 val parentEntry =
                                     remember(entry) { navController.getBackStackEntry<MainNavigation.ExpenseForm>() }
-                                val viewModel = hiltViewModel<NewExpenseFormViewModel>(parentEntry)
+                                val viewModel =
+                                    hiltViewModel<NewExpenseFormViewModel>(parentEntry)
                                 NewExpenseForm(viewModel = viewModel, onFinish = {
                                     Log.i(
                                         TAG,
@@ -274,65 +272,15 @@ private fun HouseShareMainInner(
                     }
                 }
             }
-
-//            // TODO: refactor this mess...
-//            AnimatedFab(
-//                currentDestination = currentNavigation,
-//                modifier = Modifier
-//                    .align(Alignment.BottomEnd)
-//            ) { onBack ->
-//                val shoppingViewModel: ShoppingViewModel =
-//                    hiltViewModel(LocalView.current.findViewTreeViewModelStoreOwner()!!)
-//
-//                BackHandler {
-//                    onBack()
-//                }
-//
-//                when (currentNavigation) {
-//                    is MainNavigation.Shopping -> Card(
-//                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-//                        modifier = Modifier.fillMaxSize()
-//                    ) {
-//                        ShoppingItemForm(
-//                            onFinish = { item ->
-//                                shoppingViewModel.addShoppingItem(item)
-//                                onBack()
-//                            },
-//                            onBack = {
-//                                Log.i(
-//                                    TAG,
-//                                    "HouseShareMainInner: ShoppingItemForm form onFinish called."
-//                                )
-//                                onBack()
-//                            },
-//                            modifier = Modifier
-//                                .padding(4.dp)
-//                                .fillMaxSize()
-//                        )
-//                    }
-//
-//                    is MainNavigation.Billing -> Card(
-//                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-//                        modifier = Modifier.fillMaxSize()
-//                    ) {
-//                        NewExpenseForm(
-//                            onFinish = {
-//                                Log.i(TAG, "HouseShareMainInner: NewExpense form onFinish called.")
-//                                onBack()
-//                            },
-//                        )
-//                    }
-//
-//                    is MainNavigation.Cleaning -> {}
-//
-//                    is MainNavigation.Groups -> navController.navigate(MainNavigation.GroupForm)
-//                    is MainNavigation.GroupForm -> TODO()
-//                    is MainNavigation.Loading -> onBack()
-//                    GroupFormNavigation.GroupInfo -> TODO()
-//                    GroupFormNavigation.SelectUsers -> TODO()
-//                }
-//            }
         }
     }
 }
 
+@Composable
+private fun MainProviders(content: @Composable (FabActionManager, MenuActionManager) -> Unit) {
+    LocalFabActionManagerProvider { fabActionManager ->
+        LocalMenuActionManagerProvider { menuActionManager ->
+            content(fabActionManager, menuActionManager)
+        }
+    }
+}

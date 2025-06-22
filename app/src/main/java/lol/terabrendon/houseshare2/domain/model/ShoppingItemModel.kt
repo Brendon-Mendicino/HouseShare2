@@ -27,5 +27,16 @@ data class ShoppingItemModel(
                 selected = false
             )
         }
+
+        fun default() = ShoppingItemModel(
+            id = 0,
+            ownerId = 0,
+            groupId = 0,
+            name = "",
+            amount = 0,
+            price = null,
+            creationTimestamp = LocalDateTime.now(),
+            selected = false,
+        )
     }
 }

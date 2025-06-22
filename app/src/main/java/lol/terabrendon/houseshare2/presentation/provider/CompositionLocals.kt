@@ -5,3 +5,7 @@ import androidx.compose.runtime.compositionLocalOf
 val LocalFabActionManager = compositionLocalOf<FabActionManager> {
     error("FabActionManager not provided")
 }
+
+val LocalMenuActionManager = compositionLocalOf<MenuActionManager> {
+    error("MenuActionManager not provided")
+}

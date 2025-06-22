@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.presentation
+package lol.terabrendon.houseshare2.presentation.home
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -18,7 +18,6 @@ fun MainTopBar(
     modifier: Modifier = Modifier,
     mainNavigation: MainNavigation,
     onNavigationClick: () -> Unit,
-    actions: @Composable (MainNavigation) -> Unit,
 ) {
     CenterAlignedTopAppBar(
         title = { Text(stringResource(mainNavigation.asResource())) },
@@ -27,7 +26,7 @@ fun MainTopBar(
                 Icon(Icons.Filled.Menu, contentDescription = null)
             }
         },
-        actions = { actions(mainNavigation) },
+        actions = { AppBarActions() },
         modifier = modifier
     )
 }
