@@ -42,11 +42,11 @@ fun GroupInfoFormScreen(
         viewModel.onEvent(GroupFormEvent.Submit)
     }
 
-    ObserveAsEvent(viewModel.uiEvent) {
-        when (it) {
+    ObserveAsEvent(viewModel.uiEvent) { event ->
+        when (event) {
             is GroupFormUiEvent.SubmitFailure -> scope.launch {
                 // TODO: fix this!
-                SnackbarController.sendEvent(SnackbarEvent(message = "erroreeee"))
+                SnackbarController.sendEvent(SnackbarEvent(message = event.error))
             }
 
             GroupFormUiEvent.SubmitSuccess -> navController.popBackStack<GroupFormNavigation.SelectUsers>(

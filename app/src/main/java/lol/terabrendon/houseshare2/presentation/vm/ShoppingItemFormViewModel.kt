@@ -1,10 +1,12 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.getOrElse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,12 +19,14 @@ import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormEvent
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormUiEvent
+import lol.terabrendon.houseshare2.presentation.util.errorText
 import javax.inject.Inject
 
 @HiltViewModel
 class ShoppingItemFormViewModel @Inject constructor(
     private val shoppingItemRepository: ShoppingItemRepository,
     private val shoppingItemFormMapper: ShoppingItemFormMapper,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     companion object {
         private const val TAG: String = "ShoppingItemFormViewModel"
@@ -62,14 +66,31 @@ class ShoppingItemFormViewModel @Inject constructor(
         val formState = _formState.value
 
         if (formState.isError) {
-            _uiEvents.send(ShoppingItemFormUiEvent.SubmitFailure(formState.errors.first()))
+            val (property, error) = formState.errors.first()
+
+            _uiEvents.send(
+                ShoppingItemFormUiEvent.SubmitFailure(
+                    error = error.errorText(
+                        property.name,
+                        context
+                    )
+                )
+            )
+
             return
         }
 
         val shoppingItem = shoppingItemFormMapper
             .map(formState.toData())
             .getOrElse {
-                _uiEvents.send(ShoppingItemFormUiEvent.SubmitFailure(error = it))
+                _uiEvents.send(
+                    ShoppingItemFormUiEvent.SubmitFailure(
+                        error = it.errorText(
+                            "",
+                            context
+                        )
+                    )
+                )
                 return
             }
 
