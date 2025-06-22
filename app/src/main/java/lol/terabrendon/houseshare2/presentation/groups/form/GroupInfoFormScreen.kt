@@ -20,8 +20,8 @@ import lol.terabrendon.houseshare2.domain.model.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
-import lol.terabrendon.houseshare2.presentation.fab.RegisterFabAction
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabAction
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel

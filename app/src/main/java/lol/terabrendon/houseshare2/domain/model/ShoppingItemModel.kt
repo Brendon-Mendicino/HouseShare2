@@ -5,6 +5,8 @@ import java.time.LocalDateTime
 
 data class ShoppingItemModel(
     val id: Long,
+    val ownerId: Long,
+    val groupId: Long,
     val name: String,
     val amount: Int,
     val price: Double?,
@@ -16,6 +18,8 @@ data class ShoppingItemModel(
         fun from(item: ShoppingItem): ShoppingItemModel {
             return ShoppingItemModel(
                 id = item.id,
+                ownerId = item.ownerId,
+                groupId = item.groupId,
                 name = item.name,
                 amount = item.amount,
                 price = item.price,

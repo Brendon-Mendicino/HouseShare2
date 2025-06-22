@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.presentation.util
+package lol.terabrendon.houseshare2.presentation.provider
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf

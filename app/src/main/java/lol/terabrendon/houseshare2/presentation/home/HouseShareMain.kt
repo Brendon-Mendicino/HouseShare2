@@ -43,6 +43,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
+import lol.terabrendon.houseshare2.presentation.provider.LocalFabActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreen
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormScreen
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController

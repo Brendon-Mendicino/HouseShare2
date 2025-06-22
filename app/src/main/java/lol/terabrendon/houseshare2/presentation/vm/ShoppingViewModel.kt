@@ -10,10 +10,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
-import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreenEvent
 import lol.terabrendon.houseshare2.util.mapState
 import javax.inject.Inject
 
@@ -42,23 +41,6 @@ class ShoppingViewModel @Inject constructor(
 
     val isAnySelected = selectedItems.mapState(viewModelScope) { items -> items.isNotEmpty() }
 
-    fun onItemSelected(id: Long, selected: Boolean) {
-        selectedItems.update {
-            Log.i(TAG, "onItemSelected: updating ShoppingItem@$id as selected: $selected")
-            it.toMutableSet().apply {
-                if (selected) this.add(id)
-                else this.remove(id)
-            }
-        }
-    }
-
-    fun addShoppingItem(newItem: ShoppingItemModel) {
-        viewModelScope.launch {
-            Log.i(TAG, "addShoppingItem: added new ShoppingItem to the repository.")
-            shoppingItemRepository.insert(newItem)
-        }
-    }
-
     fun onDeleteSelected() {
         viewModelScope.launch {
             val items = shoppingItems
@@ -71,5 +53,9 @@ class ShoppingViewModel @Inject constructor(
 
             selectedItems.value = mutableSetOf()
         }
+    }
+
+    fun onEvent(event: ShoppingScreenEvent) {
+
     }
 }

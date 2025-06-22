@@ -10,6 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -17,6 +18,8 @@ import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.mapper.ShoppingItemFormMapper
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.toValidator
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
+import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormEvent
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormUiEvent
 import lol.terabrendon.houseshare2.presentation.util.errorText
@@ -26,6 +29,8 @@ import javax.inject.Inject
 class ShoppingItemFormViewModel @Inject constructor(
     private val shoppingItemRepository: ShoppingItemRepository,
     private val shoppingItemFormMapper: ShoppingItemFormMapper,
+    private val getLoggedUserUseCase: GetLoggedUserUseCase,
+    private val getSelectedGroupUseCase: GetSelectedGroupUseCase,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
     companion object {
@@ -64,6 +69,9 @@ class ShoppingItemFormViewModel @Inject constructor(
 
     private suspend fun onSubmit() {
         val formState = _formState.value
+        // TODO: leave these here or not?
+        val loggedUser = getLoggedUserUseCase.execute().first()!!
+        val selectedGroup = getSelectedGroupUseCase.execute().first()!!
 
         if (formState.isError) {
             val (property, error) = formState.errors.first()
@@ -81,7 +89,11 @@ class ShoppingItemFormViewModel @Inject constructor(
         }
 
         val shoppingItem = shoppingItemFormMapper
-            .map(formState.toData())
+            .map(
+                state = formState.toData(),
+                ownerId = loggedUser.id,
+                groupId = selectedGroup.info.groupId,
+            )
             .getOrElse {
                 _uiEvents.send(
                     ShoppingItemFormUiEvent.SubmitFailure(

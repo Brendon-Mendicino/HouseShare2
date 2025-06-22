@@ -20,33 +20,40 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ShoppingScreen(modifier: Modifier = Modifier) {
-    val shoppingViewModel: ShoppingViewModel =
-        hiltViewModel(LocalView.current.findViewTreeViewModelStoreOwner()!!)
+fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel = hiltViewModel()) {
+    val shoppingItems by viewModel.shoppingItems.collectAsStateWithLifecycle()
 
-    val shoppingItems by shoppingViewModel.shoppingItems.collectAsStateWithLifecycle()
+    ShoppingScreenInner(
+        modifier = modifier,
+        shoppingItems = shoppingItems,
+        onEvent = viewModel::onEvent,
+    )
+}
 
-    Column(modifier) {
-        LazyColumn {
-            items(shoppingItems, key = { item: ShoppingItemModel -> item.id }) { item ->
-                ShoppingListItem(
-                    shoppingItem = item,
-                    onChecked = { id, selected -> shoppingViewModel.onItemSelected(id, selected) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .animateItem()
-                )
-            }
+
+@Composable
+fun ShoppingScreenInner(
+    modifier: Modifier = Modifier,
+    shoppingItems: List<ShoppingItemModel>,
+    onEvent: (ShoppingScreenEvent) -> Unit
+) {
+
+    LazyColumn(modifier = modifier) {
+        items(shoppingItems, key = { item: ShoppingItemModel -> item.id }) { item ->
+            ShoppingListItem(
+                shoppingItem = item,
+                onChecked = { onEvent(ShoppingScreenEvent.ItemChecked(item)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateItem()
+            )
         }
     }
 }
@@ -56,14 +63,17 @@ fun ShoppingScreen(modifier: Modifier = Modifier) {
 private fun ShoppingListItem(
     modifier: Modifier = Modifier,
     shoppingItem: ShoppingItemModel,
-    onChecked: (Long, Boolean) -> Unit,
+    onChecked: () -> Unit,
 ) {
     val spacerModifier = Modifier.requiredWidth(16.dp)
 
     Box(
-        modifier.combinedClickable(onLongClick = {
-            onChecked(shoppingItem.id, !shoppingItem.selected)
-        }, onClick = {})
+        modifier.combinedClickable(
+            onLongClick = {
+                onChecked()
+            },
+            onClick = {},
+        )
     ) {
         Row(
             modifier = Modifier
@@ -88,7 +98,7 @@ private fun ShoppingListItem(
             Spacer(spacerModifier.weight(1f))
             Checkbox(
                 checked = shoppingItem.selected,
-                onCheckedChange = { onChecked(shoppingItem.id, !shoppingItem.selected) },
+                onCheckedChange = { onChecked() },
             )
             Spacer(spacerModifier)
         }
