@@ -99,8 +99,6 @@ private fun ShoppingListItem(
     shoppingItem: ShoppingItemModel,
     onChecked: () -> Unit,
 ) {
-    val spacerModifier = Modifier.requiredWidth(16.dp)
-
     Box(
         modifier.combinedClickable(
             onLongClick = {
@@ -111,10 +109,9 @@ private fun ShoppingListItem(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 8.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxWidth(),
         ) {
-            Spacer(spacerModifier)
             Icon(
                 imageVector = Icons.Filled.FoodBank,
                 contentDescription = null,
@@ -122,19 +119,19 @@ private fun ShoppingListItem(
                     Alignment.CenterVertically
                 )
             )
-            Spacer(spacerModifier)
+            Spacer(modifier = Modifier.requiredWidth(16.dp))
 
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(shoppingItem.name)
                 Text(shoppingItem.amount.toString())
             }
 
-            Spacer(spacerModifier.weight(1f))
+            Spacer(modifier = Modifier.requiredWidth(16.dp))
+
             Checkbox(
                 checked = shoppingItem.selected,
                 onCheckedChange = { onChecked() },
             )
-            Spacer(spacerModifier)
         }
     }
 }

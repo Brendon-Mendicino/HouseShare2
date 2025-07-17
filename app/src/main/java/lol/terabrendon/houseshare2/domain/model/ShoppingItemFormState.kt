@@ -1,10 +1,10 @@
 package lol.terabrendon.houseshare2.domain.model
 
 import android.annotation.SuppressLint
+import io.github.brendonmendicino.aformvalidator.annotation.DependsOn
 import io.github.brendonmendicino.aformvalidator.annotation.FormState
 import io.github.brendonmendicino.aformvalidator.annotation.Min
 import io.github.brendonmendicino.aformvalidator.annotation.NotBlank
-import io.github.brendonmendicino.aformvalidator.annotation.NotNull
 import io.github.brendonmendicino.aformvalidator.annotation.ToNumber
 
 @SuppressLint("KotlinNullnessAnnotation")
@@ -12,13 +12,17 @@ import io.github.brendonmendicino.aformvalidator.annotation.ToNumber
 data class ShoppingItemFormState(
     @NotBlank
     val name: String = "",
+    @NotBlank
     @ToNumber(Int::class)
-    @NotNull
-    val amountStr: String? = null,
-    @Min(0)
-    val amount: Int? = null,
+    val amountStr: String = "1",
     @ToNumber(Double::class)
     val priceStr: String? = null,
+) {
     @Min(0)
-    val price: Double? = 0.0,
-)
+    @DependsOn(["amountStr"])
+    val amount: Int? = amountStr.toIntOrNull()
+
+    @Min(0)
+    @DependsOn(["priceStr"])
+    val price: Double? = priceStr?.toDoubleOrNull()
+}

@@ -28,7 +28,7 @@ desugar = "2.0.4"
 android-junit5 = "1.12.2.0"
 kotlinxSerialzation = "1.8.1"
 kotlinResult = "2.0.1"
-aformvalidator = "0.4.0"
+aformvalidator = "0.4.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

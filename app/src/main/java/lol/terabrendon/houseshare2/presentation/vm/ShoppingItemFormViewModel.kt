@@ -46,10 +46,7 @@ class ShoppingItemFormViewModel @Inject constructor(
     fun onEvent(event: ShoppingItemFormEvent) {
         when (event) {
             is ShoppingItemFormEvent.AmountChanged -> _formState.update { state ->
-                state.copy(
-                    amountStr = state.amountStr.update(event.amount),
-                    amount = state.amount.update(event.amount.toIntOrNull())
-                )
+                state.copy(amountStr = state.amountStr.update(event.amount))
             }
 
             is ShoppingItemFormEvent.NameChanged -> _formState.update { state ->
@@ -57,10 +54,7 @@ class ShoppingItemFormViewModel @Inject constructor(
             }
 
             is ShoppingItemFormEvent.PriceChanged -> _formState.update { state ->
-                state.copy(
-                    priceStr = state.priceStr.update(event.price),
-                    price = state.price.update(event.price.toDoubleOrNull()),
-                )
+                state.copy(priceStr = state.priceStr.update(event.price))
             }
 
             is ShoppingItemFormEvent.Submit -> viewModelScope.launch { onSubmit() }

@@ -21,7 +21,7 @@ class ShoppingItemFormMapper @Inject constructor() {
                 ownerId = ownerId,
                 groupId = groupId,
                 name = state.name,
-                amount = state.amount ?: return Err(ValidationError.NotNull),
+                amount = state.amount ?: return Err(ValidationError.NotBlank),
                 price = state.price,
                 creationTimestamp = LocalDateTime.now(),
                 selected = false,
