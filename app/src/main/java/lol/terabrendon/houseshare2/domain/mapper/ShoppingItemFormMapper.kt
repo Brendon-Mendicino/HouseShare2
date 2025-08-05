@@ -5,7 +5,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import io.github.brendonmendicino.aformvalidator.annotation.ValidationError
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
-import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -14,9 +14,9 @@ class ShoppingItemFormMapper @Inject constructor() {
         state: ShoppingItemFormState,
         ownerId: Long,
         groupId: Long,
-    ): Result<ShoppingItemModel, ValidationError> {
+    ): Result<ShoppingItemInfoModel, ValidationError> {
         return Ok(
-            ShoppingItemModel(
+            ShoppingItemInfoModel(
                 id = 0,
                 ownerId = ownerId,
                 groupId = groupId,
@@ -24,7 +24,6 @@ class ShoppingItemFormMapper @Inject constructor() {
                 amount = state.amount ?: return Err(ValidationError.NotBlank),
                 price = state.price,
                 creationTimestamp = LocalDateTime.now(),
-                selected = false,
             )
         )
     }

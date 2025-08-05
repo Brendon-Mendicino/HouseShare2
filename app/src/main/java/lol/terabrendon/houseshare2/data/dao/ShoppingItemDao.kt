@@ -3,13 +3,19 @@ package lol.terabrendon.houseshare2.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
+import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
 
 @Dao
 interface ShoppingItemDao {
     @Query("SELECT * FROM ShoppingItem")
     fun findAll(): Flow<List<ShoppingItem>>
+
+    @Query("SELECT * FROM ShoppingItem WHERE groupId=:groupId")
+    @Transaction
+    fun findAllByGroupId(groupId: Long): Flow<List<ShoppingItemWithUser>>
 
     @Query("SELECT * FROM ShoppingItem WHERE id=:id")
     fun findById(id: Long): Flow<ShoppingItem?>

@@ -6,9 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -25,43 +23,39 @@ class ShoppingViewModel @Inject constructor(
         private const val TAG = "ShoppingViewModel"
     }
 
-    private val selectedItems = MutableStateFlow<Set<Long>>(mutableSetOf<Long>())
+    private val _selectedItems = MutableStateFlow<Set<Long>>(setOf<Long>())
+    val selectedItems = _selectedItems.asStateFlow()
 
     val shoppingItems = shoppingItemRepository
-        .getAll()
-        .combine(selectedItems) { items, selected ->
-            items.map { item ->
-                if (item.id in selected) {
-                    item.copy(selected = true)
-                } else {
-                    item
-                }
-            }
-        }
+        .findAllByGroupId(1)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), listOf())
 
-    val isAnySelected = selectedItems.mapState(viewModelScope) { items -> items.isNotEmpty() }
+    val isAnySelected = _selectedItems.mapState(viewModelScope) { items -> items.isNotEmpty() }
 
     fun onEvent(event: ShoppingScreenEvent) {
         when (event) {
-            is ShoppingScreenEvent.ItemChecked -> selectedItems.update {
+            is ShoppingScreenEvent.ItemChecked -> {
                 Log.i(TAG, "onEvent: ShoppingItem@${event.item.id} was toggled")
-                it.toMutableSet().apply {
-                    if (!contains(event.item.id)) add(event.item.id)
-                    else remove(event.item.id)
+
+                _selectedItems.update {
+                    if (event.item.id !in it)
+                        it + event.item.id
+                    else
+                        it - event.item.id
                 }
             }
 
             is ShoppingScreenEvent.ItemsDeleted -> viewModelScope.launch {
                 val items = shoppingItems
-                    .map { items -> items.filter { item -> item.selected } }
-                    .first()
+                    .value
+                    .filter { item -> item.info.id in selectedItems.value }
+                    .map { it.info }
 
                 Log.i(TAG, "onEvent: deleting ${items.size} ShoppingItems from the repository.")
 
                 shoppingItemRepository.deleteAll(items)
 
-                selectedItems.value = mutableSetOf()
+                _selectedItems.value = mutableSetOf()
             }
         }
     }

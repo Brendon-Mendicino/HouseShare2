@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,6 +45,7 @@ private const val TAG: String = "ShoppingScreen"
 fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel = hiltViewModel()) {
     val shoppingItems by viewModel.shoppingItems.collectAsStateWithLifecycle()
     val isAnySelected by viewModel.isAnySelected.collectAsStateWithLifecycle()
+    val selectedItems by viewModel.selectedItems.collectAsStateWithLifecycle()
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
     RegisterMenuAction(TAG) {
@@ -67,6 +69,7 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
     ShoppingScreenInner(
         modifier = modifier,
         shoppingItems = shoppingItems,
+        selectedItems = selectedItems,
         onEvent = viewModel::onEvent,
     )
 }
@@ -76,14 +79,18 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
 fun ShoppingScreenInner(
     modifier: Modifier = Modifier,
     shoppingItems: List<ShoppingItemModel>,
+    selectedItems: Set<Long>,
     onEvent: (ShoppingScreenEvent) -> Unit
 ) {
 
     LazyColumn(modifier = modifier) {
-        items(shoppingItems, key = { item: ShoppingItemModel -> item.id }) { item ->
+        items(
+            items = shoppingItems,
+            key = { item -> item.info.id }) { item ->
             ShoppingListItem(
                 shoppingItem = item,
-                onChecked = { onEvent(ShoppingScreenEvent.ItemChecked(item)) },
+                onChecked = { onEvent(ShoppingScreenEvent.ItemChecked(item.info)) },
+                selected = item.info.id in selectedItems,
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateItem()
@@ -97,8 +104,12 @@ fun ShoppingScreenInner(
 private fun ShoppingListItem(
     modifier: Modifier = Modifier,
     shoppingItem: ShoppingItemModel,
+    selected: Boolean,
     onChecked: () -> Unit,
 ) {
+    val info = shoppingItem.info
+    val user = shoppingItem.itemOwner
+
     Box(
         modifier.combinedClickable(
             onLongClick = {
@@ -122,14 +133,17 @@ private fun ShoppingListItem(
             Spacer(modifier = Modifier.requiredWidth(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(shoppingItem.name)
-                Text(shoppingItem.amount.toString())
+                Text("${info.name} • ${info.amount}")
+                Text(
+                    stringResource(R.string.created_by, user.username),
+                    fontStyle = FontStyle.Italic
+                )
             }
 
             Spacer(modifier = Modifier.requiredWidth(16.dp))
 
             Checkbox(
-                checked = shoppingItem.selected,
+                checked = selected,
                 onCheckedChange = { onChecked() },
             )
         }
@@ -183,8 +197,11 @@ private fun DeleteShoppingItemsDialog(
 fun ShoppingScreenPreview() {
     ShoppingScreenInner(
         shoppingItems = List(6) {
-            ShoppingItemModel.default().copy(id = it.toLong(), name = "Item")
+            ShoppingItemModel.default()
+        }.mapIndexed { id, it ->
+            it.copy(info = it.info.copy(id = id.toLong(), name = "Item"))
         },
+        selectedItems = emptySet(),
         onEvent = {},
     )
 }

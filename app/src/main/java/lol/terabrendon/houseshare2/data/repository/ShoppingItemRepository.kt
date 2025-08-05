@@ -1,12 +1,15 @@
 package lol.terabrendon.houseshare2.data.repository
 
 import kotlinx.coroutines.flow.Flow
+import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 
 interface ShoppingItemRepository {
-    fun getAll(): Flow<List<ShoppingItemModel>>
+    fun getAll(): Flow<List<ShoppingItemInfoModel>>
 
-    suspend fun insert(newItem: ShoppingItemModel)
+    fun findAllByGroupId(groupId: Long): Flow<List<ShoppingItemModel>>
 
-    suspend fun deleteAll(items: List<ShoppingItemModel>)
+    suspend fun insert(newItem: ShoppingItemInfoModel)
+
+    suspend fun deleteAll(items: List<ShoppingItemInfoModel>)
 }

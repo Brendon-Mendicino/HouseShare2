@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import java.time.LocalDateTime
 
 @Entity(
@@ -41,7 +41,7 @@ data class ShoppingItem(
 ) {
     companion object {
         @JvmStatic
-        fun from(item: ShoppingItemModel): ShoppingItem {
+        fun from(item: ShoppingItemInfoModel): ShoppingItem {
             return ShoppingItem(
                 ownerId = item.ownerId,
                 groupId = item.groupId,
