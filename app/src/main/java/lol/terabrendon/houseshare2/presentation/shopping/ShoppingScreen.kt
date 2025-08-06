@@ -3,6 +3,7 @@ package lol.terabrendon.houseshare2.presentation.shopping
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,13 +12,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,6 +50,7 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
     val shoppingItems by viewModel.shoppingItems.collectAsStateWithLifecycle()
     val isAnySelected by viewModel.isAnySelected.collectAsStateWithLifecycle()
     val selectedItems by viewModel.selectedItems.collectAsStateWithLifecycle()
+    val itemSorting by viewModel.itemSorting.collectAsStateWithLifecycle()
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
     RegisterMenuAction(TAG) {
@@ -69,6 +75,7 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
         modifier = modifier,
         shoppingItems = shoppingItems,
         selectedItems = selectedItems,
+        itemSorting = itemSorting,
         onEvent = viewModel::onEvent,
     )
 }
@@ -78,13 +85,33 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
 fun ShoppingScreenInner(
     modifier: Modifier = Modifier,
     shoppingItems: List<ShoppingItemModel>,
+    itemSorting: ShoppingViewModel.ItemSorting,
     selectedItems: Set<Long>,
     onEvent: (ShoppingScreenEvent) -> Unit
 ) {
+    LazyColumn(modifier = modifier.padding(8.dp)) {
+        item {
+            Text("Shopping list ordering:", fontStyle = FontStyle.Italic)
 
-    LazyColumn(modifier = modifier) {
+            SortingRow(
+                modifier = modifier.padding(vertical = 8.dp),
+                itemSorting = itemSorting,
+                onEvent = onEvent,
+            )
+
+            HorizontalDivider()
+
+        }
+
         items(
-            items = shoppingItems,
+            items = shoppingItems.run {
+                when (itemSorting) {
+                    ShoppingViewModel.ItemSorting.CreationDate -> sortedByDescending { i -> i.info.creationTimestamp }
+                    ShoppingViewModel.ItemSorting.Priority -> sortedByDescending { i -> i.info.priority }
+                    ShoppingViewModel.ItemSorting.Name -> sortedByDescending { i -> i.info.name }
+                    ShoppingViewModel.ItemSorting.Username -> sortedByDescending { i -> i.itemOwner.username }
+                }
+            },
             key = { item -> item.info.id }) { item ->
             ShoppingListItem(
                 shoppingItem = item,
@@ -93,6 +120,34 @@ fun ShoppingScreenInner(
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateItem()
+            )
+        }
+    }
+}
+
+@Composable
+private fun SortingRow(
+    modifier: Modifier = Modifier,
+    itemSorting: ShoppingViewModel.ItemSorting,
+    onEvent: (ShoppingScreenEvent) -> Unit
+) {
+    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(ShoppingViewModel.ItemSorting.entries) { entry ->
+            val selected = itemSorting == entry
+
+            InputChip(
+                selected = selected,
+                onClick = {
+                    onEvent(ShoppingScreenEvent.SortingChanged(entry))
+                },
+                label = {
+                    Text(stringResource(entry.toStringRes()))
+                },
+                leadingIcon = {
+                    AnimatedVisibility(selected) {
+                        Icon(Icons.Filled.Done, contentDescription = null)
+                    }
+                }
             )
         }
     }
@@ -202,5 +257,6 @@ fun ShoppingScreenPreview() {
         },
         selectedItems = emptySet(),
         onEvent = {},
+        itemSorting = ShoppingViewModel.ItemSorting.CreationDate,
     )
 }
