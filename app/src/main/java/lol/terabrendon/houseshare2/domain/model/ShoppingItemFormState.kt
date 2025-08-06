@@ -17,6 +17,7 @@ data class ShoppingItemFormState(
     val amountStr: String = "1",
     @ToNumber(Double::class)
     val priceStr: String? = null,
+    val priority: ShoppingItemPriority = ShoppingItemPriority.Later,
 ) {
     @Min(0)
     @DependsOn(["amountStr"])

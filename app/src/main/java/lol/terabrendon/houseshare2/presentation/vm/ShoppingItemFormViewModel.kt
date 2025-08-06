@@ -57,6 +57,10 @@ class ShoppingItemFormViewModel @Inject constructor(
                 state.copy(priceStr = state.priceStr.update(event.price))
             }
 
+            is ShoppingItemFormEvent.PriorityChanged -> _formState.update { state ->
+                state.copy(priority = state.priority.update(event.priority))
+            }
+
             is ShoppingItemFormEvent.Submit -> viewModelScope.launch { onSubmit() }
         }
     }

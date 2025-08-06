@@ -3,6 +3,7 @@ import org.gradle.internal.extensions.stdlib.capitalized
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("idea")
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.composeCompiler)
@@ -11,6 +12,13 @@ plugins {
     alias(libs.plugins.protobuf)
     alias(libs.plugins.android.junit5)
     alias(libs.plugins.kotlin.serialization)
+}
+
+idea {
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
 }
 
 android {

@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
+import lol.terabrendon.houseshare2.domain.model.ShoppingItemPriority
 import java.time.LocalDateTime
 
 @Entity(
@@ -38,6 +39,7 @@ data class ShoppingItem(
     val price: Double?,
     @ColumnInfo(defaultValue = "(datetime('now', 'localtime'))")
     val creationTimestamp: LocalDateTime = LocalDateTime.now(),
+    val priority: ShoppingItemPriority,
 ) {
     companion object {
         @JvmStatic
@@ -48,6 +50,7 @@ data class ShoppingItem(
                 name = item.name,
                 amount = item.amount,
                 price = item.price,
+                priority = item.priority,
             )
         }
     }

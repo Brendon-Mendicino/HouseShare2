@@ -1,5 +1,12 @@
 package lol.terabrendon.houseshare2.domain.model
 
+import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.filled.WarningAmber
+import androidx.compose.material.icons.filled.WatchLater
+import androidx.compose.ui.graphics.vector.ImageVector
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import java.time.LocalDateTime
 
@@ -11,6 +18,7 @@ data class ShoppingItemInfoModel(
     val amount: Int,
     val price: Double?,
     val creationTimestamp: LocalDateTime,
+    val priority: ShoppingItemPriority,
 ) {
     companion object {
         @JvmStatic
@@ -23,6 +31,7 @@ data class ShoppingItemInfoModel(
                 amount = item.amount,
                 price = item.price,
                 creationTimestamp = item.creationTimestamp,
+                priority = item.priority,
             )
         }
 
@@ -35,6 +44,27 @@ data class ShoppingItemInfoModel(
             amount = 0,
             price = null,
             creationTimestamp = LocalDateTime.now(),
+            priority = ShoppingItemPriority.Later,
         )
     }
 }
+
+enum class ShoppingItemPriority {
+    Now,
+    Soon,
+    Later;
+
+    @StringRes
+    fun toStringRes(): Int = when (this) {
+        Now -> R.string.now
+        Soon -> R.string.soon
+        Later -> R.string.later
+    }
+
+    fun toImageVector(): ImageVector = when (this) {
+        Now -> Icons.AutoMirrored.Filled.DirectionsRun
+        Soon -> Icons.Filled.WarningAmber
+        Later -> Icons.Filled.WatchLater
+    }
+}
+

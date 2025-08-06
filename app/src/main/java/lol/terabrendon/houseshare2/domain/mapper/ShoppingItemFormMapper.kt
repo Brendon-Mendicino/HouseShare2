@@ -24,6 +24,7 @@ class ShoppingItemFormMapper @Inject constructor() {
                 amount = state.amount ?: return Err(ValidationError.NotBlank),
                 price = state.price,
                 creationTimestamp = LocalDateTime.now(),
+                priority = state.priority,
             )
         )
     }

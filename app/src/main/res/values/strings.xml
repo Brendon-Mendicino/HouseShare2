@@ -60,4 +60,8 @@
     <string name="is_not_a_valid_number">%1$s is not a valid number!</string>
     <string name="the_current_selected_items_will_be_delete_permanently">The current selected items will be delete permanently.</string>
     <string name="created_by">Created by: %1$s</string>
+    <string name="now">Now</string>
+    <string name="soon">Soon</string>
+    <string name="later">Later</string>
+    <string name="priority">Priority</string>
 </resources>

@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.FoodBank
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -124,7 +123,7 @@ private fun ShoppingListItem(
                 .fillMaxWidth(),
         ) {
             Icon(
-                imageVector = Icons.Filled.FoodBank,
+                imageVector = shoppingItem.info.priority.toImageVector(),
                 contentDescription = null,
                 modifier = Modifier.align(
                     Alignment.CenterVertically
