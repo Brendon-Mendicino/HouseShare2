@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ShoppingViewModel @Inject constructor(
-    private val shoppingItemRepository: ShoppingItemRepository
+    private val shoppingItemRepository: ShoppingItemRepository,
 ) : ViewModel() {
     companion object {
         private const val TAG = "ShoppingViewModel"

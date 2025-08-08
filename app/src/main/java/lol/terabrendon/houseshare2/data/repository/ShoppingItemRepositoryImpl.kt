@@ -5,14 +5,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
-import lol.terabrendon.houseshare2.domain.mapper.ShoppingItemModelMapper
+import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
+import lol.terabrendon.houseshare2.domain.mapper.Mapper
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import javax.inject.Inject
 
 class ShoppingItemRepositoryImpl @Inject constructor(
     private val shoppingItemDao: ShoppingItemDao,
-    private val shoppingItemModelMapper: ShoppingItemModelMapper,
+    private val shoppingItemModelMapper: Mapper<ShoppingItemWithUser, ShoppingItemModel>,
 ) : ShoppingItemRepository {
     companion object {
         private const val TAG = "ShoppingItemRepositoryImpl"
