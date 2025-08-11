@@ -3,6 +3,7 @@ package lol.terabrendon.houseshare2.data.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import lol.terabrendon.houseshare2.data.dao.CheckoffStateDao
 import lol.terabrendon.houseshare2.data.dao.ExpenseDao
 import lol.terabrendon.houseshare2.data.dao.GroupDao
 import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
@@ -30,4 +31,6 @@ abstract class HouseShareDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     abstract fun groupDao(): GroupDao
+
+    abstract fun checkoffStateDao(): CheckoffStateDao
 }

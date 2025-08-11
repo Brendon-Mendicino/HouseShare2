@@ -15,9 +15,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -39,9 +42,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import lol.terabrendon.houseshare2.presentation.provider.RegisterMenuAction
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
+import lol.terabrendon.houseshare2.util.fullFormat
+import lol.terabrendon.houseshare2.util.splitAt
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 private const val TAG: String = "ShoppingScreen"
 
@@ -55,8 +63,14 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
 
     RegisterMenuAction(TAG) {
         AnimatedVisibility(visible = isAnySelected) {
-            IconButton(onClick = { showDeleteDialog = true }) {
-                Icon(imageVector = Icons.Filled.Delete, contentDescription = null)
+            Row {
+                IconButton(onClick = { showDeleteDialog = true }) {
+                    Icon(imageVector = Icons.Filled.Delete, contentDescription = null)
+                }
+
+                IconButton(onClick = { viewModel.onEvent(ShoppingScreenEvent.ItemsCheckoff) }) {
+                    Icon(imageVector = Icons.Filled.Checklist, contentDescription = null)
+                }
             }
         }
     }
@@ -81,6 +95,7 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShoppingScreenInner(
     modifier: Modifier = Modifier,
@@ -89,6 +104,14 @@ fun ShoppingScreenInner(
     selectedItems: Set<Long>,
     onEvent: (ShoppingScreenEvent) -> Unit
 ) {
+    val (checkedShoppingItems, shoppingItems) = shoppingItems
+        .groupBy { it.checkoffState != null }
+        .let { Pair(it[true] ?: emptyList(), it[false] ?: emptyList()) }
+
+    val groupedCheckedItems = checkedShoppingItems.groupBy {
+        it.checkoffState!!.checkoffTime.truncatedTo(ChronoUnit.DAYS)!!
+    }
+
     LazyColumn(modifier = modifier.padding(8.dp)) {
         item {
             Text("Shopping list ordering:", fontStyle = FontStyle.Italic)
@@ -121,6 +144,43 @@ fun ShoppingScreenInner(
                     .fillMaxWidth()
                     .animateItem()
             )
+        }
+
+        // Checked items
+        groupedCheckedItems.forEach { day, checked ->
+            stickyHeader {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    DateHeader(date = day)
+                }
+            }
+
+            items(
+                items = checked,
+                key = { item -> item.info.id },
+            ) { item ->
+                ShoppingListItem(
+                    shoppingItem = item,
+                    onChecked = {},
+                    selected = item.info.id in selectedItems,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DateHeader(modifier: Modifier = Modifier, date: LocalDateTime) {
+    Card(modifier = modifier, elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+        Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+            Text(date.fullFormat())
         }
     }
 }
@@ -248,13 +308,15 @@ private fun DeleteShoppingItemsDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun ShoppingScreenPreview() {
-    ShoppingScreenInner(
-        shoppingItems = List(6) {
-            ShoppingItemModel.default()
-        }.mapIndexed { id, it ->
+private fun ShoppingScreenPreview() {
+    val (l1, l2) = List(6) { ShoppingItemModel.default() }
+        .mapIndexed { id, it ->
             it.copy(info = it.info.copy(id = id.toLong(), name = "Item"))
-        },
+        }
+        .splitAt(3)
+
+    ShoppingScreenInner(
+        shoppingItems = l1 + l2.map { it.copy(checkoffState = CheckoffStateModel.default()) },
         selectedItems = emptySet(),
         onEvent = {},
         itemSorting = ShoppingViewModel.ItemSorting.CreationDate,

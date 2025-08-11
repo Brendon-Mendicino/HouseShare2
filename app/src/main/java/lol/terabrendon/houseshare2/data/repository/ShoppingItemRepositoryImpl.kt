@@ -3,16 +3,20 @@ package lol.terabrendon.houseshare2.data.repository
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import lol.terabrendon.houseshare2.data.dao.CheckoffStateDao
 import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
+import lol.terabrendon.houseshare2.data.entity.CheckoffState
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
 import lol.terabrendon.houseshare2.domain.mapper.Mapper
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.domain.model.UserModel
 import javax.inject.Inject
 
 class ShoppingItemRepositoryImpl @Inject constructor(
     private val shoppingItemDao: ShoppingItemDao,
+    private val checkoffStateDao: CheckoffStateDao,
     private val shoppingItemModelMapper: Mapper<ShoppingItemWithUser, ShoppingItemModel>,
 ) : ShoppingItemRepository {
     companion object {
@@ -35,5 +39,16 @@ class ShoppingItemRepositoryImpl @Inject constructor(
     override suspend fun deleteAll(items: List<ShoppingItemInfoModel>) {
         Log.i(TAG, "deleteAll: deleting ${items.size} shopping items from the db.")
         shoppingItemDao.deleteAllById(items.map { it.id })
+    }
+
+    override suspend fun checkoffItems(
+        shoppingItemIds: List<Long>,
+        user: UserModel,
+    ) {
+        val checkoffs = shoppingItemIds.map {
+            CheckoffState(shoppingItemId = it, checkingUserId = user.id)
+        }
+
+        checkoffStateDao.insertCheckoffs(checkoffs)
     }
 }

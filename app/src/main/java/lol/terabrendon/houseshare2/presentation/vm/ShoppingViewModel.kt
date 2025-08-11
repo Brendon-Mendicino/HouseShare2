@@ -8,11 +8,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreenEvent
 import lol.terabrendon.houseshare2.util.mapState
 import javax.inject.Inject
@@ -20,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShoppingViewModel @Inject constructor(
     private val shoppingItemRepository: ShoppingItemRepository,
+    private val getLoggedUserUseCase: GetLoggedUserUseCase,
 ) : ViewModel() {
     companion object {
         private const val TAG = "ShoppingViewModel"
@@ -78,7 +81,22 @@ class ShoppingViewModel @Inject constructor(
 
                 shoppingItemRepository.deleteAll(items)
 
-                _selectedItems.value = mutableSetOf()
+                _selectedItems.value = emptySet()
+            }
+
+            is ShoppingScreenEvent.ItemsCheckoff -> viewModelScope.launch {
+                val items = shoppingItems
+                    .value
+                    .filter { item -> item.info.id in selectedItems.value }
+                    .map { it.info.id }
+
+                val loggedUser = getLoggedUserUseCase.execute().first()!!
+
+                Log.i(TAG, "onEvent: checkoff of ${items.size} ShoppingItems from the repository.")
+
+                shoppingItemRepository.checkoffItems(items, loggedUser)
+
+                _selectedItems.value = emptySet()
             }
         }
     }

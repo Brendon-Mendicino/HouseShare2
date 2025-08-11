@@ -17,3 +17,7 @@ fun LocalDateTime.inlineFormat(): String {
 
     return this.format(DateTimeFormatter.ofPattern("dd MMM, yyyy", Locale.getDefault()))
 }
+
+fun LocalDateTime.fullFormat(): String {
+    return this.format(DateTimeFormatter.ofPattern("dd MMM, yyyy", Locale.getDefault()))
+}

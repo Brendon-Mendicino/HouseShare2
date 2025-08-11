@@ -9,4 +9,6 @@ sealed class ShoppingScreenEvent {
         ShoppingScreenEvent()
 
     object ItemsDeleted : ShoppingScreenEvent()
+
+    object ItemsCheckoff : ShoppingScreenEvent()
 }
