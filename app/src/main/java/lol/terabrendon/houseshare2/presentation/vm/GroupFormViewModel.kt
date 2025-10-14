@@ -10,6 +10,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -20,6 +22,7 @@ import lol.terabrendon.houseshare2.domain.mapper.GroupFormStateMapper
 import lol.terabrendon.houseshare2.domain.model.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toValidator
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupFormEvent
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupFormUiEvent
 import lol.terabrendon.houseshare2.presentation.util.errorText
@@ -30,6 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GroupFormViewModel @Inject constructor(
     private val groupRepository: GroupRepository,
+    private val getLoggedUserUseCase: GetLoggedUserUseCase,
     userRepository: UserRepository,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
@@ -42,8 +46,10 @@ class GroupFormViewModel @Inject constructor(
     private var _uiEvent = Channel<GroupFormUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    // TODO: the current logged in user should be in the list by default
-    private var _selectedUsers = MutableStateFlow<MutableMap<Long, UserModel>>(linkedMapOf())
+    private val loggedUser = getLoggedUserUseCase.execute()
+
+    // <UserId, UserModel>
+    private var _selectedUsers = MutableStateFlow<Map<Long, UserModel>>(emptyMap())
     val selectedUsers = _selectedUsers.mapState(viewModelScope) { it.keys.toSet() }
 
     private var _groupFormState =
@@ -67,7 +73,12 @@ class GroupFormViewModel @Inject constructor(
 
     val groupFormState = _groupFormState.asStateFlow()
 
-    val users = userRepository.findAll()
+    val users = userRepository
+        .findAll()
+        // Filter current logged-in user
+        .combine(loggedUser) { users, loggedUser ->
+            users.filter { it != loggedUser }
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     fun onEvent(event: GroupFormEvent) {
@@ -91,18 +102,14 @@ class GroupFormViewModel @Inject constructor(
                     val userAlreadySelected = event.user.id in it
                     Log.d(TAG, "onEvent: userAlreadySelected=$userAlreadySelected")
 
-                    it.toMutableMap().apply {
-                        if (userAlreadySelected) remove(event.user.id)
-                        else set(event.user.id, event.user)
-                    }
+                    if (userAlreadySelected)
+                        it - event.user.id
+                    else
+                        it + Pair(event.user.id, event.user)
                 }
             }
 
-            is GroupFormEvent.UserSelectedClicked -> {
-                _selectedUsers.update {
-                    it.toMutableMap().apply { remove(event.userId) }
-                }
-            }
+            is GroupFormEvent.UserSelectedClicked -> _selectedUsers.update { it - event.userId }
 
             is GroupFormEvent.Submit -> viewModelScope.launch { onSubmit() }
         }
@@ -110,6 +117,9 @@ class GroupFormViewModel @Inject constructor(
 
     private suspend fun onSubmit() {
         val formState = _groupFormState.value
+        // TODO: finish logic
+        val loggedUser =
+            loggedUser.first() ?: throw IllegalStateException("No current logged-in user!")
 
         if (formState.isError) {
             val (parameter, error) = formState.errors.first()
