@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
     companion object {
         private const val TAG = "MainViewModel"

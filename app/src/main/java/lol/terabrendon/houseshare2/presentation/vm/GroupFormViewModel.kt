@@ -117,7 +117,6 @@ class GroupFormViewModel @Inject constructor(
 
     private suspend fun onSubmit() {
         val formState = _groupFormState.value
-        // TODO: finish logic
         val loggedUser =
             loggedUser.first() ?: throw IllegalStateException("No current logged-in user!")
 
@@ -135,7 +134,11 @@ class GroupFormViewModel @Inject constructor(
             return
         }
 
-        val newGroup = groupFormStateMapper.map(formState.toData())
+        // Add current logged user to list of users in the group
+        val formData = formState.toData().let {
+            it.copy(users = it.users + loggedUser)
+        }
+        val newGroup = groupFormStateMapper.map(formData)
 
         Log.i(
             TAG,

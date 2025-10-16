@@ -6,3 +6,8 @@ Simple app for sharing all the aspects how house management.
 
 - [x] add priority to shopping items
 - [x] add sorting to shopping items
+
+# Reference
+
+- Building a pager (paged data) with jetpack
+  compose [link](https://www.kodeco.com/24509368-repository-pattern-with-jetpack-compose/)

@@ -43,7 +43,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/api/v1/\"")
+        }
         release {
+            // Just for testing...
+            buildConfigField("String", "BASE_URL", "\"https://10.0.2.2:8080/api/v1/\"")
+
             isMinifyEnabled = true
 
             // Enables resource shrinking, which is performed by the
@@ -66,6 +72,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.11"
@@ -132,6 +139,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.test)
 
     implementation(libs.bundles.kotlin.result)
 
@@ -153,6 +162,9 @@ dependencies {
 
     implementation(libs.bundles.aformvalidator)
     ksp(libs.aformvalidator.processor)
+
+    // Http Request
+    implementation(libs.bundles.retrofit)
 
     // Desugar
     coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)
