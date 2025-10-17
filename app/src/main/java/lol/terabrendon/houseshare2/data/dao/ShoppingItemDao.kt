@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
@@ -23,6 +24,12 @@ interface ShoppingItemDao {
     @Insert
     suspend fun insert(shoppingItem: ShoppingItem): Long
 
+    @Upsert
+    suspend fun upsert(shoppingItem: ShoppingItem): Long
+
     @Query("DELETE FROM ShoppingItem WHERE id in (:itemIds)")
     suspend fun deleteAllById(itemIds: List<Long>)
+
+    @Query("delete from ShoppingItem where id=:shoppingItemId")
+    suspend fun deleteById(shoppingItemId: Long)
 }

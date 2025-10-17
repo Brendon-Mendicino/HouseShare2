@@ -125,6 +125,7 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun insert(user: UserModel) = externalScope.launch {
         val dto = userApi.save(UserDto(id = user.id, username = user.username))
 
+        // TODO: change this
         val entity = User.from(user)
         val newId = userDao.insert(entity.copy(id = dto.id))
 

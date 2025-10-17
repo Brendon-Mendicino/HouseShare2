@@ -5,8 +5,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.data.dto.GroupDto
+import lol.terabrendon.houseshare2.data.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.data.dto.UserDto
 import lol.terabrendon.houseshare2.data.entity.Group
+import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.User
 import lol.terabrendon.houseshare2.data.entity.composite.CheckoffStateWithUser
 import lol.terabrendon.houseshare2.data.entity.composite.GroupWithUsers
@@ -31,6 +33,18 @@ object MapperModule {
 
     @Provides
     fun shoppingEntityToModel(impl: ShoppingMapper.EntityToModel): Mapper<ShoppingItemWithUser, ShoppingItemModel> =
+        impl
+
+    @Provides
+    fun shoppingModelToDto(impl: ShoppingMapper.ModelToDto): Mapper<ShoppingItemInfoModel, ShoppingItemDto> =
+        impl
+
+    @Provides
+    fun shoppingModelToEntity(impl: ShoppingMapper.ModelToEntity): Mapper<ShoppingItemInfoModel, ShoppingItem> =
+        impl
+
+    @Provides
+    fun shoppingDtoToEntity(impl: ShoppingMapper.DtoToEntity): Mapper<ShoppingItemDto, ShoppingItem> =
         impl
 
     @Provides

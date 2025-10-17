@@ -92,7 +92,7 @@ class ShoppingItemFormViewModel @Inject constructor(
 
         Log.i(
             TAG,
-            "onSubmit: Inserting a new ShoppingItem with name \"${shoppingItem.name}\" to the repository."
+            "onSubmit: Inserting a new ShoppingItem(name=\"${shoppingItem.name}\") to the repository."
         )
 
         shoppingItemRepository.insert(shoppingItem)

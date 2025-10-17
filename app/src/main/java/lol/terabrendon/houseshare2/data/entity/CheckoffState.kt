@@ -26,6 +26,7 @@ import java.time.LocalDateTime
     ]
 )
 // TODO: decide if i want this class to be embedded in `ShoppingItem` or not
+// TODO: move this entity into the parent
 data class CheckoffState(
     @PrimaryKey(autoGenerate = true)
     val checkoffId: Long = 0,

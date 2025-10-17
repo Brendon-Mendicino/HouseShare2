@@ -1,14 +1,18 @@
 package lol.terabrendon.houseshare2.data.entity
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
-import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemPriority
 import java.time.LocalDateTime
 
 @Entity(
+    indices = [
+        Index("checkingUserId")
+    ],
     foreignKeys = [
         ForeignKey(
             entity = User::class,
@@ -24,7 +28,15 @@ import java.time.LocalDateTime
             childColumns = ["groupId"],
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE,
-        )
+        ),
+        ForeignKey(
+            entity = User::class,
+            parentColumns = ["id"],
+            childColumns = ["checkingUserId"],
+            onUpdate = ForeignKey.CASCADE,
+            // TODO: decide if a user is deleted what needs to happen (maybe anonymous or deleted-user?)
+            onDelete = ForeignKey.CASCADE,
+        ),
     ]
 )
 data class ShoppingItem(
@@ -40,19 +52,12 @@ data class ShoppingItem(
     @ColumnInfo(defaultValue = "(datetime('now', 'localtime'))")
     val creationTimestamp: LocalDateTime = LocalDateTime.now(),
     val priority: ShoppingItemPriority,
+    @Embedded
+    val checkoff: CheckoffState?,
 ) {
-    companion object {
-        @JvmStatic
-        fun from(item: ShoppingItemInfoModel): ShoppingItem {
-            return ShoppingItem(
-                ownerId = item.ownerId,
-                groupId = item.groupId,
-                name = item.name,
-                amount = item.amount,
-                price = item.price,
-                priority = item.priority,
-            )
-        }
-    }
+    data class CheckoffState(
+        val checkingUserId: Long,
+        val checkoffTimestamp: LocalDateTime = LocalDateTime.now(),
+    )
 }
 

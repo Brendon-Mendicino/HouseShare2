@@ -10,6 +10,8 @@ interface ShoppingItemRepository {
 
     fun findAllByGroupId(groupId: Long): Flow<List<ShoppingItemModel>>
 
+    suspend fun refreshByGroupId(groupId: Long)
+
     suspend fun insert(newItem: ShoppingItemInfoModel)
 
     suspend fun deleteAll(items: List<ShoppingItemInfoModel>)
