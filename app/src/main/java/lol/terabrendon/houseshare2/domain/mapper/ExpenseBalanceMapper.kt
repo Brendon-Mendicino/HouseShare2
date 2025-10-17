@@ -4,6 +4,7 @@ import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import javax.inject.Inject
 
+// TODO: remove from here
 class ExpenseBalanceMapper @Inject constructor() {
     fun map(expenses: List<ExpenseModel>): List<BillingBalanceModel> = expenses
         .asSequence()

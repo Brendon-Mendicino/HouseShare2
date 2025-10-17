@@ -9,7 +9,7 @@ import lol.terabrendon.houseshare2.data.api.GroupApi
 import lol.terabrendon.houseshare2.data.dao.GroupDao
 import lol.terabrendon.houseshare2.data.dto.GroupDto
 import lol.terabrendon.houseshare2.data.entity.Group
-import lol.terabrendon.houseshare2.domain.mapper.GroupEntityMapper
+import lol.terabrendon.houseshare2.data.entity.composite.GroupWithUsers
 import lol.terabrendon.houseshare2.domain.mapper.Mapper
 import lol.terabrendon.houseshare2.domain.model.GroupModel
 import javax.inject.Inject
@@ -17,6 +17,7 @@ import javax.inject.Inject
 class GroupRepositoryImpl @Inject constructor(
     private val groupDao: GroupDao,
     private val groupApi: GroupApi,
+    private val entityMapper: Mapper<GroupWithUsers, GroupModel>,
     private val groupModelToDto: Mapper<GroupModel, GroupDto>,
     private val externalScope: CoroutineScope,
 ) : GroupRepository {
@@ -24,11 +25,8 @@ class GroupRepositoryImpl @Inject constructor(
         private const val TAG = "GroupRepository"
     }
 
-    // TODO: move in constructor
-    private val groupMapper = GroupEntityMapper()
-
     override fun findById(groupId: Long): Flow<GroupModel?> =
-        groupDao.findById(groupId).map { group -> group?.let { groupMapper.map(it) } }
+        groupDao.findById(groupId).map { group -> group?.let { entityMapper.map(it) } }
 
     override suspend fun insert(group: GroupModel) = externalScope.launch {
         val groupDto = groupApi.save(groupModelToDto.map(group))

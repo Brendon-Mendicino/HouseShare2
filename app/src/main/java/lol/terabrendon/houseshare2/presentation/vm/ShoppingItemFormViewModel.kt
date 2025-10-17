@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.michaelbull.result.getOrElse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
@@ -15,8 +14,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
-import lol.terabrendon.houseshare2.domain.mapper.ShoppingItemFormMapper
+import lol.terabrendon.houseshare2.domain.mapper.Mapper
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
+import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
@@ -28,7 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShoppingItemFormViewModel @Inject constructor(
     private val shoppingItemRepository: ShoppingItemRepository,
-    private val shoppingItemFormMapper: ShoppingItemFormMapper,
+    private val formMapper: Mapper<ShoppingItemFormState, ShoppingItemInfoModel>,
     private val getLoggedUserUseCase: GetLoggedUserUseCase,
     private val getSelectedGroupUseCase: GetSelectedGroupUseCase,
     @ApplicationContext private val context: Context,
@@ -86,23 +86,9 @@ class ShoppingItemFormViewModel @Inject constructor(
             return
         }
 
-        val shoppingItem = shoppingItemFormMapper
-            .map(
-                state = formState.toData(),
-                ownerId = loggedUser.id,
-                groupId = selectedGroup.info.groupId,
-            )
-            .getOrElse {
-                _uiEvents.send(
-                    ShoppingItemFormUiEvent.SubmitFailure(
-                        error = it.errorText(
-                            "",
-                            context
-                        )
-                    )
-                )
-                return
-            }
+        val shoppingItem = formMapper.map(
+            formState.toData().copy(ownerId = loggedUser.id, groupId = selectedGroup.info.groupId)
+        )
 
         Log.i(
             TAG,
