@@ -2,7 +2,7 @@ package lol.terabrendon.houseshare2.domain.mapper
 
 import lol.terabrendon.houseshare2.data.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
-import lol.terabrendon.houseshare2.data.entity.composite.CheckoffStateWithUser
+import lol.terabrendon.houseshare2.data.entity.User
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
@@ -15,12 +15,16 @@ import javax.inject.Inject
 
 object ShoppingMapper {
     class EntityToModel @Inject constructor(
-        val checkoffMapper: Mapper<CheckoffStateWithUser, CheckoffStateModel>,
+        private val userMapper: Mapper<User, UserModel>,
     ) : Mapper<ShoppingItemWithUser, ShoppingItemModel> {
         override fun map(it: ShoppingItemWithUser): ShoppingItemModel = ShoppingItemModel(
             info = ShoppingItemInfoModel.from(it.item),
             itemOwner = UserModel.from(it.itemOwner),
-            checkoffState = it.checkoffState?.let { checkoffMapper.map(it) },
+            checkoffState = if (it.checkingUser == null || it.item.check == null) null
+            else CheckoffStateModel(
+                checkoffTime = it.item.check.checkoffTimestamp,
+                checkoffUser = userMapper.map(it.checkingUser),
+            ),
         )
     }
 
@@ -39,14 +43,6 @@ object ShoppingMapper {
         )
     }
 
-    class CheckoffEntityToModel @Inject constructor() :
-        Mapper<CheckoffStateWithUser, CheckoffStateModel> {
-        override fun map(it: CheckoffStateWithUser): CheckoffStateModel = CheckoffStateModel(
-            checkoffTime = it.checkoffState.checkoffTimestamp,
-            checkoffUser = UserModel.from(it.checkoffStateUser),
-        )
-    }
-
     class ModelToDto @Inject constructor() : Mapper<ShoppingItemInfoModel, ShoppingItemDto> {
         override fun map(it: ShoppingItemInfoModel) = ShoppingItemDto(
             id = it.id,
@@ -57,6 +53,7 @@ object ShoppingMapper {
             price = it.price,
             priority = it.priority,
             createdAt = OffsetDateTime.now(),
+            check = null,
         )
     }
 
@@ -69,7 +66,7 @@ object ShoppingMapper {
             amount = it.amount,
             price = it.price,
             priority = it.priority,
-            checkoff = null,
+            check = null,
         )
     }
 
@@ -83,8 +80,12 @@ object ShoppingMapper {
             price = it.price,
             creationTimestamp = it.createdAt.toLocalDateTime(),
             priority = it.priority,
-            // TODO: change this
-            checkoff = null,
+            check = it.check?.let { dto ->
+                ShoppingItem.CheckoffState(
+                    checkingUserId = dto.checkingUserId,
+                    checkoffTimestamp = dto.checkoffTimestamp.toLocalDateTime(),
+                )
+            },
         )
     }
 }

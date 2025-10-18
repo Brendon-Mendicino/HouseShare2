@@ -1,5 +1,6 @@
 package lol.terabrendon.houseshare2.data.api
 
+import lol.terabrendon.houseshare2.data.dto.CheckDto
 import lol.terabrendon.houseshare2.data.dto.ShoppingItemDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -16,4 +17,15 @@ interface ShoppingApi {
 
     @DELETE("groups/{groupId}/shopping-items/{shoppingItemId}")
     suspend fun delete(@Path("groupId") groupId: Long, @Path("shoppingItemId") shoppingItemId: Long)
+
+    @POST("shopping-items/{shoppingItemId}/checkoff")
+    suspend fun checkShoppingItem(
+        @Path("shoppingItemId") shoppingItemId: Long,
+        @Body dto: CheckDto
+    ): CheckDto
+
+    @DELETE("shopping-items/{shoppingItemId}/checkoff")
+    suspend fun uncheckShoppingItem(
+        @Path("shoppingItemId") shoppingItemId: Long
+    )
 }

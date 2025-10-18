@@ -53,7 +53,7 @@ data class ShoppingItem(
     val creationTimestamp: LocalDateTime = LocalDateTime.now(),
     val priority: ShoppingItemPriority,
     @Embedded
-    val checkoff: CheckoffState?,
+    val check: CheckoffState?,
 ) {
     data class CheckoffState(
         val checkingUserId: Long,

@@ -9,23 +9,21 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.api.ShoppingApi
-import lol.terabrendon.houseshare2.data.dao.CheckoffStateDao
 import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
+import lol.terabrendon.houseshare2.data.dto.CheckDto
 import lol.terabrendon.houseshare2.data.dto.ShoppingItemDto
-import lol.terabrendon.houseshare2.data.entity.CheckoffState
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
 import lol.terabrendon.houseshare2.di.IoDispatcher
 import lol.terabrendon.houseshare2.domain.mapper.Mapper
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
-import lol.terabrendon.houseshare2.domain.model.UserModel
+import java.time.OffsetDateTime
 import javax.inject.Inject
 
 class ShoppingItemRepositoryImpl @Inject constructor(
     private val shoppingApi: ShoppingApi,
     private val shoppingItemDao: ShoppingItemDao,
-    private val checkoffStateDao: CheckoffStateDao,
     private val modelToDtoMapper: Mapper<ShoppingItemInfoModel, ShoppingItemDto>,
     private val modelToEntityMapper: Mapper<ShoppingItemInfoModel, ShoppingItem>,
     private val dtoMapper: Mapper<ShoppingItemDto, ShoppingItem>,
@@ -87,12 +85,22 @@ class ShoppingItemRepositoryImpl @Inject constructor(
 
     override suspend fun checkoffItems(
         shoppingItemIds: List<Long>,
-        user: UserModel,
+        userId: Long,
     ) {
-        val checkoffs = shoppingItemIds.map {
-            CheckoffState(shoppingItemId = it, checkingUserId = user.id)
-        }
+        externalScope.launch(ioDispatcher) {
+            val timestamp = OffsetDateTime.now()
 
-        checkoffStateDao.insertCheckoffs(checkoffs)
+            shoppingItemIds
+                .map {
+                    launch {
+                        shoppingApi.checkShoppingItem(
+                            it,
+                            CheckDto(checkingUserId = userId, checkoffTimestamp = timestamp)
+                        )
+                        shoppingItemDao.check(it, userId, timestamp.toLocalDateTime())
+                    }
+                }
+                .joinAll()
+        }.join()
     }
 }

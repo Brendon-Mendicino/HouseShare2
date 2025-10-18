@@ -8,6 +8,7 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
+import java.time.LocalDateTime
 
 @Dao
 interface ShoppingItemDao {
@@ -32,4 +33,10 @@ interface ShoppingItemDao {
 
     @Query("delete from ShoppingItem where id=:shoppingItemId")
     suspend fun deleteById(shoppingItemId: Long)
+
+    @Query("update ShoppingItem set checkingUserId=:checkingUserId, checkoffTimestamp=:checkoffTimestamp where id=:shoppingItemId")
+    suspend fun check(shoppingItemId: Long, checkingUserId: Long, checkoffTimestamp: LocalDateTime)
+
+    @Query("update ShoppingItem set checkingUserId=null, checkoffTimestamp=null where id=:shoppingItemId")
+    suspend fun uncheck(shoppingItemId: Long)
 }

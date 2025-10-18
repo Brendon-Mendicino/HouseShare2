@@ -76,6 +76,7 @@ object ApiModule {
                     val req = it.request()
                     val res = it.proceed(req)
 
+                    println(res.code)
                     if (!res.isSuccessful) {
                         Log.e("Retrofit", "provideRetrofit: ${res.body?.string()}")
                     }

@@ -10,27 +10,22 @@ import lol.terabrendon.houseshare2.data.dto.UserDto
 import lol.terabrendon.houseshare2.data.entity.Group
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.User
-import lol.terabrendon.houseshare2.data.entity.composite.CheckoffStateWithUser
 import lol.terabrendon.houseshare2.data.entity.composite.GroupWithUsers
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
 import lol.terabrendon.houseshare2.domain.mapper.GroupMapper
 import lol.terabrendon.houseshare2.domain.mapper.Mapper
 import lol.terabrendon.houseshare2.domain.mapper.ShoppingMapper
 import lol.terabrendon.houseshare2.domain.mapper.UserMapper
-import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.GroupModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.domain.model.UserModel
 
 @Module
 @InstallIn(SingletonComponent::class)
 object MapperModule {
-    @Provides
-    fun checkoffEntityToModel(impl: ShoppingMapper.CheckoffEntityToModel): Mapper<CheckoffStateWithUser, CheckoffStateModel> =
-        impl
-
     @Provides
     fun shoppingEntityToModel(impl: ShoppingMapper.EntityToModel): Mapper<ShoppingItemWithUser, ShoppingItemModel> =
         impl
@@ -66,4 +61,7 @@ object MapperModule {
 
     @Provides
     fun userDtoToEntity(impl: UserMapper.DtoToEntity): Mapper<UserDto, User> = impl
+
+    @Provides
+    fun userEntityToModel(impl: UserMapper.EntityToModel): Mapper<User, UserModel> = impl
 }

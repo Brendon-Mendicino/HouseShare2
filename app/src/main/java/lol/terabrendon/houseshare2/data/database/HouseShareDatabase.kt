@@ -3,12 +3,10 @@ package lol.terabrendon.houseshare2.data.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import lol.terabrendon.houseshare2.data.dao.CheckoffStateDao
 import lol.terabrendon.houseshare2.data.dao.ExpenseDao
 import lol.terabrendon.houseshare2.data.dao.GroupDao
 import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.data.dao.UserDao
-import lol.terabrendon.houseshare2.data.entity.CheckoffState
 import lol.terabrendon.houseshare2.data.entity.DateConverter
 import lol.terabrendon.houseshare2.data.entity.Expense
 import lol.terabrendon.houseshare2.data.entity.Group
@@ -18,7 +16,7 @@ import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.User
 
 @Database(
-    entities = [ShoppingItem::class, User::class, Expense::class, Payment::class, Group::class, GroupUserCrossRef::class, CheckoffState::class],
+    entities = [ShoppingItem::class, User::class, Expense::class, Payment::class, Group::class, GroupUserCrossRef::class],
     version = 1,
     exportSchema = true
 )
@@ -31,6 +29,4 @@ abstract class HouseShareDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     abstract fun groupDao(): GroupDao
-
-    abstract fun checkoffStateDao(): CheckoffStateDao
 }

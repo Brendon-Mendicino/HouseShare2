@@ -115,9 +115,9 @@ class ShoppingViewModel @Inject constructor(
 
                 val loggedUser = getLoggedUserUseCase.execute().first()!!
 
-                Log.i(TAG, "onEvent: checkoff of ${items.size} ShoppingItems from the repository.")
+                Log.i(TAG, "onEvent: check of ${items.size} ShoppingItems from the repository.")
 
-                shoppingItemRepository.checkoffItems(items, loggedUser)
+                shoppingItemRepository.checkoffItems(items, loggedUser.id)
 
                 _selectedItems.value = emptySet()
             }

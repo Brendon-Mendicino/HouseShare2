@@ -12,4 +12,5 @@ data class ShoppingItemDto(
     val price: Double?,
     val priority: ShoppingItemPriority,
     val createdAt: OffsetDateTime,
+    val check: CheckDto?,
 )
