@@ -15,6 +15,11 @@ data class SnackbarAction(
     val action: () -> Unit,
 )
 
+/**
+ * Send events to create a message in the UI using the Snackbar API.
+ *
+ * Events can control the Snackbar using a [SnackbarEvent].
+ */
 object SnackbarController {
     private val _events = Channel<SnackbarEvent>()
     val events = _events.receiveAsFlow()

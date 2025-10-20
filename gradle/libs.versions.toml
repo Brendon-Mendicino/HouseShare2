@@ -31,6 +31,8 @@ kotlinxCoroutines = "1.10.2"
 kotlinResult = "2.0.1"
 aformvalidator = "0.5.0"
 retrofit = "3.0.0"
+okHttp = "4.12.0"
+appauth = "0.11.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -93,7 +95,12 @@ kotlin-result-coroutines = { group = "com.michael-bull.kotlin-result", name = "k
 # Http Request
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 #retrofit-converter-json = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofit" }
+logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okHttp" }
+okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okHttp" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+
+# Oauth2
+appauth = { group = "net.openid", name = "appauth", version.ref = "appauth" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -110,4 +117,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 unittest = ["junit-jupiter-api", "junit-jupiter-engine", "junit-jupiter-params", "assertk"]
 kotlin-result = ["kotlin-result", "kotlin-result-coroutines"]
 aformvalidator = ["aformvalidator-annotation", "aformvalidator-processor"]
-retrofit = ["retrofit", "retrofit-converter-gson"]
+retrofit = ["retrofit", "retrofit-converter-gson", "logging-interceptor", "okhttp-urlconnection"]

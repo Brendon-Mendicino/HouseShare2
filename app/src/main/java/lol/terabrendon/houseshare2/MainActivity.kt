@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.presentation.home.HouseShareMain
+import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 
 @AndroidEntryPoint
@@ -22,6 +25,12 @@ class MainActivity : ComponentActivity() {
         System.setProperty("kotlinx.coroutines.debug", if (BuildConfig.DEBUG) "on" else "off")
 
         enableEdgeToEdge()
+
+        lifecycleScope.launch {
+            ActivityQueue.activities.collect {
+                startActivity(it)
+            }
+        }
 
         setContent {
             HouseShare2Theme {

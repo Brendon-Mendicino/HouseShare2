@@ -66,4 +66,5 @@
     <string name="priority">Priority</string>
     <string name="creation_date">Creation date</string>
     <string name="username">Username</string>
+    <string name="failed_to_authenticate">Failed to authenticate.</string>
 </resources>

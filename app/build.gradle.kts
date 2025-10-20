@@ -44,11 +44,11 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8080/api/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:9090/\"")
         }
         release {
             // Just for testing...
-            buildConfigField("String", "BASE_URL", "\"https://10.0.2.2:8080/api/v1/\"")
+            buildConfigField("String", "BASE_URL", "\"https://10.0.2.2:9090/\"")
 
             isMinifyEnabled = true
 
@@ -165,6 +165,9 @@ dependencies {
 
     // Http Request
     implementation(libs.bundles.retrofit)
+
+    // Oauth2
+//    implementation(libs.appauth)
 
     // Desugar
     coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)
