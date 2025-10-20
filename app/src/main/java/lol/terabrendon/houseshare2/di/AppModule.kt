@@ -14,12 +14,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import lol.terabrendon.houseshare2.HouseShareApplication
 import lol.terabrendon.houseshare2.UserPreferences
-import lol.terabrendon.houseshare2.data.dao.ExpenseDao
-import lol.terabrendon.houseshare2.data.dao.GroupDao
-import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
-import lol.terabrendon.houseshare2.data.dao.UserDao
-import lol.terabrendon.houseshare2.data.database.HouseShareDatabase
-import lol.terabrendon.houseshare2.data.preferences.userPreferencesStore
+import lol.terabrendon.houseshare2.data.local.dao.ExpenseDao
+import lol.terabrendon.houseshare2.data.local.dao.GroupDao
+import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
+import lol.terabrendon.houseshare2.data.local.dao.UserDao
+import lol.terabrendon.houseshare2.data.local.database.HouseShareDatabase
+import lol.terabrendon.houseshare2.data.local.preferences.userPreferencesStore
 import javax.inject.Singleton
 
 @Module

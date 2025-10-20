@@ -1,7 +1,7 @@
-package lol.terabrendon.houseshare2.data.api
+package lol.terabrendon.houseshare2.data.remote.api
 
-import lol.terabrendon.houseshare2.data.dto.CheckDto
-import lol.terabrendon.houseshare2.data.dto.ShoppingItemDto
+import lol.terabrendon.houseshare2.data.remote.dto.CheckDto
+import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET

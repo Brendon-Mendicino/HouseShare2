@@ -8,12 +8,12 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.api.ShoppingApi
-import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
-import lol.terabrendon.houseshare2.data.dto.CheckDto
-import lol.terabrendon.houseshare2.data.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
+import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
+import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
+import lol.terabrendon.houseshare2.data.remote.dto.CheckDto
+import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.di.IoDispatcher
 import lol.terabrendon.houseshare2.domain.mapper.Mapper
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel

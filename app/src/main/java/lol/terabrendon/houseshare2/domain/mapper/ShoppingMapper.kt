@@ -1,9 +1,9 @@
 package lol.terabrendon.houseshare2.domain.mapper
 
-import lol.terabrendon.houseshare2.data.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.User
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
+import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel

@@ -1,12 +1,8 @@
-package lol.terabrendon.houseshare2.data.database
+package lol.terabrendon.houseshare2.data.local.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import lol.terabrendon.houseshare2.data.dao.ExpenseDao
-import lol.terabrendon.houseshare2.data.dao.GroupDao
-import lol.terabrendon.houseshare2.data.dao.ShoppingItemDao
-import lol.terabrendon.houseshare2.data.dao.UserDao
 import lol.terabrendon.houseshare2.data.entity.DateConverter
 import lol.terabrendon.houseshare2.data.entity.Expense
 import lol.terabrendon.houseshare2.data.entity.Group
@@ -14,6 +10,10 @@ import lol.terabrendon.houseshare2.data.entity.GroupUserCrossRef
 import lol.terabrendon.houseshare2.data.entity.Payment
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.User
+import lol.terabrendon.houseshare2.data.local.dao.ExpenseDao
+import lol.terabrendon.houseshare2.data.local.dao.GroupDao
+import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
+import lol.terabrendon.houseshare2.data.local.dao.UserDao
 
 @Database(
     entities = [ShoppingItem::class, User::class, Expense::class, Payment::class, Group::class, GroupUserCrossRef::class],

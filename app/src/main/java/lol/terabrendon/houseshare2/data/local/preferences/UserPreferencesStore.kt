@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.data.preferences
+package lol.terabrendon.houseshare2.data.local.preferences
 
 import android.content.Context
 import androidx.datastore.core.DataStore

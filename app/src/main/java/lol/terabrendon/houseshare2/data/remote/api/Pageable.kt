@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.data.api
+package lol.terabrendon.houseshare2.data.remote.api
 
 data class Pageable(
     val size: Int? = null,

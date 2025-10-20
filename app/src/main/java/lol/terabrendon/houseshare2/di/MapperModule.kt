@@ -4,14 +4,14 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import lol.terabrendon.houseshare2.data.dto.GroupDto
-import lol.terabrendon.houseshare2.data.dto.ShoppingItemDto
-import lol.terabrendon.houseshare2.data.dto.UserDto
 import lol.terabrendon.houseshare2.data.entity.Group
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.User
 import lol.terabrendon.houseshare2.data.entity.composite.GroupWithUsers
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
+import lol.terabrendon.houseshare2.data.remote.dto.GroupDto
+import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
+import lol.terabrendon.houseshare2.data.remote.dto.UserDto
 import lol.terabrendon.houseshare2.domain.mapper.GroupMapper
 import lol.terabrendon.houseshare2.domain.mapper.Mapper
 import lol.terabrendon.houseshare2.domain.mapper.ShoppingMapper

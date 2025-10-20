@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.data.dao
+package lol.terabrendon.houseshare2.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert

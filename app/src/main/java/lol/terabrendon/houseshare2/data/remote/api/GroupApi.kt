@@ -1,6 +1,6 @@
-package lol.terabrendon.houseshare2.data.api
+package lol.terabrendon.houseshare2.data.remote.api
 
-import lol.terabrendon.houseshare2.data.dto.GroupDto
+import lol.terabrendon.houseshare2.data.remote.dto.GroupDto
 import retrofit2.http.Body
 import retrofit2.http.POST
 

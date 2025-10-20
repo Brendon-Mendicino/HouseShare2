@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.data.dto
+package lol.terabrendon.houseshare2.data.remote.dto
 
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemPriority
 import java.time.OffsetDateTime

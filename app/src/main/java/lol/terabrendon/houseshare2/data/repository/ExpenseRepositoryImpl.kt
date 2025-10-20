@@ -2,9 +2,9 @@ package lol.terabrendon.houseshare2.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import lol.terabrendon.houseshare2.data.dao.ExpenseDao
 import lol.terabrendon.houseshare2.data.entity.Expense
 import lol.terabrendon.houseshare2.data.entity.Payment
+import lol.terabrendon.houseshare2.data.local.dao.ExpenseDao
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import javax.inject.Inject
 

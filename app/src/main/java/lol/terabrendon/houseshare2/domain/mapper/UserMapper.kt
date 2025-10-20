@@ -1,7 +1,7 @@
 package lol.terabrendon.houseshare2.domain.mapper
 
-import lol.terabrendon.houseshare2.data.dto.UserDto
 import lol.terabrendon.houseshare2.data.entity.User
+import lol.terabrendon.houseshare2.data.remote.dto.UserDto
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import javax.inject.Inject
 

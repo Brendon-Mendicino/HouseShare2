@@ -5,11 +5,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.api.GroupApi
-import lol.terabrendon.houseshare2.data.dao.GroupDao
-import lol.terabrendon.houseshare2.data.dto.GroupDto
 import lol.terabrendon.houseshare2.data.entity.Group
 import lol.terabrendon.houseshare2.data.entity.composite.GroupWithUsers
+import lol.terabrendon.houseshare2.data.local.dao.GroupDao
+import lol.terabrendon.houseshare2.data.remote.api.GroupApi
+import lol.terabrendon.houseshare2.data.remote.dto.GroupDto
 import lol.terabrendon.houseshare2.domain.mapper.Mapper
 import lol.terabrendon.houseshare2.domain.model.GroupModel
 import javax.inject.Inject

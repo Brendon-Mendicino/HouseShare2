@@ -9,7 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.api.LoginApi
+import lol.terabrendon.houseshare2.data.remote.api.LoginApi
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.setAuthority

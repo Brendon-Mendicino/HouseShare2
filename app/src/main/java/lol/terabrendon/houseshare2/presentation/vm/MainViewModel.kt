@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.api.LoginApi
+import lol.terabrendon.houseshare2.data.remote.api.LoginApi
 import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue

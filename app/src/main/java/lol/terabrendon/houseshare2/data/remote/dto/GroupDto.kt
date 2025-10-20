@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.data.dto
+package lol.terabrendon.houseshare2.data.remote.dto
 
 data class GroupDto(
     val id: Long,

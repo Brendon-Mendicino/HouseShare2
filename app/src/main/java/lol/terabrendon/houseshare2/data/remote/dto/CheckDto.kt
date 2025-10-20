@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.data.dto
+package lol.terabrendon.houseshare2.data.remote.dto
 
 import java.time.OffsetDateTime
 

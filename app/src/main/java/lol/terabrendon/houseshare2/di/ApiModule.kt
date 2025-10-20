@@ -6,10 +6,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.BuildConfig
-import lol.terabrendon.houseshare2.data.api.GroupApi
-import lol.terabrendon.houseshare2.data.api.LoginApi
-import lol.terabrendon.houseshare2.data.api.ShoppingApi
-import lol.terabrendon.houseshare2.data.api.UserApi
+import lol.terabrendon.houseshare2.data.remote.api.GroupApi
+import lol.terabrendon.houseshare2.data.remote.api.LoginApi
+import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
+import lol.terabrendon.houseshare2.data.remote.api.UserApi
 import lol.terabrendon.houseshare2.domain.typeadapter.OffsetDateTimeSerde
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
