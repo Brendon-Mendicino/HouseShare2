@@ -18,9 +18,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.GroupRepository
 import lol.terabrendon.houseshare2.data.repository.UserRepository
-import lol.terabrendon.houseshare2.domain.mapper.Mapper
+import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.GroupFormState
-import lol.terabrendon.houseshare2.domain.model.GroupModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
@@ -35,7 +34,6 @@ import javax.inject.Inject
 class GroupFormViewModel @Inject constructor(
     private val groupRepository: GroupRepository,
     private val getLoggedUserUseCase: GetLoggedUserUseCase,
-    private val formMapper: Mapper<GroupFormState, GroupModel>,
     userRepository: UserRepository,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
@@ -138,7 +136,7 @@ class GroupFormViewModel @Inject constructor(
         val formData = formState.toData().let {
             it.copy(users = it.users + loggedUser)
         }
-        val newGroup = formMapper.map(formData)
+        val newGroup = formData.toModel()
 
         Log.i(
             TAG,

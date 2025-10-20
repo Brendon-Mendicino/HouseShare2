@@ -8,14 +8,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.entity.ShoppingItem
-import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
 import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
 import lol.terabrendon.houseshare2.data.remote.dto.CheckDto
-import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.di.IoDispatcher
-import lol.terabrendon.houseshare2.domain.mapper.Mapper
+import lol.terabrendon.houseshare2.domain.mapper.toDto
+import lol.terabrendon.houseshare2.domain.mapper.toEntity
+import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import java.time.OffsetDateTime
@@ -24,10 +23,6 @@ import javax.inject.Inject
 class ShoppingItemRepositoryImpl @Inject constructor(
     private val shoppingApi: ShoppingApi,
     private val shoppingItemDao: ShoppingItemDao,
-    private val modelToDtoMapper: Mapper<ShoppingItemInfoModel, ShoppingItemDto>,
-    private val modelToEntityMapper: Mapper<ShoppingItemInfoModel, ShoppingItem>,
-    private val dtoMapper: Mapper<ShoppingItemDto, ShoppingItem>,
-    private val entityToModelMapper: Mapper<ShoppingItemWithUser, ShoppingItemModel>,
     private val externalScope: CoroutineScope,
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
@@ -42,7 +37,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
 
     override fun findAllByGroupId(groupId: Long): Flow<List<ShoppingItemModel>> = shoppingItemDao
         .findAllByGroupId(groupId)
-        .map { it.map(entityToModelMapper::map) }
+        .map { it.map { item -> item.toModel() } }
 
     override suspend fun refreshByGroupId(groupId: Long) {
         externalScope.launch(ioDispatcher) {
@@ -54,7 +49,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
 
             // Get remote dto
             shoppingApi.getByGroupId(groupId).content
-                .map { dtoMapper.map(it) }
+                .map { it.toEntity() }
                 .onEach { toRemove.remove(it.id) }
                 .map { launch { shoppingItemDao.upsert(it) } }
                 .joinAll()
@@ -67,9 +62,9 @@ class ShoppingItemRepositoryImpl @Inject constructor(
         externalScope.launch(ioDispatcher) {
             Log.i(TAG, "insert: inserting new shopping item to the db.")
 
-            val dto = shoppingApi.save(newItem.groupId, modelToDtoMapper.map(newItem))
+            val dto = shoppingApi.save(newItem.groupId, newItem.toDto())
 
-            shoppingItemDao.insert(modelToEntityMapper.map(newItem.copy(id = dto.id)))
+            shoppingItemDao.insert(newItem.copy(id = dto.id).toEntity())
         }.join()
     }
 

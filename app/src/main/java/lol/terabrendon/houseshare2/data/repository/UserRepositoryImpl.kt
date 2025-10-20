@@ -9,15 +9,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.entity.Group
 import lol.terabrendon.houseshare2.data.entity.User
 import lol.terabrendon.houseshare2.data.local.dao.GroupDao
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
-import lol.terabrendon.houseshare2.data.remote.dto.GroupDto
 import lol.terabrendon.houseshare2.data.remote.dto.UserDto
 import lol.terabrendon.houseshare2.di.IoDispatcher
-import lol.terabrendon.houseshare2.domain.mapper.Mapper
+import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import java.util.concurrent.atomic.AtomicBoolean
@@ -29,8 +27,6 @@ class UserRepositoryImpl @Inject constructor(
     private val externalScope: CoroutineScope,
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
-    private val userDtoToEntity: Mapper<UserDto, User>,
-    private val groupDtoToEntity: Mapper<GroupDto, Group>,
     // TODO: REMOVE
     private val sharedPreferencesRepository: UserPreferencesRepository,
     private val groupDao: GroupDao,
@@ -45,7 +41,7 @@ class UserRepositoryImpl @Inject constructor(
             userApi.getUsers().content.firstOrNull()?.let {
                 // TODO: kotlinx.coroutines.stacktrace.recovery
                 println("Setting current user $it")
-                userDao.upsert(userDtoToEntity.map(it))
+                userDao.upsert(it.toEntity())
 
                 if (sharedPreferencesRepository.currentLoggedUserId.first() == null)
                     sharedPreferencesRepository.updateCurrentLoggedUser(it.id)
@@ -61,7 +57,7 @@ class UserRepositoryImpl @Inject constructor(
         Log.i(TAG, "refreshUser: refreshing user id=$userId")
 
         val userDto = userApi.getUser(userId)
-        val daoId = userDao.upsert(userDtoToEntity.map(userDto))
+        val daoId = userDao.upsert(userDto.toEntity())
 
 //        assert(userDto.id == daoId) { "Refreshed id is different from saved one in the DB. dtoId=${userDto.id} daoId=${daoId}" }
     }
@@ -70,7 +66,7 @@ class UserRepositoryImpl @Inject constructor(
         Log.i(TAG, "refreshUsers: refresh users")
 
         val usersDto = userApi.getUsers()
-        usersDto.content.map { async { userDao.upsert(userDtoToEntity.map(it)) } }.joinAll()
+        usersDto.content.map { async { userDao.upsert(it.toEntity()) } }.joinAll()
     }
 
     fun refreshUserGroups(userId: Long) {
@@ -100,7 +96,7 @@ class UserRepositoryImpl @Inject constructor(
 
             // Refresh groups
             groups
-                .map { Pair(groupDtoToEntity.map(it), it.userIds) }
+                .map { it.toEntity() to it.userIds }
                 .map { async { groupDao.upsertGroup(it.first, it.second) } }
                 .joinAll()
         }
