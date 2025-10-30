@@ -2,7 +2,7 @@ package lol.terabrendon.houseshare2.presentation.navigation
 
 import kotlinx.serialization.Serializable
 
-sealed class ShoppingFormNavigation : MainNavigation() {
+sealed class LoginNavigation : MainNavigation() {
     @Serializable
-    object ShoppingItem : ShoppingFormNavigation()
+    data object UserLogin : LoginNavigation()
 }

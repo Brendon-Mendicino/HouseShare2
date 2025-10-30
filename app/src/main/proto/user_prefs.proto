@@ -10,9 +10,10 @@ message UserPreferences {
     SHOPPING = 2;
     BILLING = 3;
     GROUPS = 4;
+    LOGIN = 5;
   }
 
-  MainDestination mainDestination = 1;
+  MainDestination mainDestination = 5;
   uint64 currentLoggedUserId = 2;
   uint64 selectedGroupId = 3;
 }

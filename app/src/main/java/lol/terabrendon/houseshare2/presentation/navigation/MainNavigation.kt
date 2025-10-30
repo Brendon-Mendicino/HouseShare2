@@ -7,32 +7,29 @@ import com.github.michaelbull.result.Result
 import kotlinx.serialization.Serializable
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.UserPreferences
+import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation.Expense
+import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation.GroupInfo
+import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation.SelectUsers
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Billing
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Cleaning
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.ExpenseForm
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.GroupForm
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Groups
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Shopping
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.ShoppingForm
+import lol.terabrendon.houseshare2.presentation.navigation.LoginNavigation.UserLogin
+import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation.ShoppingItem
 import kotlin.reflect.KClass
 
 sealed class MainNavigation {
     @Serializable
-    object Loading : MainNavigation()
+    data object Loading : MainNavigation()
 
     @Serializable
-    object Cleaning : MainNavigation()
+    data object Homepage : MainNavigation()
 
     @Serializable
-    object Shopping : MainNavigation()
-
-    @Serializable
-    object ShoppingForm : MainNavigation()
-
-    @Serializable
-    object Billing : MainNavigation()
-
-    @Serializable
-    object Groups : MainNavigation()
-
-    @Serializable
-    object GroupForm : MainNavigation()
-
-    @Serializable
-    object ExpenseForm : MainNavigation()
+    data object Login : MainNavigation()
 
     companion object {
         fun KClass<out MainNavigation>.toPreferences(): Result<UserPreferences.MainDestination, Throwable> {
@@ -42,6 +39,7 @@ sealed class MainNavigation {
                     Shopping::class -> UserPreferences.MainDestination.SHOPPING
                     Billing::class -> UserPreferences.MainDestination.BILLING
                     Groups::class -> UserPreferences.MainDestination.GROUPS
+                    Login::class -> UserPreferences.MainDestination.LOGIN
                     else -> return Err(Throwable("Cannot call toPreferences of ${this.qualifiedName}."))
                 }
             )
@@ -51,15 +49,17 @@ sealed class MainNavigation {
             Cleaning::class,
             Shopping::class,
             ShoppingForm::class,
-            ShoppingFormNavigation.ShoppingItem::class,
+            ShoppingItem::class,
             Billing::class,
             Groups::class,
             Loading::class,
             GroupForm::class,
             ExpenseForm::class,
-            GroupFormNavigation.GroupInfo::class,
-            GroupFormNavigation.SelectUsers::class,
-            ExpenseFormNavigation.Expense::class,
+            GroupInfo::class,
+            SelectUsers::class,
+            Expense::class,
+            UserLogin::class,
+            Login::class,
         )
     }
 
@@ -70,13 +70,16 @@ sealed class MainNavigation {
         is Billing -> R.string.billing
         is Groups -> R.string.groups
         is Loading -> R.string.loading
+        UserLogin,
+        Login -> R.string.login
         is GroupForm -> TODO()
         is ExpenseForm -> TODO()
-        is GroupFormNavigation.GroupInfo -> TODO()
-        is GroupFormNavigation.SelectUsers -> TODO()
-        is ExpenseFormNavigation.Expense -> TODO()
+        is GroupInfo -> TODO()
+        is SelectUsers -> TODO()
+        is Expense -> TODO()
         is ShoppingForm -> TODO()
-        is ShoppingFormNavigation.ShoppingItem -> TODO()
+        is ShoppingItem -> TODO()
+        is Homepage -> TODO()
     }
 }
 

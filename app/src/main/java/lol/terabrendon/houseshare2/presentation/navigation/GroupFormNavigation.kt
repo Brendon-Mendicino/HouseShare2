@@ -5,9 +5,8 @@ import kotlinx.serialization.Serializable
 sealed class GroupFormNavigation : MainNavigation() {
 
     @Serializable
-    object SelectUsers : GroupFormNavigation()
+    data object SelectUsers : GroupFormNavigation()
 
     @Serializable
-    object GroupInfo : GroupFormNavigation()
-
+    data object GroupInfo : GroupFormNavigation()
 }

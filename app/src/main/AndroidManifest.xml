@@ -28,22 +28,6 @@
             </intent-filter>
         </activity>
 
-        <!--        android:name="net.openid.appauth.RedirectUriReceiverActivity"-->
-        <!--        tools:node="replace">-->
-        <!--        <activity-->
-        <!--            android:name=".DeepLinkActivity"-->
-        <!--            android:exported="true">-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="android.intent.action.VIEW" />-->
-
-        <!--                <category android:name="android.intent.category.BROWSABLE" />-->
-        <!--                <category android:name="android.intent.category.DEFAULT" />-->
-
-        <!--                <data-->
-        <!--                    android:host="lol.terabrendon.houseshare2"-->
-        <!--                    android:scheme="app" />-->
-        <!--            </intent-filter>-->
-        <!--        </activity>-->
         <activity
             android:name=".DeepLinkActivity"
             android:exported="true"

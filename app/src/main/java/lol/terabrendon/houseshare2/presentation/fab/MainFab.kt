@@ -20,6 +20,8 @@ import androidx.navigation.NavBackStackEntry
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.LoginNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
 import lol.terabrendon.houseshare2.presentation.util.currentRoute
@@ -35,12 +37,13 @@ fun MainFab(
     AnimatedContent(
         mainDestination
     ) { mainDestination ->
-        val fabIcon = mainDestination.fabIcon()
-        val fabText = stringResource(mainDestination.fabText())
         val fabExpanded = mainDestination.fabExpanded()
         val fabVisible = mainDestination.fabVisible()
 
         AnimatedVisibility(visible = fabVisible) {
+            val fabIcon = mainDestination.fabIcon()
+            val fabText = stringResource(mainDestination.fabText())
+
             ExtendedFloatingActionButton(
                 modifier = modifier,
                 text = { Text(fabText) },
@@ -58,18 +61,21 @@ fun MainFab(
 }
 
 private fun MainNavigation.fabIcon(): ImageVector = when (this) {
-    is MainNavigation.Shopping -> Icons.Filled.AddShoppingCart
-    is MainNavigation.Cleaning -> Icons.Filled.Add
-    is MainNavigation.Billing -> Icons.Filled.Receipt
+    is HomepageNavigation.Shopping -> Icons.Filled.AddShoppingCart
+    is HomepageNavigation.Cleaning -> Icons.Filled.Add
+    is HomepageNavigation.Billing -> Icons.Filled.Receipt
     is MainNavigation.Loading -> Icons.Filled.Add
-    is MainNavigation.Groups -> Icons.Filled.Add
-    is MainNavigation.GroupForm -> TODO()
+    is HomepageNavigation.Groups -> Icons.Filled.Add
+    is HomepageNavigation.GroupForm -> TODO()
     is GroupFormNavigation.SelectUsers -> Icons.AutoMirrored.Filled.ArrowForward
     is GroupFormNavigation.GroupInfo -> Icons.Filled.Check
     is ExpenseFormNavigation.Expense -> Icons.Filled.Check
-    is MainNavigation.ExpenseForm -> TODO()
-    is MainNavigation.ShoppingForm -> TODO()
+    is HomepageNavigation.ExpenseForm -> TODO()
+    is HomepageNavigation.ShoppingForm -> TODO()
     is ShoppingFormNavigation.ShoppingItem -> Icons.Filled.Check
+    is LoginNavigation.UserLogin -> TODO()
+    is MainNavigation.Homepage -> TODO()
+    MainNavigation.Login -> TODO()
 }
 
 @StringRes
@@ -79,33 +85,41 @@ private fun MainNavigation.fabText(): Int = when (this) {
 }
 
 private fun MainNavigation.fabExpanded(): Boolean = when (this) {
-    GroupFormNavigation.GroupInfo -> false
-    GroupFormNavigation.SelectUsers -> false
-    MainNavigation.Billing -> true
-    MainNavigation.Cleaning -> true
-    MainNavigation.GroupForm -> true
-    is MainNavigation.Groups -> true
+    HomepageNavigation.Billing,
+    HomepageNavigation.Cleaning,
+    HomepageNavigation.GroupForm,
+    HomepageNavigation.Groups,
+    HomepageNavigation.Shopping -> true
+
+
+    HomepageNavigation.ExpenseForm,
+    HomepageNavigation.ShoppingForm,
+    ExpenseFormNavigation.Expense,
+    ShoppingFormNavigation.ShoppingItem,
+    LoginNavigation.UserLogin,
+    GroupFormNavigation.GroupInfo,
+    GroupFormNavigation.SelectUsers,
+    MainNavigation.Homepage,
+    MainNavigation.Login,
     MainNavigation.Loading -> false
-    MainNavigation.Shopping -> true
-    is ExpenseFormNavigation.Expense -> false
-    is MainNavigation.ExpenseForm -> false
-    is MainNavigation.ShoppingForm -> false
-    is ShoppingFormNavigation.ShoppingItem -> false
 }
 
 private fun MainNavigation.fabVisible(): Boolean = when (this) {
-    is MainNavigation.Billing,
-    is MainNavigation.Cleaning,
-    is MainNavigation.Shopping,
-    is MainNavigation.GroupForm,
-    is MainNavigation.Groups,
-    is GroupFormNavigation.GroupInfo,
-    is GroupFormNavigation.SelectUsers -> true
+    HomepageNavigation.Billing,
+    HomepageNavigation.Cleaning,
+    HomepageNavigation.Shopping,
+    HomepageNavigation.GroupForm,
+    HomepageNavigation.Groups,
+    GroupFormNavigation.GroupInfo,
+    GroupFormNavigation.SelectUsers -> true
 
-    is MainNavigation.ShoppingForm,
-    is ShoppingFormNavigation.ShoppingItem,
-    is MainNavigation.Loading,
-    is MainNavigation.ExpenseForm,
-    is ExpenseFormNavigation.Expense -> false
 
+    MainNavigation.Login,
+    MainNavigation.Homepage,
+    MainNavigation.Loading,
+    LoginNavigation.UserLogin,
+    HomepageNavigation.ShoppingForm,
+    ShoppingFormNavigation.ShoppingItem,
+    HomepageNavigation.ExpenseForm,
+    ExpenseFormNavigation.Expense -> false
 }

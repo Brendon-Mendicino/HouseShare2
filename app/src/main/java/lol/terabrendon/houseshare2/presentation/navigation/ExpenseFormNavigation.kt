@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 sealed class ExpenseFormNavigation : MainNavigation() {
     @Serializable
-    object Expense : ExpenseFormNavigation()
+    data object Expense : ExpenseFormNavigation()
 }

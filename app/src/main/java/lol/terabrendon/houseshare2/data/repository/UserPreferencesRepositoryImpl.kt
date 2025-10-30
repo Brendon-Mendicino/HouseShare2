@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import lol.terabrendon.houseshare2.UserPreferences
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation.Companion.toPreferences
 import java.io.IOException
@@ -36,22 +37,24 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         .map {
             when (it.mainDestination) {
                 // TODO: double check this routes (especially UNRECOGNIZED)
-                UserPreferences.MainDestination.CLEANING -> MainNavigation.Cleaning
-                UserPreferences.MainDestination.SHOPPING -> MainNavigation.Shopping
-                UserPreferences.MainDestination.BILLING -> MainNavigation.Billing
-                UserPreferences.MainDestination.GROUPS -> MainNavigation.Groups
-                UserPreferences.MainDestination.UNSPECIFIED -> MainNavigation.Cleaning
-                UserPreferences.MainDestination.UNRECOGNIZED -> MainNavigation.Cleaning
+                UserPreferences.MainDestination.CLEANING -> HomepageNavigation.Cleaning
+                UserPreferences.MainDestination.SHOPPING -> HomepageNavigation.Shopping
+                UserPreferences.MainDestination.BILLING -> HomepageNavigation.Billing
+                UserPreferences.MainDestination.GROUPS -> HomepageNavigation.Groups
+                UserPreferences.MainDestination.LOGIN -> MainNavigation.Login
+                UserPreferences.MainDestination.UNSPECIFIED -> MainNavigation.Login
+                UserPreferences.MainDestination.UNRECOGNIZED -> MainNavigation.Login
             }
         }
 
+    // TODO: rename to homepageRoutes
     override val topLevelRoutes: Flow<List<MainNavigation>> = userPreferencesFlow
         .map {
             listOf(
-                MainNavigation.Cleaning,
-                MainNavigation.Shopping,
-                MainNavigation.Billing,
-                MainNavigation.Groups,
+                HomepageNavigation.Cleaning,
+                HomepageNavigation.Shopping,
+                HomepageNavigation.Billing,
+                HomepageNavigation.Groups,
             )
         }
 

@@ -169,6 +169,9 @@ dependencies {
     // Oauth2
 //    implementation(libs.appauth)
 
+    // Navigation3
+//    implementation(libs.bundles.navigation3)
+
     // Desugar
     coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)
 

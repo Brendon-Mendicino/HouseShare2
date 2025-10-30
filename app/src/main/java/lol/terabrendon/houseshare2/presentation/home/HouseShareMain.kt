@@ -11,7 +11,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,33 +25,25 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.presentation.billing.BillingScreen
-import lol.terabrendon.houseshare2.presentation.billing.NewExpenseForm
-import lol.terabrendon.houseshare2.presentation.cleaning.CleaningScreen
+import lol.terabrendon.houseshare2.presentation.billing.billingNavigation
+import lol.terabrendon.houseshare2.presentation.cleaning.cleaningNavigation
 import lol.terabrendon.houseshare2.presentation.fab.MainFab
-import lol.terabrendon.houseshare2.presentation.groups.GroupsScreen
-import lol.terabrendon.houseshare2.presentation.groups.form.GroupInfoFormScreen
-import lol.terabrendon.houseshare2.presentation.groups.form.GroupUsersFormScreen
-import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
+import lol.terabrendon.houseshare2.presentation.groups.groupNavigation
+import lol.terabrendon.houseshare2.presentation.login.loginNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabActionManager
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalMenuActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.MenuActionManager
-import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreen
-import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormScreen
+import lol.terabrendon.houseshare2.presentation.shopping.shoppingNavigation
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.currentRoute
-import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
-import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import kotlin.reflect.KClass
 
@@ -149,127 +140,79 @@ private fun HouseShareMainInner(
                 },
             )
         }) {
-            Box {
-                Scaffold(
-                    topBar = {
-                        MainTopBar(
-                            mainNavigation = currentNavigation,
-                            onNavigationClick = { scope.launch { drawerState.open() } },
-                        )
-                    },
-                    floatingActionButton = {
-                        MainFab(
-                            currentEntry = navBackStackEntry,
-                            onClick = {
-                                when (navBackStackEntry?.currentRoute()) {
-                                    null -> {}
+            Scaffold(
+                topBar = {
+                    MainTopBar(
+                        mainNavigation = currentNavigation,
+                        onNavigationClick = { scope.launch { drawerState.open() } },
+                    )
+                },
+                floatingActionButton = {
+                    MainFab(
+                        currentEntry = navBackStackEntry,
+                        onClick = {
+                            when (navBackStackEntry?.currentRoute()) {
+                                null -> {}
 
-                                    is MainNavigation.Shopping -> navController.navigate(
-                                        MainNavigation.ShoppingForm
-                                    )
-
-                                    is MainNavigation.Groups -> navController.navigate(
-                                        GroupFormNavigation.SelectUsers
-                                    )
-
-                                    is MainNavigation.Billing -> navController.navigate(
-                                        MainNavigation.ExpenseForm
-                                    )
-
-                                    is GroupFormNavigation.SelectUsers -> navController.navigate(
-                                        GroupFormNavigation.GroupInfo
-                                    )
-
-                                    is GroupFormNavigation.GroupInfo -> fabActionManager.fabAction.value?.invoke()
-
-                                    else -> TODO()
-                                }
-                            },
-                        )
-                    },
-                    snackbarHost = {
-                        SnackbarHost(
-                            hostState = snackbarHostState,
-                        )
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                ) { contentPadding ->
-
-                    if (startingDestination::class == MainNavigation.Loading::class) {
-                        Log.d(TAG, "HouseShareMain: starting loading screen")
-                        // TODO: extract into splash screen
-                        Box(
-                            modifier = Modifier
-                                .padding(contentPadding)
-                                .fillMaxSize()
-                        ) {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
-
-                        return@Scaffold
-                    }
-
-                    NavHost(
-                        navController = navController,
-                        startDestination = startingDestination,
-                        modifier = Modifier.padding(contentPadding),
-                    ) {
-                        composable<MainNavigation.Cleaning> {
-                            CleaningScreen()
-                            Text(text = "Cleaning")
-                        }
-                        composable<MainNavigation.Shopping> {
-                            ShoppingScreen()
-                        }
-                        navigation<MainNavigation.ShoppingForm>(startDestination = ShoppingFormNavigation.ShoppingItem) {
-                            composable<ShoppingFormNavigation.ShoppingItem> {
-                                ShoppingItemFormScreen(navController = navController)
-                            }
-                        }
-
-                        composable<MainNavigation.Billing> {
-                            BillingScreen()
-                        }
-                        navigation<MainNavigation.ExpenseForm>(startDestination = ExpenseFormNavigation.Expense) {
-                            composable<ExpenseFormNavigation.Expense> { entry ->
-                                val parentEntry =
-                                    remember(entry) { navController.getBackStackEntry<MainNavigation.ExpenseForm>() }
-                                val viewModel =
-                                    hiltViewModel<NewExpenseFormViewModel>(parentEntry)
-                                NewExpenseForm(viewModel = viewModel, onFinish = {
-                                    Log.i(
-                                        TAG,
-                                        "HouseShareMainInner: NewExpense form onFinish called."
-                                    )
-                                    navController.popBackStack<ExpenseFormNavigation.Expense>(
-                                        inclusive = true
-                                    )
-                                })
-                            }
-                        }
-
-
-                        composable<MainNavigation.Groups> {
-                            GroupsScreen()
-                        }
-                        navigation<MainNavigation.GroupForm>(startDestination = GroupFormNavigation.SelectUsers) {
-                            composable<GroupFormNavigation.SelectUsers> { entry ->
-                                val parentEntry =
-                                    remember(entry) { navController.getBackStackEntry<MainNavigation.GroupForm>() }
-                                val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
-                                GroupUsersFormScreen(viewModel = viewModel)
-                            }
-                            composable<GroupFormNavigation.GroupInfo> { entry ->
-                                val parentEntry =
-                                    remember(entry) { navController.getBackStackEntry<MainNavigation.GroupForm>() }
-                                val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
-                                GroupInfoFormScreen(
-                                    viewModel = viewModel,
-                                    navController = navController
+                                is HomepageNavigation.Shopping -> navController.navigate(
+                                    HomepageNavigation.ShoppingForm
                                 )
+
+                                is HomepageNavigation.Groups -> navController.navigate(
+                                    GroupFormNavigation.SelectUsers
+                                )
+
+                                is HomepageNavigation.Billing -> navController.navigate(
+                                    HomepageNavigation.ExpenseForm
+                                )
+
+                                is GroupFormNavigation.SelectUsers -> navController.navigate(
+                                    GroupFormNavigation.GroupInfo
+                                )
+
+                                is GroupFormNavigation.GroupInfo -> fabActionManager.fabAction.value?.invoke()
+
+                                else -> TODO()
                             }
-                        }
+                        },
+                    )
+                },
+                snackbarHost = {
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                    )
+                },
+                modifier = Modifier.fillMaxSize(),
+            ) { contentPadding ->
+
+                if (startingDestination::class == MainNavigation.Loading::class) {
+                    Log.d(TAG, "HouseShareMain: starting loading screen")
+                    // TODO: extract into splash screen
+                    Box(
+                        modifier = Modifier
+                            .padding(contentPadding)
+                            .fillMaxSize()
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
+
+                    return@Scaffold
+                }
+
+                NavHost(
+                    navController = navController,
+                    startDestination = startingDestination,
+                    modifier = Modifier.padding(contentPadding),
+                ) {
+                    loginNavigation()
+
+                    cleaningNavigation()
+
+                    shoppingNavigation(navController)
+
+                    billingNavigation(navController)
+
+                    groupNavigation(navController)
                 }
             }
         }

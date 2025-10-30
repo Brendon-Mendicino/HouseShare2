@@ -19,43 +19,48 @@ import androidx.compose.ui.unit.dp
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.LoginNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
 
 fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
     when (navigation) {
-        is MainNavigation.Cleaning -> TopLevelRoute(
+        is HomepageNavigation.Cleaning -> TopLevelRoute(
             name = R.string.cleaning,
             route = navigation,
             icon = Icons.Filled.CleaningServices
         )
 
-        is MainNavigation.Shopping -> TopLevelRoute(
+        is HomepageNavigation.Shopping -> TopLevelRoute(
             name = R.string.shopping_list,
             route = navigation,
             icon = Icons.Filled.ShoppingCart
         )
 
-        is MainNavigation.Billing -> TopLevelRoute(
+        is HomepageNavigation.Billing -> TopLevelRoute(
             name = R.string.billing,
             route = navigation,
             icon = Icons.Filled.Payments
         )
 
-        is MainNavigation.Groups -> TopLevelRoute(
+        is HomepageNavigation.Groups -> TopLevelRoute(
             name = R.string.groups,
             route = navigation,
             icon = Icons.Filled.Groups
         )
 
         is MainNavigation.Loading -> TODO()
-        is MainNavigation.GroupForm -> TODO()
+        is HomepageNavigation.GroupForm -> TODO()
         is GroupFormNavigation.GroupInfo -> TODO()
         is GroupFormNavigation.SelectUsers -> TODO()
         is ExpenseFormNavigation.Expense -> TODO()
-        is MainNavigation.ExpenseForm -> TODO()
-        is MainNavigation.ShoppingForm -> TODO()
+        is HomepageNavigation.ExpenseForm -> TODO()
+        is HomepageNavigation.ShoppingForm -> TODO()
         is ShoppingFormNavigation.ShoppingItem -> TODO()
+        MainNavigation.Homepage -> TODO()
+        LoginNavigation.UserLogin -> TODO()
+        MainNavigation.Login -> TODO()
     }
 
 @Composable
@@ -97,10 +102,10 @@ fun MainDrawerSheet(
 @Composable
 fun MainDrawerSheetPreview() {
     val topLevelRoutes = listOf(
-        MainNavigation.Cleaning,
-        MainNavigation.Shopping,
-        MainNavigation.Billing,
-        MainNavigation.Groups,
+        HomepageNavigation.Cleaning,
+        HomepageNavigation.Shopping,
+        HomepageNavigation.Billing,
+        HomepageNavigation.Groups,
     )
 
     MainDrawerSheet(topLevelRoutes = topLevelRoutes)
