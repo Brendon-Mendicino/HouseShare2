@@ -15,7 +15,7 @@ interface UserPreferencesRepository {
 
     suspend fun updateMainDestination(destination: KClass<out MainNavigation>)
 
-    suspend fun updateCurrentLoggedUser(userId: Long)
+    suspend fun updateCurrentLoggedUser(userId: Long?)
 
     suspend fun updateSelectedGroupId(groupId: Long?)
 }

@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.BuildConfig
+import lol.terabrendon.houseshare2.data.remote.api.CsrfInterceptor
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
 import lol.terabrendon.houseshare2.data.remote.api.LoginApi
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
@@ -25,8 +26,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
-    val cookieManager =
+    private val cookieManager =
         JavaNetCookieJar(CookieManager().apply { setCookiePolicy(CookiePolicy.ACCEPT_ALL) })
+
+    private val csrfManager = CsrfInterceptor()
 
     @Provides
     @Singleton
@@ -46,9 +49,10 @@ object ApiModule {
             OkHttpClient.Builder()
                 .followRedirects(false)
                 .cookieJar(cookieManager)
-//                .addNetworkInterceptor(HttpLoggingInterceptor().apply {
-//                    level = HttpLoggingInterceptor.Level.HEADERS
-//                })
+                .addNetworkInterceptor(csrfManager)
+                .addNetworkInterceptor(HttpLoggingInterceptor().apply {
+                    level = HttpLoggingInterceptor.Level.HEADERS
+                })
                 .build()
         )
         .build()
@@ -74,6 +78,7 @@ object ApiModule {
                 OkHttpClient.Builder()
                     .followRedirects(false)
                     .cookieJar(cookieManager)
+                    .addNetworkInterceptor(csrfManager)
                     .addNetworkInterceptor(HttpLoggingInterceptor().apply {
                         level = HttpLoggingInterceptor.Level.HEADERS
                     })

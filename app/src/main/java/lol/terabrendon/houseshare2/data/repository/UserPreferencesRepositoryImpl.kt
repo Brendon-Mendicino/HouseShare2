@@ -78,12 +78,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateCurrentLoggedUser(userId: Long) {
+    override suspend fun updateCurrentLoggedUser(userId: Long?) {
         userPreferencesStore.updateData { preferences ->
             Log.i(TAG, "updateCurrentLoggedUser: save userId=$userId to DataStore.")
             preferences
                 .toBuilder()
-                .setCurrentLoggedUserId(userId)
+                .setCurrentLoggedUserId(userId ?: 0)
                 .build()
         }
     }

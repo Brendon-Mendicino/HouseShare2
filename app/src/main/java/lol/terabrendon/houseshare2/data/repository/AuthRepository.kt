@@ -5,4 +5,6 @@ import lol.terabrendon.houseshare2.domain.model.UserModel
 
 interface AuthRepository {
     suspend fun finishLogin(): Result<UserModel, Throwable>
+
+    suspend fun loggedUser(): Result<UserModel, Throwable>
 }
