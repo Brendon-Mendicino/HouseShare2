@@ -1,36 +1,56 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import android.content.Intent
-import androidx.core.net.toUri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.michaelbull.result.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.remote.api.LoginApi
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
+import lol.terabrendon.houseshare2.domain.usecase.StartLoginUseCase
 import lol.terabrendon.houseshare2.presentation.login.LoginEvent
-import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
+import lol.terabrendon.houseshare2.presentation.login.LoginUiEvent
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
+import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginApi: LoginApi,
+    private val getLoggedUser: GetLoggedUserUseCase,
+    private val userLoginUseCase: StartLoginUseCase,
 ) : ViewModel() {
+    companion object {
+        private const val TAG = "LoginViewModel"
+    }
+
+    private var _uiEvent = Channel<LoginUiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
+    init {
+        // When a user is found it means that login was performed correctly.
+        viewModelScope.launch {
+            getLoggedUser
+                .execute()
+                .first { it != null }
+
+            Log.i(TAG, "init: user has logged in.")
+
+            _uiEvent.send(LoginUiEvent.LoginSuccessful)
+        }
+    }
 
     fun onEvent(event: LoginEvent) {
         when (event) {
             LoginEvent.Login -> viewModelScope.launch {
-                try {
-                    println("loginApi.login")
-                    val res = loginApi.login()
-                    val url = res.headers()["Location"]!!
-
-                    val uri = url.toUri()
-
-                    val intent = Intent(Intent.ACTION_VIEW, uri)
-                    ActivityQueue.activities.emit(intent)
-                } catch (e: Exception) {
-                    println(e.message)
-                }
+                userLoginUseCase()
+                    .onFailure {
+                        Log.e(TAG, "onEvent: failed to perform login!", it)
+                        SnackbarController.sendEvent(SnackbarEvent("Failed to login."))
+                        _uiEvent.send(LoginUiEvent.LoginFailed)
+                    }
             }
         }
     }

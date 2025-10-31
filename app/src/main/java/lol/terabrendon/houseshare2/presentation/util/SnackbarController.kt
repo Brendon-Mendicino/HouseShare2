@@ -19,6 +19,16 @@ data class SnackbarAction(
  * Send events to create a message in the UI using the Snackbar API.
  *
  * Events can control the Snackbar using a [SnackbarEvent].
+ *
+ * # Examples:
+ *
+ * ```
+ * class ScreenViewModel: ViewModel() {
+ *     fun onError() = viewModelScope.launch {
+ *          SnackbarController.sendEvent(SnackbarEvent("I am an error message"))
+ *     }
+ * }
+ * ```
  */
 object SnackbarController {
     private val _events = Channel<SnackbarEvent>()

@@ -46,9 +46,9 @@ object ApiModule {
             OkHttpClient.Builder()
                 .followRedirects(false)
                 .cookieJar(cookieManager)
-                .addNetworkInterceptor(HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.HEADERS
-                })
+//                .addNetworkInterceptor(HttpLoggingInterceptor().apply {
+//                    level = HttpLoggingInterceptor.Level.HEADERS
+//                })
                 .build()
         )
         .build()

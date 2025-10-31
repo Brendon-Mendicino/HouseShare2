@@ -1,15 +1,16 @@
 package lol.terabrendon.houseshare2.presentation.login
 
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import lol.terabrendon.houseshare2.presentation.navigation.LoginNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 
-fun NavGraphBuilder.loginNavigation() {
+fun NavGraphBuilder.loginNavigation(navController: NavHostController) {
     navigation<MainNavigation.Login>(startDestination = LoginNavigation.UserLogin) {
         composable<LoginNavigation.UserLogin> {
-            UserLoginScreen()
+            UserLoginScreen(navController = navController)
         }
     }
 }

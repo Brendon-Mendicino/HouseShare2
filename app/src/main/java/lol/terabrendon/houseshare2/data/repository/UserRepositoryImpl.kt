@@ -9,11 +9,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.entity.User
 import lol.terabrendon.houseshare2.data.local.dao.GroupDao
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
-import lol.terabrendon.houseshare2.data.remote.dto.UserDto
 import lol.terabrendon.houseshare2.di.IoDispatcher
 import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
@@ -33,20 +31,6 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
     companion object {
         private const val TAG = "UserRepository"
-    }
-
-    init {
-        // TODO: REMOVE THIS ASAP
-        externalScope.launch {
-            userApi.getUsers().content.firstOrNull()?.let {
-                // TODO: kotlinx.coroutines.stacktrace.recovery
-                println("Setting current user $it")
-                userDao.upsert(it.toEntity())
-
-                if (sharedPreferencesRepository.currentLoggedUserId.first() == null)
-                    sharedPreferencesRepository.updateCurrentLoggedUser(it.id)
-            }
-        }
     }
 
     // TODO: consider something else?
@@ -117,18 +101,6 @@ class UserRepositoryImpl @Inject constructor(
 
     override fun findAllById(ids: List<Long>): Flow<List<UserModel>> =
         userDao.findAllById(ids).map { users -> users.map { UserModel.from(it) } }
-
-    override suspend fun insert(user: UserModel) = externalScope.launch {
-        val dto = userApi.save(UserDto(id = user.id, username = user.username))
-
-        // TODO: change this
-        val entity = User.from(user)
-        val newId = userDao.insert(entity.copy(id = dto.id))
-
-        assert(dto.id == newId) { "Refreshed id is different from saved one in the DB. dtoId=${dto.id} daoId=${newId}" }
-
-        Log.i(TAG, "insert: added new user: ${entity.copy(id = newId)}")
-    }.join()
 
     override fun findGroupsByUserId(userId: Long): Flow<List<GroupInfoModel>> {
         if (refreshGroups.compareAndSet(false, true)) {

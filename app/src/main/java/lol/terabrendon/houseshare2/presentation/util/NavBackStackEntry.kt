@@ -10,5 +10,9 @@ import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
  */
 fun NavBackStackEntry.currentRoute(): MainNavigation = MainNavigation
     .subclasses()
-    .first { destination.hasRoute(it) }
+    .firstOrNull { destination.hasRoute(it) }
+    .let {
+        it
+            ?: throw RuntimeException("Navigation class not found! You forgot to add ${destination::class.qualifiedName} to MainNavigation::subclasses()")
+    }
     .let { toRoute(it) }

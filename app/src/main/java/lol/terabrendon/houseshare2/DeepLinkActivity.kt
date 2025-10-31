@@ -7,15 +7,13 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.remote.api.LoginApi
+import lol.terabrendon.houseshare2.domain.usecase.FinishLoginUseCase
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
-import lol.terabrendon.houseshare2.util.setAuthority
-import lol.terabrendon.houseshare2.util.setPath
-import lol.terabrendon.houseshare2.util.setScheme
-import retrofit2.HttpException
 import javax.inject.Inject
 
 
@@ -26,7 +24,7 @@ class DeepLinkActivity : ComponentActivity() {
     }
 
     @Inject
-    lateinit var loginApi: LoginApi
+    lateinit var finishLoginUseCase: FinishLoginUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,25 +34,29 @@ class DeepLinkActivity : ComponentActivity() {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }
 
+        // Query params
+        // - state
+        // - session_state
+        // - iss
+        // - code
         val uri = intent?.data ?: throw IllegalStateException("No URI present on activity launch!")
 
         lifecycleScope.launch {
-            val serverUrl = uri.setScheme("http").setAuthority("10.0.2.2", 9090)
-                .setPath("login/oauth2/code/house-share-client")
+            finishLoginUseCase(uri)
+                .onSuccess {
+                    Log.i(TAG, "onCreate: successfully authenticated! username=${it.username}")
 
-            try {
-                loginApi.authCodeFlow(serverUrl.toString())
-                Log.i(TAG, "onCreate: successfully authenticated!")
-                startActivity(mainActivity)
-            } catch (e: HttpException) {
-                Toast.makeText(
-                    this@DeepLinkActivity,
-                    R.string.failed_to_authenticate,
-                    Toast.LENGTH_LONG
-                ).show()
+                    startActivity(mainActivity)
+                }
+                .onFailure {
+                    Log.e(TAG, "onCreate: auth failed!", it)
 
-                Log.e(TAG, "onCreate: auth failed!", e)
-            }
+                    Toast.makeText(
+                        this@DeepLinkActivity,
+                        R.string.failed_to_authenticate,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
 
             finish()
         }

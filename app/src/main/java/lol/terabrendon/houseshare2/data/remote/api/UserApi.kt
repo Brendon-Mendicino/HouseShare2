@@ -2,6 +2,7 @@ package lol.terabrendon.houseshare2.data.remote.api
 
 import lol.terabrendon.houseshare2.data.remote.dto.GroupDto
 import lol.terabrendon.houseshare2.data.remote.dto.UserDto
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -20,4 +21,7 @@ interface UserApi {
 
     @GET("users/{userId}/groups")
     suspend fun getGroups(@Path("userId") userId: Long): List<GroupDto>
+
+    @GET("users/logged")
+    suspend fun getLoggedUser(): Response<UserDto>
 }

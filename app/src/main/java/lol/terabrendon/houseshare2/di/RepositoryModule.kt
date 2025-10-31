@@ -4,6 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import lol.terabrendon.houseshare2.data.repository.AuthRepository
+import lol.terabrendon.houseshare2.data.repository.AuthRepositoryImpl
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepositoryImpl
 import lol.terabrendon.houseshare2.data.repository.GroupRepository
@@ -50,4 +52,10 @@ abstract class RepositoryModule {
     abstract fun bindGroupRepository(
         repo: GroupRepositoryImpl
     ): GroupRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(
+        repo: AuthRepositoryImpl
+    ): AuthRepository
 }

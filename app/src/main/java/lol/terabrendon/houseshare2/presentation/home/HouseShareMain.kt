@@ -204,7 +204,7 @@ private fun HouseShareMainInner(
                     startDestination = startingDestination,
                     modifier = Modifier.padding(contentPadding),
                 ) {
-                    loginNavigation()
+                    loginNavigation(navController)
 
                     cleaningNavigation()
 

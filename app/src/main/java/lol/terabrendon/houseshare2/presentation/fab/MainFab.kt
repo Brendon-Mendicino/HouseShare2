@@ -61,21 +61,21 @@ fun MainFab(
 }
 
 private fun MainNavigation.fabIcon(): ImageVector = when (this) {
-    is HomepageNavigation.Shopping -> Icons.Filled.AddShoppingCart
-    is HomepageNavigation.Cleaning -> Icons.Filled.Add
-    is HomepageNavigation.Billing -> Icons.Filled.Receipt
-    is MainNavigation.Loading -> Icons.Filled.Add
-    is HomepageNavigation.Groups -> Icons.Filled.Add
-    is HomepageNavigation.GroupForm -> TODO()
-    is GroupFormNavigation.SelectUsers -> Icons.AutoMirrored.Filled.ArrowForward
-    is GroupFormNavigation.GroupInfo -> Icons.Filled.Check
-    is ExpenseFormNavigation.Expense -> Icons.Filled.Check
-    is HomepageNavigation.ExpenseForm -> TODO()
-    is HomepageNavigation.ShoppingForm -> TODO()
-    is ShoppingFormNavigation.ShoppingItem -> Icons.Filled.Check
-    is LoginNavigation.UserLogin -> TODO()
-    is MainNavigation.Homepage -> TODO()
-    MainNavigation.Login -> TODO()
+    HomepageNavigation.Shopping -> Icons.Filled.AddShoppingCart
+    HomepageNavigation.Cleaning -> Icons.Filled.Add
+    HomepageNavigation.Billing -> Icons.Filled.Receipt
+    MainNavigation.Loading -> Icons.Filled.Add
+    HomepageNavigation.Groups -> Icons.Filled.Add
+    HomepageNavigation.GroupForm -> Icons.Filled.Add
+    GroupFormNavigation.SelectUsers -> Icons.AutoMirrored.Filled.ArrowForward
+    GroupFormNavigation.GroupInfo -> Icons.Filled.Check
+    ExpenseFormNavigation.Expense -> Icons.Filled.Check
+    HomepageNavigation.ExpenseForm -> Icons.Filled.Add
+    HomepageNavigation.ShoppingForm -> Icons.Filled.Add
+    ShoppingFormNavigation.ShoppingItem -> Icons.Filled.Check
+    LoginNavigation.UserLogin -> Icons.Filled.Add
+    MainNavigation.Homepage -> Icons.Filled.Add
+    MainNavigation.Login -> Icons.Filled.Add
 }
 
 @StringRes

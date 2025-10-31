@@ -21,14 +21,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import kotlinx.coroutines.delay
+import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.vm.LoginViewModel
+import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.pow
@@ -38,12 +43,42 @@ import kotlin.math.sin
 fun UserLoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
+    navController: NavController,
 ) {
-    UserLoginInner(modifier = modifier)
+    var loginIsPending by rememberSaveable { mutableStateOf(false) }
+    var loginIsError by rememberSaveable { mutableStateOf(false) }
+
+    ObserveAsEvent(viewModel.uiEvent) { event ->
+        loginIsPending = false
+        loginIsError = false
+
+        when (event) {
+            // TODO: change (?)
+            LoginUiEvent.LoginSuccessful -> navController.navigate(HomepageNavigation.Groups)
+            LoginUiEvent.LoginFailed -> loginIsError = true
+        }
+    }
+
+    UserLoginInner(
+        modifier = modifier,
+        isPending = loginIsPending,
+        isError = loginIsError,
+        onEvent = viewModel::onEvent,
+        onLogin = { loginIsPending = true })
 }
 
 @Composable
-private fun UserLoginInner(modifier: Modifier = Modifier) {
+private fun UserLoginInner(
+    modifier: Modifier = Modifier,
+    onEvent: (LoginEvent) -> Unit = {},
+    onLogin: () -> Unit = {},
+    isPending: Boolean = false,
+    isError: Boolean = false,
+) {
+    if (isPending) {
+        LoadingOverlayScreen()
+    }
+
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         OutlinedCard {
             Column(
@@ -59,9 +94,22 @@ private fun UserLoginInner(modifier: Modifier = Modifier) {
 
                 Spacer(modifier = Modifier.requiredHeight(48.dp))
 
-                ElevatedButton(onClick = {
-                }) {
+                ElevatedButton(
+                    onClick = {
+                        onEvent(LoginEvent.Login)
+                        onLogin()
+                    },
+                ) {
                     Text("Login")
+                }
+
+                if (isError) {
+                    Spacer(modifier = Modifier.requiredHeight(28.dp))
+
+                    Text(
+                        "An error happened during the login",
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
@@ -108,21 +156,15 @@ private fun AnimatedCleaningEmojis(modifier: Modifier = Modifier) {
     AnimatedContent(
         targetState = currentEmoji,
         transitionSpec = {
-            slideIntoContainer(
-                towards = Up,
-//                            animationSpec = tween(300, easing = EaseIn)
-            ) + fadeIn() togetherWith slideOutOfContainer(
-                towards = Up,
-//                            animationSpec = tween(300, easing = EaseOut)
-            ) + fadeOut()
+            slideIntoContainer(towards = Up) + fadeIn() togetherWith slideOutOfContainer(towards = Up) + fadeOut()
         }) { icon ->
-        Text(icon, style = MaterialTheme.typography.displaySmall)
+        Text(icon, modifier = modifier, style = MaterialTheme.typography.displaySmall)
     }
 }
 
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun LoginPreview(modifier: Modifier = Modifier) {
-    UserLoginInner()
+private fun LoginPreview() {
+    UserLoginInner(isError = true)
 }
