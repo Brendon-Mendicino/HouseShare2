@@ -1,7 +1,10 @@
 package lol.terabrendon.houseshare2.presentation.shopping
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,10 +14,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
@@ -26,9 +32,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,26 +45,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
+import lol.terabrendon.houseshare2.domain.mapper.toStringRes
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import lol.terabrendon.houseshare2.presentation.provider.RegisterMenuAction
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 import lol.terabrendon.houseshare2.util.fullFormat
-import lol.terabrendon.houseshare2.util.splitAt
+import lol.terabrendon.houseshare2.util.inlineFormat
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 private const val TAG: String = "ShoppingScreen"
 
 @Composable
 fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel = hiltViewModel()) {
     val shoppingItems by viewModel.shoppingItems.collectAsStateWithLifecycle()
+    val checkedItems by viewModel.checkedItems.collectAsStateWithLifecycle()
     val isAnySelected by viewModel.isAnySelected.collectAsStateWithLifecycle()
     val selectedItems by viewModel.selectedItems.collectAsStateWithLifecycle()
     val itemSorting by viewModel.itemSorting.collectAsStateWithLifecycle()
@@ -88,6 +101,7 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
     ShoppingScreenInner(
         modifier = modifier,
         shoppingItems = shoppingItems,
+        checkedItems = checkedItems,
         selectedItems = selectedItems,
         itemSorting = itemSorting,
         onEvent = viewModel::onEvent,
@@ -100,19 +114,18 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
 fun ShoppingScreenInner(
     modifier: Modifier = Modifier,
     shoppingItems: List<ShoppingItemModel>,
-    itemSorting: ShoppingViewModel.ItemSorting,
+    checkedItems: List<ShoppingItemModel>,
+    itemSorting: ShoppingItemRepository.Sorting,
     selectedItems: Set<Long>,
     onEvent: (ShoppingScreenEvent) -> Unit
 ) {
-    val (checkedShoppingItems, shoppingItems) = shoppingItems
-        .groupBy { it.checkoffState != null }
-        .let { Pair(it[true] ?: emptyList(), it[false] ?: emptyList()) }
+    var showCheckItems by rememberSaveable { mutableStateOf(true) }
 
-    val groupedCheckedItems = checkedShoppingItems.groupBy {
-        it.checkoffState!!.checkoffTime.truncatedTo(ChronoUnit.DAYS)!!
-    }
-
-    LazyColumn(modifier = modifier.padding(8.dp)) {
+    LazyColumn(
+        modifier = modifier
+            .padding(8.dp)
+            .animateContentSize()
+    ) {
         item {
             Text("Shopping list ordering:", fontStyle = FontStyle.Italic)
 
@@ -127,15 +140,9 @@ fun ShoppingScreenInner(
         }
 
         items(
-            items = shoppingItems.run {
-                when (itemSorting) {
-                    ShoppingViewModel.ItemSorting.CreationDate -> sortedByDescending { i -> i.info.creationTimestamp }
-                    ShoppingViewModel.ItemSorting.Priority -> sortedByDescending { i -> i.info.priority }
-                    ShoppingViewModel.ItemSorting.Name -> sortedByDescending { i -> i.info.name }
-                    ShoppingViewModel.ItemSorting.Username -> sortedByDescending { i -> i.itemOwner.username }
-                }
-            },
-            key = { item -> item.info.id }) { item ->
+            items = shoppingItems,
+            key = { item -> item.info.id },
+        ) { item ->
             ShoppingListItem(
                 shoppingItem = item,
                 onChecked = { onEvent(ShoppingScreenEvent.ItemChecked(item.info)) },
@@ -147,29 +154,37 @@ fun ShoppingScreenInner(
         }
 
         // Checked items
-        groupedCheckedItems.forEach { day, checked ->
-            stickyHeader {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    DateHeader(date = day)
+        item {
+            Row(
+                modifier = Modifier.clickable { showCheckItems = !showCheckItems },
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Checked items")
+
+                HorizontalDivider(modifier = Modifier.weight(1f))
+
+                AnimatedContent(showCheckItems) { show ->
+                    if (show)
+                        Icon(Icons.Filled.ArrowDropDown, null, modifier = modifier.size(24.dp))
+                    else
+                        Icon(Icons.Filled.ArrowDropUp, null, modifier = modifier.size(24.dp))
                 }
             }
+        }
 
+        if (showCheckItems) {
             items(
-                items = checked,
+                items = checkedItems,
                 key = { item -> item.info.id },
             ) { item ->
-                ShoppingListItem(
-                    shoppingItem = item,
-                    onChecked = {},
-                    selected = item.info.id in selectedItems,
+                CheckedShoppingListItem(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateItem()
+                        .animateItem(),
+                    shoppingItem = item,
+//                    onChecked = { onEvent(ShoppingScreenEvent.ItemChecked(item.info)) },
+//                    selected = item.info.id in selectedItems,
                 )
             }
         }
@@ -188,11 +203,11 @@ private fun DateHeader(modifier: Modifier = Modifier, date: LocalDateTime) {
 @Composable
 private fun SortingRow(
     modifier: Modifier = Modifier,
-    itemSorting: ShoppingViewModel.ItemSorting,
+    itemSorting: ShoppingItemRepository.Sorting,
     onEvent: (ShoppingScreenEvent) -> Unit
 ) {
     LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        items(ShoppingViewModel.ItemSorting.entries) { entry ->
+        items(ShoppingItemRepository.Sorting.entries) { entry ->
             val selected = itemSorting == entry
 
             InputChip(
@@ -265,6 +280,60 @@ private fun ShoppingListItem(
 }
 
 @Composable
+private fun CheckedShoppingListItem(
+    modifier: Modifier = Modifier,
+    shoppingItem: ShoppingItemModel,
+) {
+    val info = shoppingItem.info
+    val checkoff = shoppingItem.checkoffState!!
+
+    CompositionLocalProvider(
+        LocalContentColor provides MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    ) {
+        Row(
+            modifier = modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+        ) {
+            Icon(
+                imageVector = shoppingItem.info.priority.toImageVector(),
+                contentDescription = null,
+                modifier = Modifier.align(
+                    Alignment.CenterVertically
+                )
+            )
+            Spacer(modifier = Modifier.requiredWidth(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    info.name,
+                    style = TextStyle(textDecoration = TextDecoration.LineThrough),
+                )
+
+                Row {
+                    Text(
+                        stringResource(R.string.bought_by, checkoff.checkoffUser.username),
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Spacer(Modifier.requiredWidth(12.dp))
+
+                    Text(checkoff.checkoffTime.inlineFormat())
+                }
+            }
+
+            Spacer(modifier = Modifier.requiredWidth(16.dp))
+
+//            Checkbox(
+//                checked = selected,
+//                onCheckedChange = { onChecked() },
+//            )
+        }
+    }
+}
+
+@Composable
 private fun DeleteShoppingItemsDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
@@ -309,16 +378,22 @@ private fun DeleteShoppingItemsDialog(
 @Preview(showBackground = true)
 @Composable
 private fun ShoppingScreenPreview() {
-    val (l1, l2) = List(6) { ShoppingItemModel.default() }
+    val items = List(4) { ShoppingItemModel.default() }
         .mapIndexed { id, it ->
             it.copy(info = it.info.copy(id = id.toLong(), name = "Item"))
         }
-        .splitAt(3)
+
+    val checked = List(4) { ShoppingItemModel.default() }
+        .map { it.copy(checkoffState = CheckoffStateModel.default()) }
+        .mapIndexed { id, item ->
+            item.copy(info = item.info.copy(id = id.toLong() + items.size, name = "Checked"))
+        }
 
     ShoppingScreenInner(
-        shoppingItems = l1 + l2.map { it.copy(checkoffState = CheckoffStateModel.default()) },
+        shoppingItems = items,
         selectedItems = emptySet(),
+        checkedItems = checked,
         onEvent = {},
-        itemSorting = ShoppingViewModel.ItemSorting.CreationDate,
+        itemSorting = ShoppingItemRepository.Sorting.CreationDate,
     )
 }

@@ -17,6 +17,7 @@ import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.util.mapInner
 import java.time.OffsetDateTime
 import javax.inject.Inject
 
@@ -39,6 +40,18 @@ class ShoppingItemRepositoryImpl @Inject constructor(
         .findAllByGroupId(groupId)
         .map { it.map { item -> item.toModel() } }
 
+    override fun findUnchecked(
+        groupId: Long,
+        sorting: ShoppingItemRepository.Sorting
+    ): Flow<List<ShoppingItemModel>> = shoppingItemDao.findUnchecked(groupId, sorting)
+        .mapInner { it.toModel() }
+
+    override fun findChecked(
+        groupId: Long,
+        sorting: ShoppingItemRepository.Sorting
+    ): Flow<List<ShoppingItemModel>> = shoppingItemDao.findChecked(groupId, sorting)
+        .mapInner { it.toModel() }
+
     override suspend fun refreshByGroupId(groupId: Long) {
         externalScope.launch(ioDispatcher) {
             Log.i(TAG, "refreshByGroupId: refreshing shopping items of group.id=${groupId}")
@@ -57,6 +70,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
             toRemove.map { launch { shoppingItemDao.deleteById(it) } }.joinAll()
         }.join()
     }
+
 
     override suspend fun insert(newItem: ShoppingItemInfoModel) {
         externalScope.launch(ioDispatcher) {

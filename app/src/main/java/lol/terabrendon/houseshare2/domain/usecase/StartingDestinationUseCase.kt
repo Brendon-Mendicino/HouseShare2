@@ -17,7 +17,7 @@ class StartingDestinationUseCase @Inject constructor(
         return if (userAuthRepository.loggedUser().isOk) {
             destination
         } else {
-            userPreferencesRepository.updateMainDestination(MainNavigation.Login::class)
+//            userPreferencesRepository.updateMainDestination(MainNavigation.Login::class)
             MainNavigation.Login
         }
     }

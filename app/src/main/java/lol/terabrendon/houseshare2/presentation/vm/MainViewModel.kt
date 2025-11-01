@@ -24,6 +24,7 @@ class MainViewModel @Inject constructor(
         private const val TAG = "MainViewModel"
     }
 
+    // TODO: fix the whole navigation management with login
     val currentNavigation = userPreferencesRepository
         .savedDestination
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MainNavigation.Loading)

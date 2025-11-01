@@ -1,8 +1,11 @@
 package lol.terabrendon.houseshare2.domain.mapper
 
+import androidx.annotation.StringRes
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
 import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
+import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
@@ -71,3 +74,11 @@ fun ShoppingItemDto.toEntity() = ShoppingItem(
         )
     },
 )
+
+@StringRes
+fun ShoppingItemRepository.Sorting.toStringRes(): Int = when (this) {
+    ShoppingItemRepository.Sorting.CreationDate -> R.string.creation_date
+    ShoppingItemRepository.Sorting.Priority -> R.string.priority
+    ShoppingItemRepository.Sorting.Name -> R.string.name
+    ShoppingItemRepository.Sorting.Username -> R.string.username
+}

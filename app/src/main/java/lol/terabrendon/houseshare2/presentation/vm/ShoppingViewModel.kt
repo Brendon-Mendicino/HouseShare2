@@ -1,7 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
 import android.util.Log
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,13 +8,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
@@ -31,22 +30,6 @@ class ShoppingViewModel @Inject constructor(
 ) : ViewModel() {
     companion object {
         private const val TAG = "ShoppingViewModel"
-    }
-
-    enum class ItemSorting {
-        CreationDate,
-        Priority,
-        Name,
-        Username,
-        ;
-
-        @StringRes
-        fun toStringRes(): Int = when (this) {
-            CreationDate -> R.string.creation_date
-            Priority -> R.string.priority
-            Name -> R.string.name
-            Username -> R.string.username
-        }
     }
 
 
@@ -65,17 +48,26 @@ class ShoppingViewModel @Inject constructor(
     private val _selectedItems = MutableStateFlow(setOf<Long>())
     val selectedItems = _selectedItems.asStateFlow()
 
-    private val _itemSorting = MutableStateFlow(ItemSorting.CreationDate)
+    private val _itemSorting = MutableStateFlow(ShoppingItemRepository.Sorting.CreationDate)
     val itemSorting = _itemSorting.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val shoppingItems = currentGroup
-        .flatMapConcat { group ->
-            group
-                ?.let { shoppingItemRepository.findAllByGroupId(it.info.groupId) }
-                ?: flowOf(emptyList())
+        .filterNotNull()
+        .combine(itemSorting) { a, b -> a to b }
+        .flatMapLatest { (group, sorting) ->
+            shoppingItemRepository.findUnchecked(group.info.groupId, sorting)
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), listOf())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val checkedItems = currentGroup
+        .filterNotNull()
+        .combine(itemSorting) { a, b -> a to b }
+        .flatMapLatest { (group, sorting) ->
+            shoppingItemRepository.findChecked(group.info.groupId, sorting)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     val isAnySelected = _selectedItems.mapState(viewModelScope) { items -> items.isNotEmpty() }
 

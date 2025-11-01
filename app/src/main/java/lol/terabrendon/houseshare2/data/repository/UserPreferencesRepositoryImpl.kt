@@ -51,10 +51,10 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override val topLevelRoutes: Flow<List<MainNavigation>> = userPreferencesFlow
         .map {
             listOf(
-                HomepageNavigation.Cleaning,
+                HomepageNavigation.Groups,
                 HomepageNavigation.Shopping,
                 HomepageNavigation.Billing,
-                HomepageNavigation.Groups,
+                HomepageNavigation.Cleaning,
             )
         }
 
