@@ -13,6 +13,9 @@ sealed class HomepageNavigation : MainNavigation() {
     data object ShoppingForm : HomepageNavigation()
 
     @Serializable
+    data class ShoppingItem(val shoppingItemId: Long) : HomepageNavigation()
+
+    @Serializable
     data object Billing : HomepageNavigation()
 
     @Serializable

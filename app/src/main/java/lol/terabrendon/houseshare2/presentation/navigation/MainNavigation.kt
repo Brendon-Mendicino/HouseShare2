@@ -40,6 +40,7 @@ sealed class MainNavigation {
                     Billing::class -> UserPreferences.MainDestination.BILLING
                     Groups::class -> UserPreferences.MainDestination.GROUPS
                     Login::class -> UserPreferences.MainDestination.LOGIN
+                    ShoppingItem::class -> UserPreferences.MainDestination.SHOPPING_ITEM
                     else -> return Err(Throwable("Cannot call toPreferences of ${this.qualifiedName}."))
                 }
             )
@@ -60,6 +61,7 @@ sealed class MainNavigation {
             Expense::class,
             UserLogin::class,
             Login::class,
+            ShoppingItem::class,
         )
     }
 
@@ -67,11 +69,12 @@ sealed class MainNavigation {
     fun asResource() = when (this) {
         is Cleaning -> R.string.cleaning
         is Shopping -> R.string.shopping_list
+        is HomepageNavigation.ShoppingItem -> R.string.description
         is Billing -> R.string.billing
         is Groups -> R.string.groups
         is Loading -> R.string.loading
-        UserLogin,
-        Login -> R.string.login
+        is UserLogin,
+        is Login -> R.string.login
         is GroupForm -> TODO()
         is ExpenseForm -> TODO()
         is GroupInfo -> TODO()

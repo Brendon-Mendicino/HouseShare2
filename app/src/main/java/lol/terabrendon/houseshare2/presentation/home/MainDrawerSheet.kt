@@ -61,6 +61,7 @@ fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
         MainNavigation.Homepage -> TODO()
         LoginNavigation.UserLogin -> TODO()
         MainNavigation.Login -> TODO()
+        is HomepageNavigation.ShoppingItem -> TODO()
     }
 
 @Composable

@@ -40,6 +40,9 @@ class ShoppingItemRepositoryImpl @Inject constructor(
         .findAllByGroupId(groupId)
         .map { it.map { item -> item.toModel() } }
 
+    override fun findById(shoppingItemId: Long): Flow<ShoppingItemModel?> =
+        shoppingItemDao.findById(shoppingItemId).map { it?.toModel() }
+
     override fun findUnchecked(
         groupId: Long,
         sorting: ShoppingItemRepository.Sorting

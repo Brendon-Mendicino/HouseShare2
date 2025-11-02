@@ -61,21 +61,22 @@ fun MainFab(
 }
 
 private fun MainNavigation.fabIcon(): ImageVector = when (this) {
-    HomepageNavigation.Shopping -> Icons.Filled.AddShoppingCart
-    HomepageNavigation.Cleaning -> Icons.Filled.Add
-    HomepageNavigation.Billing -> Icons.Filled.Receipt
-    MainNavigation.Loading -> Icons.Filled.Add
-    HomepageNavigation.Groups -> Icons.Filled.Add
-    HomepageNavigation.GroupForm -> Icons.Filled.Add
-    GroupFormNavigation.SelectUsers -> Icons.AutoMirrored.Filled.ArrowForward
-    GroupFormNavigation.GroupInfo -> Icons.Filled.Check
-    ExpenseFormNavigation.Expense -> Icons.Filled.Check
-    HomepageNavigation.ExpenseForm -> Icons.Filled.Add
-    HomepageNavigation.ShoppingForm -> Icons.Filled.Add
-    ShoppingFormNavigation.ShoppingItem -> Icons.Filled.Check
-    LoginNavigation.UserLogin -> Icons.Filled.Add
-    MainNavigation.Homepage -> Icons.Filled.Add
-    MainNavigation.Login -> Icons.Filled.Add
+    is HomepageNavigation.Shopping -> Icons.Filled.AddShoppingCart
+    is HomepageNavigation.Cleaning -> Icons.Filled.Add
+    is HomepageNavigation.Billing -> Icons.Filled.Receipt
+    is MainNavigation.Loading -> Icons.Filled.Add
+    is HomepageNavigation.Groups -> Icons.Filled.Add
+    is HomepageNavigation.GroupForm -> Icons.Filled.Add
+    is GroupFormNavigation.SelectUsers -> Icons.AutoMirrored.Filled.ArrowForward
+    is GroupFormNavigation.GroupInfo -> Icons.Filled.Check
+    is ExpenseFormNavigation.Expense -> Icons.Filled.Check
+    is HomepageNavigation.ExpenseForm -> Icons.Filled.Add
+    is HomepageNavigation.ShoppingForm -> Icons.Filled.Add
+    is ShoppingFormNavigation.ShoppingItem -> Icons.Filled.Check
+    is HomepageNavigation.ShoppingItem -> Icons.Filled.Add
+    is LoginNavigation.UserLogin -> Icons.Filled.Add
+    is MainNavigation.Homepage -> Icons.Filled.Add
+    is MainNavigation.Login -> Icons.Filled.Add
 }
 
 @StringRes
@@ -85,41 +86,43 @@ private fun MainNavigation.fabText(): Int = when (this) {
 }
 
 private fun MainNavigation.fabExpanded(): Boolean = when (this) {
-    HomepageNavigation.Billing,
-    HomepageNavigation.Cleaning,
-    HomepageNavigation.GroupForm,
-    HomepageNavigation.Groups,
-    HomepageNavigation.Shopping -> true
+    is HomepageNavigation.Billing,
+    is HomepageNavigation.Cleaning,
+    is HomepageNavigation.GroupForm,
+    is HomepageNavigation.Groups,
+    is HomepageNavigation.Shopping -> true
 
 
-    HomepageNavigation.ExpenseForm,
-    HomepageNavigation.ShoppingForm,
-    ExpenseFormNavigation.Expense,
-    ShoppingFormNavigation.ShoppingItem,
-    LoginNavigation.UserLogin,
-    GroupFormNavigation.GroupInfo,
-    GroupFormNavigation.SelectUsers,
-    MainNavigation.Homepage,
-    MainNavigation.Login,
-    MainNavigation.Loading -> false
+    is HomepageNavigation.ExpenseForm,
+    is HomepageNavigation.ShoppingItem,
+    is HomepageNavigation.ShoppingForm,
+    is ExpenseFormNavigation.Expense,
+    is ShoppingFormNavigation.ShoppingItem,
+    is LoginNavigation.UserLogin,
+    is GroupFormNavigation.GroupInfo,
+    is GroupFormNavigation.SelectUsers,
+    is MainNavigation.Homepage,
+    is MainNavigation.Login,
+    is MainNavigation.Loading -> false
 }
 
 private fun MainNavigation.fabVisible(): Boolean = when (this) {
-    HomepageNavigation.Billing,
-    HomepageNavigation.Cleaning,
-    HomepageNavigation.Shopping,
-    HomepageNavigation.GroupForm,
-    HomepageNavigation.Groups,
-    GroupFormNavigation.GroupInfo,
-    GroupFormNavigation.SelectUsers -> true
+    is HomepageNavigation.Billing,
+    is HomepageNavigation.Cleaning,
+    is HomepageNavigation.Shopping,
+    is HomepageNavigation.GroupForm,
+    is HomepageNavigation.Groups,
+    is GroupFormNavigation.GroupInfo,
+    is GroupFormNavigation.SelectUsers -> true
 
 
-    MainNavigation.Login,
-    MainNavigation.Homepage,
-    MainNavigation.Loading,
-    LoginNavigation.UserLogin,
-    HomepageNavigation.ShoppingForm,
-    ShoppingFormNavigation.ShoppingItem,
-    HomepageNavigation.ExpenseForm,
-    ExpenseFormNavigation.Expense -> false
+    is MainNavigation.Login,
+    is MainNavigation.Homepage,
+    is MainNavigation.Loading,
+    is LoginNavigation.UserLogin,
+    is ShoppingFormNavigation.ShoppingItem,
+    is HomepageNavigation.ShoppingForm,
+    is HomepageNavigation.ShoppingItem,
+    is HomepageNavigation.ExpenseForm,
+    is ExpenseFormNavigation.Expense -> false
 }

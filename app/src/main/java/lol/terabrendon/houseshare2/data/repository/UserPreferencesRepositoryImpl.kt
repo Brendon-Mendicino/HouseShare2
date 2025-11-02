@@ -42,6 +42,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 UserPreferences.MainDestination.BILLING -> HomepageNavigation.Billing
                 UserPreferences.MainDestination.GROUPS -> HomepageNavigation.Groups
                 UserPreferences.MainDestination.LOGIN -> MainNavigation.Login
+                // TODO: remove all the nav library
+                UserPreferences.MainDestination.SHOPPING_ITEM -> HomepageNavigation.ShoppingItem(0)
                 UserPreferences.MainDestination.UNSPECIFIED -> MainNavigation.Login
                 UserPreferences.MainDestination.UNRECOGNIZED -> MainNavigation.Login
             }

@@ -10,7 +10,11 @@ import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormSc
 
 fun NavGraphBuilder.shoppingNavigation(navController: NavHostController) {
     composable<HomepageNavigation.Shopping> {
-        ShoppingScreen()
+        ShoppingScreen(navController = navController)
+    }
+
+    composable<HomepageNavigation.ShoppingItem> {
+        ShoppingItemScreen(navController = navController)
     }
 
     navigation<HomepageNavigation.ShoppingForm>(startDestination = ShoppingFormNavigation.ShoppingItem) {

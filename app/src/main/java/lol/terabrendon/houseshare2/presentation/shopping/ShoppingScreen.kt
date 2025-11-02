@@ -52,11 +52,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.mapper.toStringRes
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.provider.RegisterMenuAction
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 import lol.terabrendon.houseshare2.util.fullFormat
@@ -66,7 +68,11 @@ import java.time.LocalDateTime
 private const val TAG: String = "ShoppingScreen"
 
 @Composable
-fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel = hiltViewModel()) {
+fun ShoppingScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ShoppingViewModel = hiltViewModel(),
+    navController: NavController
+) {
     val shoppingItems by viewModel.shoppingItems.collectAsStateWithLifecycle()
     val checkedItems by viewModel.checkedItems.collectAsStateWithLifecycle()
     val isAnySelected by viewModel.isAnySelected.collectAsStateWithLifecycle()
@@ -105,6 +111,7 @@ fun ShoppingScreen(modifier: Modifier = Modifier, viewModel: ShoppingViewModel =
         selectedItems = selectedItems,
         itemSorting = itemSorting,
         onEvent = viewModel::onEvent,
+        onItemClick = { navController.navigate(HomepageNavigation.ShoppingItem(it.info.id)) }
     )
 }
 
@@ -117,7 +124,8 @@ fun ShoppingScreenInner(
     checkedItems: List<ShoppingItemModel>,
     itemSorting: ShoppingItemRepository.Sorting,
     selectedItems: Set<Long>,
-    onEvent: (ShoppingScreenEvent) -> Unit
+    onEvent: (ShoppingScreenEvent) -> Unit,
+    onItemClick: (ShoppingItemModel) -> Unit,
 ) {
     var showCheckItems by rememberSaveable { mutableStateOf(true) }
 
@@ -147,6 +155,7 @@ fun ShoppingScreenInner(
                 shoppingItem = item,
                 onChecked = { onEvent(ShoppingScreenEvent.ItemChecked(item.info)) },
                 selected = item.info.id in selectedItems,
+                onItemClick = onItemClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateItem()
@@ -183,6 +192,7 @@ fun ShoppingScreenInner(
                         .fillMaxWidth()
                         .animateItem(),
                     shoppingItem = item,
+                    onItemClick = onItemClick,
 //                    onChecked = { onEvent(ShoppingScreenEvent.ItemChecked(item.info)) },
 //                    selected = item.info.id in selectedItems,
                 )
@@ -234,6 +244,7 @@ private fun ShoppingListItem(
     modifier: Modifier = Modifier,
     shoppingItem: ShoppingItemModel,
     selected: Boolean,
+    onItemClick: (ShoppingItemModel) -> Unit,
     onChecked: () -> Unit,
 ) {
     val info = shoppingItem.info
@@ -244,7 +255,7 @@ private fun ShoppingListItem(
             onLongClick = {
                 onChecked()
             },
-            onClick = {},
+            onClick = { onItemClick(shoppingItem) },
         )
     ) {
         Row(
@@ -283,6 +294,7 @@ private fun ShoppingListItem(
 private fun CheckedShoppingListItem(
     modifier: Modifier = Modifier,
     shoppingItem: ShoppingItemModel,
+    onItemClick: (ShoppingItemModel) -> Unit,
 ) {
     val info = shoppingItem.info
     val checkoff = shoppingItem.checkoffState!!
@@ -292,6 +304,7 @@ private fun CheckedShoppingListItem(
     ) {
         Row(
             modifier = modifier
+                .clickable { onItemClick(shoppingItem) }
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
         ) {
@@ -395,5 +408,6 @@ private fun ShoppingScreenPreview() {
         checkedItems = checked,
         onEvent = {},
         itemSorting = ShoppingItemRepository.Sorting.CreationDate,
+        onItemClick = {},
     )
 }

@@ -11,6 +11,7 @@ message UserPreferences {
     BILLING = 3;
     GROUPS = 4;
     LOGIN = 5;
+    SHOPPING_ITEM = 6;
   }
 
   MainDestination mainDestination = 5;

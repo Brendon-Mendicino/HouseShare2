@@ -17,6 +17,8 @@ interface ShoppingItemRepository {
 
     fun findAllByGroupId(groupId: Long): Flow<List<ShoppingItemModel>>
 
+    fun findById(shoppingItemId: Long): Flow<ShoppingItemModel?>
+
     fun findUnchecked(groupId: Long, sorting: Sorting): Flow<List<ShoppingItemModel>>
 
     fun findChecked(groupId: Long, sorting: Sorting): Flow<List<ShoppingItemModel>>

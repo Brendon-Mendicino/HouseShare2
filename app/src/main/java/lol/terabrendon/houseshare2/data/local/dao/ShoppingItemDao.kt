@@ -61,7 +61,7 @@ interface ShoppingItemDao {
     ): Flow<List<ShoppingItemWithUser>>
 
     @Query("SELECT * FROM ShoppingItem WHERE id=:id")
-    fun findById(id: Long): Flow<ShoppingItem?>
+    fun findById(id: Long): Flow<ShoppingItemWithUser?>
 
     @Insert
     suspend fun insert(shoppingItem: ShoppingItem): Long
