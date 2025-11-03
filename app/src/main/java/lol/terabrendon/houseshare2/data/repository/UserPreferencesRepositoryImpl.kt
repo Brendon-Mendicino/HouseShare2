@@ -3,8 +3,8 @@ package lol.terabrendon.houseshare2.data.repository
 import android.util.Log
 import androidx.datastore.core.DataStore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import lol.terabrendon.houseshare2.UserPreferences
@@ -21,14 +21,13 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     // TODO: remove this function, it should expose classes from data layer!
     private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
-        .catch { exception ->
+        .retryWhen { cause, attempt ->
             // dataStore.data throws an IOException when an error is encountered when reading data
-            if (exception is IOException) {
-                Log.e(TAG, "Error reading user preferences.", exception)
-                emit(UserPreferences.getDefaultInstance())
-            } else {
-                throw exception
-            }
+            if (cause !is IOException) throw cause
+
+            Log.e(TAG, "userPreferencesFlow: Error reading user preferences.", cause)
+            emit(UserPreferences.getDefaultInstance())
+            true
         }
 
     override val savedBackStack: Flow<List<MainNavigation>> = userPreferencesFlow
@@ -54,17 +53,6 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 .build()
         }
     }
-
-//    // TODO: rename to homepageRoutes
-//    override val topLevelRoutes: Flow<List<MainNavigation>> = userPreferencesFlow
-//        .map {
-//            listOf(
-//                HomepageNavigation.Groups,
-//                HomepageNavigation.Shopping,
-//                HomepageNavigation.Billing,
-//                HomepageNavigation.Cleaning,
-//            )
-//        }
 
     override val currentLoggedUserId: Flow<Long?>
         get() = userPreferencesFlow.map { if (it.currentLoggedUserId == 0L) null else it.currentLoggedUserId }

@@ -114,7 +114,7 @@ data class UserExpenseModel(
         @JvmStatic
         fun from(payment: PaymentWithUser): UserExpenseModel = UserExpenseModel(
             user = UserModel.from(payment.user),
-            partAmount = payment.payment.partAmount,
+            partAmount = payment.expensePart.partAmount,
         )
 
         @JvmStatic

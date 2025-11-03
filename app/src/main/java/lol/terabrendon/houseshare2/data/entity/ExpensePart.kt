@@ -5,8 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 
 /**
- * This class represent if the user has contributed to the payment of the expense
- * and what part he has to take
+ * This class represent if the user is in debt for the payment contribution
+ * of the expense.
  */
 @Entity(
     primaryKeys = ["expenseId", "userId"],
@@ -26,11 +26,11 @@ import androidx.room.ForeignKey
         ),
     ]
 )
-data class Payment(
+data class ExpensePart(
     @ColumnInfo(index = true)
     val expenseId: Long,
     @ColumnInfo(index = true)
     val userId: Long,
-    /** What are the total user expenses in the expense */
+    /** What are the total user debts in the expense */
     val partAmount: Double,
 )

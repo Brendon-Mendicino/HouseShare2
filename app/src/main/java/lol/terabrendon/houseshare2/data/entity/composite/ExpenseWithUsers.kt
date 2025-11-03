@@ -3,7 +3,7 @@ package lol.terabrendon.houseshare2.data.entity.composite
 import androidx.room.Embedded
 import androidx.room.Relation
 import lol.terabrendon.houseshare2.data.entity.Expense
-import lol.terabrendon.houseshare2.data.entity.Payment
+import lol.terabrendon.houseshare2.data.entity.ExpensePart
 import lol.terabrendon.houseshare2.data.entity.User
 
 data class ExpenseWithUsers(
@@ -20,7 +20,7 @@ data class ExpenseWithUsers(
     )
     val payer: User,
     @Relation(
-        entity = Payment::class,
+        entity = ExpensePart::class,
         parentColumn = "id",
         entityColumn = "expenseId"
     )

@@ -3,7 +3,7 @@ package lol.terabrendon.houseshare2.data.repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import lol.terabrendon.houseshare2.data.entity.Expense
-import lol.terabrendon.houseshare2.data.entity.Payment
+import lol.terabrendon.houseshare2.data.entity.ExpensePart
 import lol.terabrendon.houseshare2.data.local.dao.ExpenseDao
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import javax.inject.Inject
@@ -23,8 +23,8 @@ class ExpenseRepositoryImpl @Inject constructor(
     override suspend fun insert(expense: ExpenseModel) {
         expenseDao.insertExpense(
             expense = Expense.from(expense),
-            payments = expense.userExpenses.map {
-                Payment(
+            expenseParts = expense.userExpenses.map {
+                ExpensePart(
                     expenseId = expense.id,
                     userId = it.user.id,
                     partAmount = it.partAmount,

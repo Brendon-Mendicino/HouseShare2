@@ -36,8 +36,6 @@ class CsrfInterceptor : Interceptor {
 
         if (csrfCookie != null) {
             csrfToken = csrfCookie.value
-            println(csrfToken)
-            println(csrfCookie)
             Log.i(TAG, "intercept: new csrf intercepted.")
         }
 
