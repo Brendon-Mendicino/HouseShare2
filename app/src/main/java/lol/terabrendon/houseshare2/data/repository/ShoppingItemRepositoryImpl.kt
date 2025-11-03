@@ -96,6 +96,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
     }
 
     override suspend fun checkoffItems(
+        groupId: Long,
         shoppingItemIds: List<Long>,
         userId: Long,
     ) {
@@ -106,8 +107,9 @@ class ShoppingItemRepositoryImpl @Inject constructor(
                 .map {
                     launch {
                         shoppingApi.checkShoppingItem(
-                            it,
-                            CheckDto(checkingUserId = userId, checkoffTimestamp = timestamp)
+                            groupId = groupId,
+                            shoppingItemId = it,
+                            dto = CheckDto(checkingUserId = userId, checkoffTimestamp = timestamp),
                         )
                         shoppingItemDao.check(it, userId, timestamp.toLocalDateTime())
                     }

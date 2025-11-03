@@ -106,10 +106,11 @@ class ShoppingViewModel @Inject constructor(
                     .map { it.info.id }
 
                 val loggedUser = getLoggedUserUseCase.execute().first()!!
+                val groupId = getSelectedGroupUseCase.execute().first()!!.info.groupId
 
                 Log.i(TAG, "onEvent: check of ${items.size} ShoppingItems from the repository.")
 
-                shoppingItemRepository.checkoffItems(items, loggedUser.id)
+                shoppingItemRepository.checkoffItems(groupId, items, loggedUser.id)
 
                 _selectedItems.value = emptySet()
             }

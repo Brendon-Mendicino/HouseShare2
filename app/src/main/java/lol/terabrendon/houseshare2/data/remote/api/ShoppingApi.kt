@@ -18,14 +18,16 @@ interface ShoppingApi {
     @DELETE("groups/{groupId}/shopping-items/{shoppingItemId}")
     suspend fun delete(@Path("groupId") groupId: Long, @Path("shoppingItemId") shoppingItemId: Long)
 
-    @POST("shopping-items/{shoppingItemId}/checkoff")
+    @POST("groups/{groupId}/shopping-items/{shoppingItemId}/checkoff")
     suspend fun checkShoppingItem(
+        @Path("groupId") groupId: Long,
         @Path("shoppingItemId") shoppingItemId: Long,
         @Body dto: CheckDto
     ): CheckDto
 
-    @DELETE("shopping-items/{shoppingItemId}/checkoff")
+    @DELETE("groups/{groupId}/shopping-items/{shoppingItemId}/checkoff")
     suspend fun uncheckShoppingItem(
-        @Path("shoppingItemId") shoppingItemId: Long
+        @Path("groupId") groupId: Long,
+        @Path("shoppingItemId") shoppingItemId: Long,
     )
 }
