@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType.Companion.PrimaryNotEditable
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalIconButton
@@ -187,7 +188,7 @@ fun NewExpenseFormInner(
                 OutlinedTextField(
                     modifier = Modifier
                         .animateContentSize()
-                        .menuAnchor(),
+                        .menuAnchor(PrimaryNotEditable),
                     readOnly = true,
                     maxLines = 1,
                     value = category?.let { stringResource(it.toStringRes()) } ?: "",
@@ -242,7 +243,7 @@ fun NewExpenseFormInner(
                 OutlinedTextField(
                     modifier = Modifier
                         .animateContentSize()
-                        .menuAnchor(),
+                        .menuAnchor(PrimaryNotEditable),
                     readOnly = true,
                     maxLines = 1,
                     value = payer?.username ?: "",

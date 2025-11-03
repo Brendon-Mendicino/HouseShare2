@@ -4,17 +4,7 @@ option java_package = "lol.terabrendon.houseshare2";
 option java_multiple_files = true;
 
 message UserPreferences {
-  enum MainDestination {
-    UNSPECIFIED = 0;
-    CLEANING = 1;
-    SHOPPING = 2;
-    BILLING = 3;
-    GROUPS = 4;
-    LOGIN = 5;
-    SHOPPING_ITEM = 6;
-  }
-
-  MainDestination mainDestination = 5;
+  string backStack = 1;
   uint64 currentLoggedUserId = 2;
   uint64 selectedGroupId = 3;
 }

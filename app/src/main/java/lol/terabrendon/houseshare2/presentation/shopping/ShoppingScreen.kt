@@ -52,13 +52,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.mapper.toStringRes
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.RegisterMenuAction
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 import lol.terabrendon.houseshare2.util.fullFormat
@@ -71,7 +71,7 @@ private const val TAG: String = "ShoppingScreen"
 fun ShoppingScreen(
     modifier: Modifier = Modifier,
     viewModel: ShoppingViewModel = hiltViewModel(),
-    navController: NavController
+    navigate: (MainNavigation) -> Unit,
 ) {
     val shoppingItems by viewModel.shoppingItems.collectAsStateWithLifecycle()
     val checkedItems by viewModel.checkedItems.collectAsStateWithLifecycle()
@@ -111,7 +111,7 @@ fun ShoppingScreen(
         selectedItems = selectedItems,
         itemSorting = itemSorting,
         onEvent = viewModel::onEvent,
-        onItemClick = { navController.navigate(HomepageNavigation.ShoppingItem(it.info.id)) }
+        onItemClick = { navigate(HomepageNavigation.ShoppingItem(it.info.id)) }
     )
 }
 

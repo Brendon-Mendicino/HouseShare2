@@ -14,7 +14,6 @@ import lol.terabrendon.houseshare2.data.remote.api.UserApi
 import lol.terabrendon.houseshare2.domain.typeadapter.OffsetDateTimeSerde
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -50,9 +49,9 @@ object ApiModule {
                 .followRedirects(false)
                 .cookieJar(cookieManager)
                 .addNetworkInterceptor(csrfManager)
-                .addNetworkInterceptor(HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.HEADERS
-                })
+//                .addNetworkInterceptor(HttpLoggingInterceptor().apply {
+//                    level = HttpLoggingInterceptor.Level.HEADERS
+//                })
                 .build()
         )
         .build()
@@ -79,9 +78,9 @@ object ApiModule {
                     .followRedirects(false)
                     .cookieJar(cookieManager)
                     .addNetworkInterceptor(csrfManager)
-                    .addNetworkInterceptor(HttpLoggingInterceptor().apply {
-                        level = HttpLoggingInterceptor.Level.HEADERS
-                    })
+//                    .addNetworkInterceptor(HttpLoggingInterceptor().apply {
+//                        level = HttpLoggingInterceptor.Level.HEADERS
+//                    })
                     .build()
             )
             .build()

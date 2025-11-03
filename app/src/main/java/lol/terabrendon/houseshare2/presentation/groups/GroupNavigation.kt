@@ -1,37 +1,42 @@
 package lol.terabrendon.houseshare2.presentation.groups
 
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.navigation3.runtime.EntryProviderScope
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupInfoFormScreen
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupUsersFormScreen
-import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 
-fun NavGraphBuilder.groupNavigation(navController: NavHostController) {
-    composable<HomepageNavigation.Groups> {
+fun EntryProviderScope<MainNavigation>.groupNavigation(
+    navigator: Navigator<MainNavigation>,
+) {
+    var formStore: ViewModelStoreOwner? = null
+
+    entry<HomepageNavigation.Groups> {
         GroupsScreen()
     }
 
-    navigation<HomepageNavigation.GroupForm>(startDestination = GroupFormNavigation.SelectUsers) {
-        composable<GroupFormNavigation.SelectUsers> { entry ->
-            val parentEntry =
-                remember(entry) { navController.getBackStackEntry<HomepageNavigation.GroupForm>() }
-            val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
-            GroupUsersFormScreen(viewModel = viewModel)
+    entry<HomepageNavigation.GroupUsersForm> {
+        formStore = LocalViewModelStoreOwner.current
+        GroupUsersFormScreen()
+    }
+
+    entry<HomepageNavigation.GroupInfoForm> {
+        if (formStore == null) {
+            navigator.pop()
+            return@entry
         }
-        composable<GroupFormNavigation.GroupInfo> { entry ->
-            val parentEntry =
-                remember(entry) { navController.getBackStackEntry<HomepageNavigation.GroupForm>() }
-            val viewModel = hiltViewModel<GroupFormViewModel>(parentEntry)
-            GroupInfoFormScreen(
-                viewModel = viewModel,
-                navController = navController
-            )
-        }
+
+        val viewModel = hiltViewModel<GroupFormViewModel>(formStore!!)
+        GroupInfoFormScreen(
+            viewModel = viewModel,
+            onSubmit = {
+                navigator.pop(elements = 2)
+                formStore = null
+            })
     }
 }

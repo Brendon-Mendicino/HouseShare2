@@ -16,9 +16,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // TODO: enables coroutines debugging
         println("BuildConfig.DEBUG=${BuildConfig.DEBUG}")
-        System.setProperty("kotlinx.coroutines.debug", if (BuildConfig.DEBUG) "on" else "off")
 
         enableEdgeToEdge()
 

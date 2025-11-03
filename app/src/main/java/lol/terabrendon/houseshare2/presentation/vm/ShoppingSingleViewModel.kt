@@ -1,22 +1,29 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
-import javax.inject.Inject
 
-@HiltViewModel
-class ShoppingSingleViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val shoppingItemRepository: ShoppingItemRepository,
+@HiltViewModel(assistedFactory = ShoppingSingleViewModel.Factory::class)
+class ShoppingSingleViewModel @AssistedInject constructor(
+    @Assisted
+    val route: HomepageNavigation.ShoppingItem,
+//    private val savedStateHandle: SavedStateHandle,
+    shoppingItemRepository: ShoppingItemRepository,
 ) : ViewModel() {
-    private val route = savedStateHandle.toRoute<HomepageNavigation.ShoppingItem>()
+    @AssistedFactory
+    interface Factory {
+        fun create(route: HomepageNavigation.ShoppingItem): ShoppingSingleViewModel
+    }
+
+//    private val route = savedStateHandle.toRoute<HomepageNavigation.ShoppingItem>()
 
     val shoppingItem = shoppingItemRepository
         .findById(route.shoppingItemId)

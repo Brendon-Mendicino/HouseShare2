@@ -13,3 +13,9 @@ fun <T> List<T>.splitAt(mid: Int): Pair<List<T>, List<T>> {
 
     return Pair(first, second)
 }
+
+/**
+ * Get an item with reverse indexes. This is like
+ * indexing an array in python with -1.
+ */
+fun <T> List<T>.end(index: Int) = get(size + index)

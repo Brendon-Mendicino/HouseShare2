@@ -28,10 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
-import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.vm.LoginViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import kotlin.math.PI
@@ -43,7 +41,7 @@ import kotlin.math.sin
 fun UserLoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
-    navController: NavController,
+    onFinish: () -> Unit,
 ) {
     var loginIsPending by rememberSaveable { mutableStateOf(false) }
     var loginIsError by rememberSaveable { mutableStateOf(false) }
@@ -53,8 +51,7 @@ fun UserLoginScreen(
         loginIsError = false
 
         when (event) {
-            // TODO: change (?)
-            LoginUiEvent.LoginSuccessful -> navController.navigate(HomepageNavigation.Groups)
+            LoginUiEvent.LoginSuccessful -> onFinish()
             LoginUiEvent.LoginFailed -> loginIsError = true
         }
     }

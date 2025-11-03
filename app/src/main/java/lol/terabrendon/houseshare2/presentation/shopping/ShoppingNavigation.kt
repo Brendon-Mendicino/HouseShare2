@@ -1,25 +1,28 @@
 package lol.terabrendon.houseshare2.presentation.shopping
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation3.runtime.EntryProviderScope
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormScreen
+import lol.terabrendon.houseshare2.presentation.vm.ShoppingSingleViewModel
 
-fun NavGraphBuilder.shoppingNavigation(navController: NavHostController) {
-    composable<HomepageNavigation.Shopping> {
-        ShoppingScreen(navController = navController)
+fun EntryProviderScope<MainNavigation>.shoppingNavigation(navigator: Navigator<MainNavigation>) {
+    entry<HomepageNavigation.Shopping> {
+        ShoppingScreen(navigate = navigator::navigate)
     }
 
-    composable<HomepageNavigation.ShoppingItem> {
-        ShoppingItemScreen(navController = navController)
+    entry<HomepageNavigation.ShoppingItem> { key ->
+        // Factory for viewModels with route bind dependencies
+        val viewModel =
+            hiltViewModel<ShoppingSingleViewModel, ShoppingSingleViewModel.Factory>(creationCallback = { factory ->
+                factory.create(key)
+            })
+        ShoppingItemScreen(viewModel = viewModel)
     }
 
-    navigation<HomepageNavigation.ShoppingForm>(startDestination = ShoppingFormNavigation.ShoppingItem) {
-        composable<ShoppingFormNavigation.ShoppingItem> {
-            ShoppingItemFormScreen(navController = navController)
-        }
+    entry<HomepageNavigation.ShoppingForm> {
+        ShoppingItemFormScreen(onBack = navigator::pop)
     }
 }

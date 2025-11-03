@@ -13,14 +13,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
-import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabAction
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
@@ -32,7 +30,7 @@ private const val TAG: String = "GroupInfoFormScreen"
 @Composable
 fun GroupInfoFormScreen(
     viewModel: GroupFormViewModel = hiltViewModel(),
-    navController: NavController,
+    onSubmit: () -> Unit,
 ) {
     val formState by viewModel.groupFormState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -49,9 +47,7 @@ fun GroupInfoFormScreen(
                 SnackbarController.sendEvent(SnackbarEvent(message = event.error))
             }
 
-            GroupFormUiEvent.SubmitSuccess -> navController.popBackStack<GroupFormNavigation.SelectUsers>(
-                inclusive = true
-            )
+            GroupFormUiEvent.SubmitSuccess -> onSubmit()
         }
     }
 

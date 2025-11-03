@@ -2,6 +2,7 @@ package lol.terabrendon.houseshare2.presentation.navigation
 
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed class HomepageNavigation : MainNavigation() {
     @Serializable
     data object Cleaning : HomepageNavigation()
@@ -19,11 +20,14 @@ sealed class HomepageNavigation : MainNavigation() {
     data object Billing : HomepageNavigation()
 
     @Serializable
+    data object ExpenseForm : HomepageNavigation()
+
+    @Serializable
     data object Groups : HomepageNavigation()
 
     @Serializable
-    data object GroupForm : HomepageNavigation()
+    data object GroupUsersForm : HomepageNavigation()
 
     @Serializable
-    data object ExpenseForm : HomepageNavigation()
+    data object GroupInfoForm : HomepageNavigation()
 }

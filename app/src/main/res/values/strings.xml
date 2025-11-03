@@ -69,4 +69,7 @@
     <string name="failed_to_authenticate">Failed to authenticate.</string>
     <string name="login" translatable="false">Login</string>
     <string name="bought_by">Bought by: %1$s</string>
+    <string name="new_item">New item</string>
+    <string name="new_group">New group</string>
+    <string name="new_expense">New expense</string>
 </resources>

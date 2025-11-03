@@ -17,12 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.LoginNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
 
 fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
     when (navigation) {
@@ -50,18 +46,7 @@ fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
             icon = Icons.Filled.Groups
         )
 
-        is MainNavigation.Loading -> TODO()
-        is HomepageNavigation.GroupForm -> TODO()
-        is GroupFormNavigation.GroupInfo -> TODO()
-        is GroupFormNavigation.SelectUsers -> TODO()
-        is ExpenseFormNavigation.Expense -> TODO()
-        is HomepageNavigation.ExpenseForm -> TODO()
-        is HomepageNavigation.ShoppingForm -> TODO()
-        is ShoppingFormNavigation.ShoppingItem -> TODO()
-        MainNavigation.Homepage -> TODO()
-        LoginNavigation.UserLogin -> TODO()
-        MainNavigation.Login -> TODO()
-        is HomepageNavigation.ShoppingItem -> TODO()
+        else -> throw IllegalStateException("Destination is not a top level route! destination=$navigation")
     }
 
 @Composable

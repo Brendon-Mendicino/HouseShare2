@@ -13,6 +13,22 @@ private const val TAG: String = "LocalFabActionManagerProvider"
  * Provides the [LocalFabActionManager] to all the children inside [content].
  *
  * All children can register an action on the fab using [RegisterFabAction].
+ *
+ * This makes very easy for a screen to implement the `onClick()` for the FAB.
+ *
+ * # Examples:
+ *
+ * ```
+ * @Composable
+ * fun GroupInfoFormScreen(
+ *     viewModel: ViewModel,
+ * ) {
+ *     RegisterFabAction {
+ *         Log.d(TAG, "GroupInfoFormScreen: fab has been clicked")
+ *         viewModel.onEvent(GroupFormEvent.Submit)
+ *     }
+ * }
+ * ```
  */
 @Composable
 fun LocalFabActionManagerProvider(content: @Composable ((FabActionManager) -> Unit)) {

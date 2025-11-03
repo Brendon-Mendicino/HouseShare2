@@ -16,33 +16,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavBackStackEntry
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.presentation.navigation.ExpenseFormNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.LoginNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.ShoppingFormNavigation
-import lol.terabrendon.houseshare2.presentation.util.currentRoute
 
 @Composable
 fun MainFab(
     modifier: Modifier = Modifier,
-    currentEntry: NavBackStackEntry? = null,
+    lastEntry: MainNavigation,
     onClick: () -> Unit,
 ) {
-    val mainDestination = currentEntry?.currentRoute() ?: MainNavigation.Loading
-
     AnimatedContent(
-        mainDestination
-    ) { mainDestination ->
-        val fabExpanded = mainDestination.fabExpanded()
-        val fabVisible = mainDestination.fabVisible()
+        lastEntry
+    ) { lastEntry ->
+        val fabExpanded = lastEntry.fabExpanded()
+        val fabVisible = lastEntry.fabVisible()
 
         AnimatedVisibility(visible = fabVisible) {
-            val fabIcon = mainDestination.fabIcon()
-            val fabText = stringResource(mainDestination.fabText())
+            val fabIcon = lastEntry.fabIcon()
+            val fabText = stringResource(lastEntry.fabText())
 
             ExtendedFloatingActionButton(
                 modifier = modifier,
@@ -62,21 +54,17 @@ fun MainFab(
 
 private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is HomepageNavigation.Shopping -> Icons.Filled.AddShoppingCart
-    is HomepageNavigation.Cleaning -> Icons.Filled.Add
     is HomepageNavigation.Billing -> Icons.Filled.Receipt
-    is MainNavigation.Loading -> Icons.Filled.Add
     is HomepageNavigation.Groups -> Icons.Filled.Add
-    is HomepageNavigation.GroupForm -> Icons.Filled.Add
-    is GroupFormNavigation.SelectUsers -> Icons.AutoMirrored.Filled.ArrowForward
-    is GroupFormNavigation.GroupInfo -> Icons.Filled.Check
-    is ExpenseFormNavigation.Expense -> Icons.Filled.Check
-    is HomepageNavigation.ExpenseForm -> Icons.Filled.Add
+    is HomepageNavigation.GroupUsersForm -> Icons.AutoMirrored.Filled.ArrowForward
+    is HomepageNavigation.GroupInfoForm -> Icons.Filled.Check
+    is HomepageNavigation.ExpenseForm -> Icons.Filled.Check
+
     is HomepageNavigation.ShoppingForm -> Icons.Filled.Add
-    is ShoppingFormNavigation.ShoppingItem -> Icons.Filled.Check
     is HomepageNavigation.ShoppingItem -> Icons.Filled.Add
-    is LoginNavigation.UserLogin -> Icons.Filled.Add
-    is MainNavigation.Homepage -> Icons.Filled.Add
     is MainNavigation.Login -> Icons.Filled.Add
+    is HomepageNavigation.Cleaning -> Icons.Filled.Add
+    is MainNavigation.Loading -> Icons.Filled.Add
 }
 
 @StringRes
@@ -88,20 +76,15 @@ private fun MainNavigation.fabText(): Int = when (this) {
 private fun MainNavigation.fabExpanded(): Boolean = when (this) {
     is HomepageNavigation.Billing,
     is HomepageNavigation.Cleaning,
-    is HomepageNavigation.GroupForm,
     is HomepageNavigation.Groups,
     is HomepageNavigation.Shopping -> true
 
 
     is HomepageNavigation.ExpenseForm,
+    is HomepageNavigation.GroupInfoForm,
+    is HomepageNavigation.GroupUsersForm,
     is HomepageNavigation.ShoppingItem,
     is HomepageNavigation.ShoppingForm,
-    is ExpenseFormNavigation.Expense,
-    is ShoppingFormNavigation.ShoppingItem,
-    is LoginNavigation.UserLogin,
-    is GroupFormNavigation.GroupInfo,
-    is GroupFormNavigation.SelectUsers,
-    is MainNavigation.Homepage,
     is MainNavigation.Login,
     is MainNavigation.Loading -> false
 }
@@ -110,19 +93,15 @@ private fun MainNavigation.fabVisible(): Boolean = when (this) {
     is HomepageNavigation.Billing,
     is HomepageNavigation.Cleaning,
     is HomepageNavigation.Shopping,
-    is HomepageNavigation.GroupForm,
     is HomepageNavigation.Groups,
-    is GroupFormNavigation.GroupInfo,
-    is GroupFormNavigation.SelectUsers -> true
+    is HomepageNavigation.GroupInfoForm,
+    is HomepageNavigation.GroupUsersForm -> true
 
 
     is MainNavigation.Login,
-    is MainNavigation.Homepage,
     is MainNavigation.Loading,
-    is LoginNavigation.UserLogin,
-    is ShoppingFormNavigation.ShoppingItem,
-    is HomepageNavigation.ShoppingForm,
-    is HomepageNavigation.ShoppingItem,
     is HomepageNavigation.ExpenseForm,
-    is ExpenseFormNavigation.Expense -> false
+    is HomepageNavigation.ShoppingForm,
+    is HomepageNavigation.ShoppingItem -> false
+
 }

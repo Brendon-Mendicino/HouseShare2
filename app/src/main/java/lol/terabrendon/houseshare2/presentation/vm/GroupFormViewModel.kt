@@ -33,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GroupFormViewModel @Inject constructor(
     private val groupRepository: GroupRepository,
-    private val getLoggedUserUseCase: GetLoggedUserUseCase,
+    getLoggedUserUseCase: GetLoggedUserUseCase,
     userRepository: UserRepository,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {

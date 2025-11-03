@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType.Companion.PrimaryNotEditable
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalIconButton
@@ -38,7 +39,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
@@ -54,7 +54,7 @@ import lol.terabrendon.houseshare2.util.ObserveAsEvent
 @Composable
 fun ShoppingItemFormScreen(
     viewModel: ShoppingItemFormViewModel = hiltViewModel(),
-    navController: NavController
+    onBack: () -> Unit,
 ) {
     val state by viewModel.formState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -65,14 +65,14 @@ fun ShoppingItemFormScreen(
                 SnackbarController.sendEvent(SnackbarEvent(message = event.error))
             }
 
-            ShoppingItemFormUiEvent.SubmitSuccess -> navController.popBackStack()
+            ShoppingItemFormUiEvent.SubmitSuccess -> onBack()
         }
     }
 
     ShoppingItemFormScreenInner(
         state = state,
         onEvent = viewModel::onEvent,
-        onBack = { navController.popBackStack() }
+        onBack = { onBack() }
     )
 }
 
@@ -121,7 +121,7 @@ private fun ShoppingItemFormScreenInner(
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateContentSize()
-                    .menuAnchor(),
+                    .menuAnchor(PrimaryNotEditable),
                 readOnly = true,
                 maxLines = 1,
                 value = stringResource(state.priority.value.toStringRes()),

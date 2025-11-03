@@ -1,51 +1,45 @@
 package lol.terabrendon.houseshare2.presentation.home
 
 import android.util.Log
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.presentation.billing.billingNavigation
 import lol.terabrendon.houseshare2.presentation.cleaning.cleaningNavigation
 import lol.terabrendon.houseshare2.presentation.fab.MainFab
 import lol.terabrendon.houseshare2.presentation.groups.groupNavigation
 import lol.terabrendon.houseshare2.presentation.login.loginNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.GroupFormNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.provider.FabActionManager
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalMenuActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.MenuActionManager
 import lol.terabrendon.houseshare2.presentation.shopping.shoppingNavigation
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
-import lol.terabrendon.houseshare2.presentation.util.currentRoute
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
-import kotlin.reflect.KClass
 
 private const val TAG = "HouseShareMain"
 
@@ -53,49 +47,32 @@ private const val TAG = "HouseShareMain"
 fun HouseShareMain(
     mainViewModel: MainViewModel = hiltViewModel()
 ) {
-    val startingDestination by mainViewModel.startingDestination.collectAsStateWithLifecycle()
-    val currentNavigation by mainViewModel.currentNavigation.collectAsStateWithLifecycle()
-    val topLevelRoutes by mainViewModel.topLevelRoutes.collectAsStateWithLifecycle()
+    val navigator = mainViewModel.navigator
 
     HouseShareMainInner(
-        startingDestination = startingDestination,
-        currentNavigation = currentNavigation,
-        topLevelRoutes = topLevelRoutes,
-        setCurrentNavigation = mainViewModel::setCurrentNavigation,
+        navigator = navigator,
+        homepageRoutes = MainNavigation.homepageRoutes,
     )
 }
 
 @Composable
 private fun HouseShareMainInner(
-    startingDestination: MainNavigation,
-    currentNavigation: MainNavigation,
-    topLevelRoutes: List<MainNavigation>,
-    setCurrentNavigation: (KClass<out MainNavigation>) -> Unit,
+    homepageRoutes: List<MainNavigation>,
+    navigator: Navigator<MainNavigation>,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentBackStackDestination = navBackStackEntry?.destination
     val snackbarHostState = remember { SnackbarHostState() }
+    val backStack by navigator.backStack.collectAsStateWithLifecycle(listOf(MainNavigation.Loading))
 
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(currentBackStackDestination) {
-        // Update the current navigation in the datastore when the currentBackStack changes
-        topLevelRoutes
-            .firstOrNull { topLevelRoute ->
-                currentBackStackDestination?.hierarchy?.any {
-                    it.hasRoute(topLevelRoute::class)
-                } == true
-            }
-            ?.let {
-                setCurrentNavigation(it::class)
-            }
-
+    LaunchedEffect(backStack) {
         drawerState.close()
     }
 
     ObserveAsEvent(SnackbarController.events, snackbarHostState) { event ->
+        Log.i(TAG, "HouseShareMainInner: snackbar event received")
+
         scope.launch {
             snackbarHostState.currentSnackbarData?.dismiss()
 
@@ -114,63 +91,58 @@ private fun HouseShareMainInner(
     MainProviders { fabActionManager, _ ->
         ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
             MainDrawerSheet(
-                topLevelRoutes = topLevelRoutes,
+                topLevelRoutes = homepageRoutes,
                 itemSelected = { topLevelRoute ->
-                    currentBackStackDestination?.hierarchy?.any {
-                        it.hasRoute(
-                            topLevelRoute.route::class
-                        )
-                    } == true
+                    backStack.asReversed().firstOrNull { topLevelRoute.route == it } != null
                 },
                 onItemClick = { topLevelRoute ->
-                    navController.navigate(topLevelRoute.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                            inclusive = true
-                        }
-                        // Avoid multiple copies of the same destination when
-                        // re-selecting the same item
-                        launchSingleTop = true
-                        // Restore state when re-selecting a previously selected item
-                        restoreState = true
-                    }
+                    navigator.navigate(topLevelRoute.route)
+//                    navController.navigate(topLevelRoute.route) {
+//                        // Pop up to the start destination of the graph to
+//                        // avoid building up a large stack of destinations
+//                        // on the back stack as users select items
+//                        popUpTo(navController.graph.findStartDestination().id) {
+//                            saveState = true
+//                            inclusive = true
+//                        }
+//                        // Avoid multiple copies of the same destination when
+//                        // re-selecting the same item
+//                        launchSingleTop = true
+//                        // Restore state when re-selecting a previously selected item
+//                        restoreState = true
+//                    }
                 },
             )
         }) {
             Scaffold(
                 topBar = {
                     MainTopBar(
-                        mainNavigation = currentNavigation,
+                        mainNavigation = backStack.last(),
                         onNavigationClick = { scope.launch { drawerState.open() } },
                     )
                 },
                 floatingActionButton = {
                     MainFab(
-                        currentEntry = navBackStackEntry,
+                        lastEntry = backStack.last(),
                         onClick = {
-                            when (navBackStackEntry?.currentRoute()) {
-                                null -> {}
-
-                                is HomepageNavigation.Shopping -> navController.navigate(
+                            when (backStack.last()) {
+                                is HomepageNavigation.Shopping -> navigator.navigate(
                                     HomepageNavigation.ShoppingForm
                                 )
 
-                                is HomepageNavigation.Groups -> navController.navigate(
-                                    GroupFormNavigation.SelectUsers
+                                is HomepageNavigation.Groups -> navigator.navigate(
+                                    HomepageNavigation.GroupUsersForm
                                 )
 
-                                is HomepageNavigation.Billing -> navController.navigate(
+                                is HomepageNavigation.GroupUsersForm -> navigator.navigate(
+                                    HomepageNavigation.GroupInfoForm
+                                )
+
+                                is HomepageNavigation.Billing -> navigator.navigate(
                                     HomepageNavigation.ExpenseForm
                                 )
 
-                                is GroupFormNavigation.SelectUsers -> navController.navigate(
-                                    GroupFormNavigation.GroupInfo
-                                )
-
-                                is GroupFormNavigation.GroupInfo -> fabActionManager.fabAction.value?.invoke()
+                                is HomepageNavigation.GroupInfoForm -> fabActionManager.fabAction.value?.invoke()
 
                                 else -> TODO()
                             }
@@ -184,36 +156,30 @@ private fun HouseShareMainInner(
                 },
                 modifier = Modifier.fillMaxSize(),
             ) { contentPadding ->
-
-                if (startingDestination::class == MainNavigation.Loading::class) {
-                    Log.d(TAG, "HouseShareMain: starting loading screen")
-                    // TODO: extract into splash screen
-                    Box(
-                        modifier = Modifier
-                            .padding(contentPadding)
-                            .fillMaxSize()
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-
-                    return@Scaffold
-                }
-
-                NavHost(
-                    navController = navController,
-                    startDestination = startingDestination,
+                NavDisplay(
                     modifier = Modifier.padding(contentPadding),
-                ) {
-                    loginNavigation(navController)
+                    backStack = backStack,
+                    onBack = { navigator.pop() },
+                    entryDecorators = listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator(),
+                    ),
+                    entryProvider = entryProvider {
+                        entry<MainNavigation.Loading> {
+                            Text("Loading...")
+                        }
 
-                    cleaningNavigation()
+                        loginNavigation(navigator = navigator)
 
-                    shoppingNavigation(navController)
+                        cleaningNavigation()
 
-                    billingNavigation(navController)
+                        shoppingNavigation(navigator = navigator)
 
-                    groupNavigation(navController)
-                }
+                        billingNavigation()
+
+                        groupNavigation(navigator = navigator)
+                    }
+                )
             }
         }
     }
