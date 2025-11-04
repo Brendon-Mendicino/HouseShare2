@@ -1,15 +1,20 @@
 package lol.terabrendon.houseshare2.data.entity
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
 
 /**
  * This class represent if the user is in debt for the payment contribution
  * of the expense.
  */
 @Entity(
-    primaryKeys = ["expenseId", "userId"],
+    indices = [
+        Index("userId"),
+        Index("expenseId"),
+        Index(value = ["expenseId", "userId"], unique = true),
+    ],
     foreignKeys = [
         ForeignKey(
             entity = User::class,
@@ -27,9 +32,9 @@ import androidx.room.ForeignKey
     ]
 )
 data class ExpensePart(
-    @ColumnInfo(index = true)
+    @PrimaryKey(autoGenerate = true)
+    val id: Long,
     val expenseId: Long,
-    @ColumnInfo(index = true)
     val userId: Long,
     /** What are the total user debts in the expense */
     val partAmount: Double,

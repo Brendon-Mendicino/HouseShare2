@@ -1,6 +1,7 @@
 package lol.terabrendon.houseshare2.util
 
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -21,3 +22,6 @@ fun LocalDateTime.inlineFormat(): String {
 fun LocalDateTime.fullFormat(): String {
     return this.format(DateTimeFormatter.ofPattern("dd MMM, yyyy", Locale.getDefault()))
 }
+
+fun LocalDateTime.toOffsetDateTime(zoneId: ZoneId = ZoneId.systemDefault()) =
+    atZone(zoneId).toOffsetDateTime()!!

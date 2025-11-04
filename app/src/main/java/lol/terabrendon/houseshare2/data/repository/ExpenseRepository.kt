@@ -10,4 +10,6 @@ interface ExpenseRepository {
     fun findByGroupId(groupId: Long): Flow<List<ExpenseModel>>
 
     suspend fun insert(expense: ExpenseModel)
+
+    suspend fun refreshByGroupId(groupId: Long)
 }

@@ -70,7 +70,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
                 .map { launch { shoppingItemDao.upsert(it) } }
                 .joinAll()
 
-            toRemove.map { launch { shoppingItemDao.deleteById(it) } }.joinAll()
+            shoppingItemDao.deleteAllById(toRemove.toList())
         }.join()
     }
 

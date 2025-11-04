@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -46,6 +47,10 @@ object AppModule {
             applicationContext, HouseShareDatabase::class.java, "house_share_db"
         ).build()
     }
+
+    @Provides
+    @Singleton
+    fun provideRoomDatabase(db: HouseShareDatabase): RoomDatabase = db
 
     @Provides
     @Singleton

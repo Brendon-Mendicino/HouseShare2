@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.BuildConfig
 import lol.terabrendon.houseshare2.data.remote.api.CsrfInterceptor
+import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
 import lol.terabrendon.houseshare2.data.remote.api.LoginApi
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
@@ -67,6 +68,10 @@ object ApiModule {
     @Provides
     @Singleton
     fun providesShoppingApi(retrofit: Retrofit): ShoppingApi = retrofit.create<ShoppingApi>()
+
+    @Provides
+    @Singleton
+    fun provideExpenseApi(retrofit: Retrofit): ExpenseApi = retrofit.create<ExpenseApi>()
 
     @Provides
     @Singleton

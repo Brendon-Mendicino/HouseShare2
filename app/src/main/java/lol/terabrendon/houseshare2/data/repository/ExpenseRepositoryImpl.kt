@@ -1,16 +1,31 @@
 package lol.terabrendon.houseshare2.data.repository
 
+import android.util.Log
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import lol.terabrendon.houseshare2.data.entity.Expense
-import lol.terabrendon.houseshare2.data.entity.ExpensePart
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.local.dao.ExpenseDao
+import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
+import lol.terabrendon.houseshare2.di.IoDispatcher
+import lol.terabrendon.houseshare2.domain.mapper.toDto
+import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import javax.inject.Inject
 
 class ExpenseRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
+    private val expenseApi: ExpenseApi,
+    private val externalScope: CoroutineScope,
+    @IoDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ExpenseRepository {
+    companion object {
+        private const val TAG = "ExpenseRepositoryImpl"
+    }
 
     override fun findAll(): Flow<List<ExpenseModel>> = expenseDao.findAll().map { expenses ->
         expenses.map { ExpenseModel.from(it) }
@@ -21,15 +36,34 @@ class ExpenseRepositoryImpl @Inject constructor(
         .map { expenses -> expenses.map { ExpenseModel.from(it) } }
 
     override suspend fun insert(expense: ExpenseModel) {
-        expenseDao.insertExpense(
-            expense = Expense.from(expense),
-            expenseParts = expense.userExpenses.map {
-                ExpensePart(
-                    expenseId = expense.id,
-                    userId = it.user.id,
-                    partAmount = it.partAmount,
-                )
-            }
-        )
+        externalScope.launch(ioDispatcher) {
+            Log.i(TAG, "insert: starting expense insertion")
+
+            val dto = expenseApi.save(expense.groupId, expense.toDto())
+
+            expenseDao.insertExpense(
+                expense = dto.toEntity(),
+                expenseParts = dto.expenseParts.map { it.toEntity() },
+            )
+        }
+    }
+
+    override suspend fun refreshByGroupId(groupId: Long) {
+        externalScope.launch(ioDispatcher) {
+            Log.i(TAG, "refreshByGroupId: refreshing expenses of group.id=$groupId")
+
+            val local = expenseDao.findByGroupId(groupId).first()
+
+            val toRemove = local.map { it.expense.id }.toMutableSet()
+
+            // Get remote dto
+            expenseApi.getExpenses(groupId).content
+                .map { expense -> expense.toEntity() to expense.expenseParts.map { it.toEntity() } }
+                .onEach { (expense, _) -> toRemove.remove(expense.id) }
+                .map { (expense, parts) -> launch { expenseDao.upsertExpense(expense, parts) } }
+                .joinAll()
+
+            expenseDao.deleteAllById(toRemove.toList())
+        }
     }
 }

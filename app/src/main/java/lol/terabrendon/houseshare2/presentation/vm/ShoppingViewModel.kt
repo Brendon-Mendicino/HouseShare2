@@ -38,8 +38,7 @@ class ShoppingViewModel @Inject constructor(
     init {
         // TODO: remove when having a decent refreshing system
         viewModelScope.launch {
-            currentGroup.collect {
-                if (it == null) return@collect
+            currentGroup.filterNotNull().collect {
                 shoppingItemRepository.refreshByGroupId(it.info.groupId)
             }
         }

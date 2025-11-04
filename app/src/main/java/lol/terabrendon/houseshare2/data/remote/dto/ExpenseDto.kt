@@ -13,4 +13,5 @@ data class ExpenseDto(
     val payerId: Long,
     val groupId: Long,
     val createdAt: OffsetDateTime,
+    val expenseParts: List<ExpensePartDto>,
 )
