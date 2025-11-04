@@ -8,8 +8,8 @@ import retrofit2.http.Path
 
 interface ExpenseApi {
     @GET("groups/{groupId}/expenses")
-    fun getExpenses(@Path("groupId") groupId: Long): Page<ExpenseDto>
+    suspend fun getExpenses(@Path("groupId") groupId: Long): Page<ExpenseDto>
 
     @POST("groups/{groupId}/expenses")
-    fun save(@Path("groupId") groupId: Long, @Body expense: ExpenseDto): ExpenseDto
+    suspend fun save(@Path("groupId") groupId: Long, @Body expense: ExpenseDto): ExpenseDto
 }

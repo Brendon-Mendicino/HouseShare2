@@ -191,11 +191,11 @@ class NewExpenseFormViewModel @Inject constructor(
                 }
             }
 
-            ExpenseFormEvent.Submit -> onConfirm()
+            ExpenseFormEvent.Submit -> viewModelScope.launch { onConfirm() }
         }
     }
 
-    private fun onConfirm() {
+    private suspend fun onConfirm() {
         // The owner of the expense if the current logged user.
         // TODO: refactor some failure event of some sort...
         val owner = loggedUser.value ?: throw IllegalStateException("No logged users!")
@@ -212,7 +212,7 @@ class NewExpenseFormViewModel @Inject constructor(
             .map(
                 formState = expenseFormState.value,
                 expenseOwner = owner,
-                payments = payments.value,
+                payments = payments.value.filter { it.amountMoney > 0.0 },
                 groupId = groupId,
             )
             .getOrElse {
@@ -221,12 +221,10 @@ class NewExpenseFormViewModel @Inject constructor(
                 throw IllegalStateException(msg)
             }
 
-        viewModelScope.launch {
-            Log.i(TAG, "Inserting a new expense with title \"${expense.title}\" to the repository")
+        Log.i(TAG, "Inserting a new expense with title \"${expense.title}\" to the repository")
 
-            expenseRepository.insert(expense)
+        expenseRepository.insert(expense)
 
-            finishedChannel.send(Unit)
-        }
+        finishedChannel.send(Unit)
     }
 }

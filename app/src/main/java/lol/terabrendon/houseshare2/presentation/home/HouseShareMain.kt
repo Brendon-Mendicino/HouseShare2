@@ -175,7 +175,7 @@ private fun HouseShareMainInner(
 
                         shoppingNavigation(navigator = navigator)
 
-                        billingNavigation()
+                        billingNavigation(navigator = navigator)
 
                         groupNavigation(navigator = navigator)
                     }

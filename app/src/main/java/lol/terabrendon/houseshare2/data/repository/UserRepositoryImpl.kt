@@ -37,15 +37,6 @@ class UserRepositoryImpl @Inject constructor(
     private val refreshGroups = AtomicBoolean(false)
     private val refreshUsers = AtomicBoolean(false)
 
-    private suspend fun refreshUser(userId: Long) {
-        Log.i(TAG, "refreshUser: refreshing user id=$userId")
-
-        val userDto = userApi.getUser(userId)
-        val daoId = userDao.upsert(userDto.toEntity())
-
-//        assert(userDto.id == daoId) { "Refreshed id is different from saved one in the DB. dtoId=${userDto.id} daoId=${daoId}" }
-    }
-
     private suspend fun CoroutineScope.refreshUsers() {
         Log.i(TAG, "refreshUsers: refresh users")
 
@@ -118,5 +109,15 @@ class UserRepositoryImpl @Inject constructor(
                     )
                 } ?: emptyList()
             }
+    }
+
+    override suspend fun refreshUser(userId: Long) {
+        externalScope.launch {
+            Log.i(TAG, "refreshUser: refreshing user id=$userId")
+
+            val userDto = userApi.getUser(userId)
+
+            userDao.upsert(userDto.toEntity())
+        }.join()
     }
 }

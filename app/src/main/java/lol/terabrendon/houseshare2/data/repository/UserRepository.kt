@@ -13,4 +13,6 @@ interface UserRepository {
     fun findAllById(ids: List<Long>): Flow<List<UserModel>>
 
     fun findGroupsByUserId(userId: Long): Flow<List<GroupInfoModel>>
+
+    suspend fun refreshUser(userId: Long)
 }

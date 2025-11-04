@@ -42,11 +42,15 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideHouseShareDatabase(@ApplicationContext applicationContext: Context): HouseShareDatabase {
-        return Room.databaseBuilder(
-            applicationContext, HouseShareDatabase::class.java, "house_share_db"
-        ).build()
-    }
+    fun provideHouseShareDatabase(@ApplicationContext applicationContext: Context): HouseShareDatabase =
+        Room
+            .databaseBuilder(
+                applicationContext, HouseShareDatabase::class.java, "house_share_db"
+            )
+//            .setQueryCallback({ sqlQuery, bindArgs ->
+//                Log.i("HouseShareDatabase", "query: $sqlQuery | args: $bindArgs")
+//            }, Executors.newSingleThreadExecutor())
+            .build()
 
     @Provides
     @Singleton

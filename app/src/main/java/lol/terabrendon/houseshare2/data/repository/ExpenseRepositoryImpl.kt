@@ -22,6 +22,7 @@ class ExpenseRepositoryImpl @Inject constructor(
     private val externalScope: CoroutineScope,
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
+    private val userRepository: UserRepository,
 ) : ExpenseRepository {
     companion object {
         private const val TAG = "ExpenseRepositoryImpl"
@@ -35,35 +36,40 @@ class ExpenseRepositoryImpl @Inject constructor(
         .findByGroupId(groupId)
         .map { expenses -> expenses.map { ExpenseModel.from(it) } }
 
-    override suspend fun insert(expense: ExpenseModel) {
-        externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "insert: starting expense insertion")
+    override suspend fun insert(expense: ExpenseModel) = externalScope.launch(ioDispatcher) {
+        Log.i(TAG, "insert: starting expense insertion")
 
-            val dto = expenseApi.save(expense.groupId, expense.toDto())
+        val dto = expenseApi.save(expense.groupId, expense.toDto())
 
-            expenseDao.insertExpense(
-                expense = dto.toEntity(),
-                expenseParts = dto.expenseParts.map { it.toEntity() },
-            )
-        }
-    }
+        expenseDao.insertExpense(
+            expense = dto.toEntity(),
+            expenseParts = dto.expenseParts.map { it.toEntity() },
+        )
+    }.join()
 
-    override suspend fun refreshByGroupId(groupId: Long) {
-        externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "refreshByGroupId: refreshing expenses of group.id=$groupId")
+    override suspend fun refreshByGroupId(groupId: Long) = externalScope.launch(ioDispatcher) {
+        Log.i(TAG, "refreshByGroupId: refreshing expenses of group.id=$groupId")
 
-            val local = expenseDao.findByGroupId(groupId).first()
+        val local = expenseDao.findByGroupId(groupId).first()
 
-            val toRemove = local.map { it.expense.id }.toMutableSet()
+        val toRemove = local.map { it.expense.id }.toMutableSet()
 
-            // Get remote dto
-            expenseApi.getExpenses(groupId).content
-                .map { expense -> expense.toEntity() to expense.expenseParts.map { it.toEntity() } }
-                .onEach { (expense, _) -> toRemove.remove(expense.id) }
-                .map { (expense, parts) -> launch { expenseDao.upsertExpense(expense, parts) } }
-                .joinAll()
+        // Get remote dto
+        val dto = expenseApi.getExpenses(groupId).content
 
-            expenseDao.deleteAllById(toRemove.toList())
-        }
-    }
+        // Refresh users
+        dto
+            .flatMap { expense -> expense.expenseParts.map { it.userId } }
+            .distinct()
+            .map { launch { userRepository.refreshUser(it) } }
+            .joinAll()
+
+        dto
+            .map { expense -> expense.toEntity() to expense.expenseParts.map { it.toEntity() } }
+            .onEach { (expense, _) -> toRemove.remove(expense.id) }
+            .map { (expense, parts) -> launch { expenseDao.upsertExpense(expense, parts) } }
+            .joinAll()
+
+        expenseDao.deleteAllById(toRemove.toList())
+    }.join()
 }

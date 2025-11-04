@@ -44,19 +44,22 @@ interface ExpenseDao {
     }
 
 
-    @Query("delete from ExpensePart where id not in (:partIds)")
-    suspend fun deletePartsNotIn(partIds: List<Long>)
+    @Query("delete from ExpensePart where id not in (:partIds) and expenseId=:expenseId")
+    suspend fun deletePartsNotIn(partIds: List<Long>, expenseId: Long)
 
     @Upsert
     @Transaction
     suspend fun upsertExpense(expense: Expense, expenseParts: List<ExpensePart>) {
-        upsertExpense(expense)
+        val upsertId = upsertExpense(expense)
 
         val expensePartIds = upsertAllParts(expenseParts)
             .zip(expenseParts)
             .map { (id, part) -> if (id == -1L) part.id else id }
 
-        deletePartsNotIn(expensePartIds)
+        // If the upsert returned -1 it means that the expense was updated
+        if (upsertId == -1L) {
+            deletePartsNotIn(expensePartIds, expense.id)
+        }
     }
 
     @Query("SELECT * FROM Expense")
