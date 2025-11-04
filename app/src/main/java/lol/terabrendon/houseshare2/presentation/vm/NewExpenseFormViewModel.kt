@@ -7,8 +7,11 @@ import com.github.michaelbull.result.getOrElse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -55,7 +58,8 @@ class NewExpenseFormViewModel @Inject constructor(
 
 
     val users = selectedGroup
-        .map { it?.users ?: emptyList() }
+        .filterNotNull()
+        .map { it.users }
         .onEach {
             Log.i(TAG, "onEach: Getting updated list of users from the database.")
         }
@@ -84,6 +88,32 @@ class NewExpenseFormViewModel @Inject constructor(
         }
 
     val expenseFormState = _expenseFormState.asStateFlow()
+
+    private val _userSelected = MutableStateFlow(emptyList<Boolean>())
+    val userSelected = _userSelected.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            users.collect {
+                _userSelected.value = it.map { true }
+            }
+        }
+    }
+
+    val simpleDivisionParts =
+        combine(_userSelected, users, expenseFormState) { selectedUsers, users, formState ->
+            val noSelected = selectedUsers.count { it }
+
+            users.zip(selectedUsers).map { (user, selected) ->
+                UserPaymentState(
+                    user = user,
+                    unit = PaymentUnit.Additive,
+                    amountUnit = "",
+                    amountMoney = if (selected) formState.moneyAmount / noSelected else 0.0
+                )
+            }
+        }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     val payments =
         combineState(
@@ -169,6 +199,16 @@ class NewExpenseFormViewModel @Inject constructor(
                 _expenseFormState.update { it.copy(title = event.title) }
             }
 
+            is ExpenseFormEvent.SimpleDivisionUserToggled -> {
+                _userSelected.update {
+                    it.toMutableList().apply { set(event.index, !this[event.index]) }.toList()
+                }
+            }
+
+            is ExpenseFormEvent.SimpleDivisionToggled -> {
+                _expenseFormState.update { it.copy(simpleDivisionEnabled = !it.simpleDivisionEnabled) }
+            }
+
             is ExpenseFormEvent.UnitChanged -> {
                 Log.i(TAG, "Updating paymentUnits with index ${event.index}")
                 _expenseFormState.update {
@@ -208,11 +248,15 @@ class NewExpenseFormViewModel @Inject constructor(
                 throw IllegalStateException(msg)
             }
 
+        val formState = expenseFormState.value
+        val payments =
+            if (formState.simpleDivisionEnabled) simpleDivisionParts.value else payments.value
+
         val expense = expenseModelMapper
             .map(
-                formState = expenseFormState.value,
+                formState = formState,
                 expenseOwner = owner,
-                payments = payments.value.filter { it.amountMoney > 0.0 },
+                payments = payments.filter { it.amountMoney > 0.0 },
                 groupId = groupId,
             )
             .getOrElse {

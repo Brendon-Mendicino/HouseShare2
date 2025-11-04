@@ -72,4 +72,5 @@
     <string name="new_item">New item</string>
     <string name="new_group">New group</string>
     <string name="new_expense">New expense</string>
+    <string name="advanced_division">Advanced division</string>
 </resources>

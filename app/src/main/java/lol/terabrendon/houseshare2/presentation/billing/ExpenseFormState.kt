@@ -12,4 +12,5 @@ data class ExpenseFormState(
     val payer: UserModel? = null,
     val paymentUnits: List<PaymentUnit> = emptyList(),
     val paymentValueUnits: List<String?> = emptyList(),
+    val simpleDivisionEnabled: Boolean = true,
 )

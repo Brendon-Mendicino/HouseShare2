@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -27,9 +28,8 @@ class BillingViewModel @Inject constructor(
     init {
         // TODO: remove when having a decent refreshing system
         viewModelScope.launch {
-            currentGroup.filterNotNull().collect {
-                expenseRepository.refreshByGroupId(it.info.groupId)
-            }
+            val group = currentGroup.filterNotNull().first()
+            expenseRepository.refreshByGroupId(group.info.groupId)
         }
     }
 
