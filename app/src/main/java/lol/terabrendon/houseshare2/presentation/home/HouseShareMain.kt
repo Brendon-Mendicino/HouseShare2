@@ -35,6 +35,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.provider.FabActionManager
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalMenuActionManagerProvider
+import lol.terabrendon.houseshare2.presentation.provider.LocalTopBarManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.MenuActionManager
 import lol.terabrendon.houseshare2.presentation.shopping.shoppingNavigation
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
@@ -97,20 +98,6 @@ private fun HouseShareMainInner(
                 },
                 onItemClick = { topLevelRoute ->
                     navigator.navigate(topLevelRoute.route)
-//                    navController.navigate(topLevelRoute.route) {
-//                        // Pop up to the start destination of the graph to
-//                        // avoid building up a large stack of destinations
-//                        // on the back stack as users select items
-//                        popUpTo(navController.graph.findStartDestination().id) {
-//                            saveState = true
-//                            inclusive = true
-//                        }
-//                        // Avoid multiple copies of the same destination when
-//                        // re-selecting the same item
-//                        launchSingleTop = true
-//                        // Restore state when re-selecting a previously selected item
-//                        restoreState = true
-//                    }
                 },
             )
         }) {
@@ -189,7 +176,9 @@ private fun HouseShareMainInner(
 private fun MainProviders(content: @Composable (FabActionManager, MenuActionManager) -> Unit) {
     LocalFabActionManagerProvider { fabActionManager ->
         LocalMenuActionManagerProvider { menuActionManager ->
-            content(fabActionManager, menuActionManager)
+            LocalTopBarManagerProvider {
+                content(fabActionManager, menuActionManager)
+            }
         }
     }
 }

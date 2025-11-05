@@ -43,6 +43,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
                 listOf(MainNavigation.Loading)
             }
         }
+        .map { it.ifEmpty { listOf(MainNavigation.Loading) } }
 
     override suspend fun updateBackStack(backStack: List<MainNavigation>) {
         userPreferencesStore.updateData { preferences ->

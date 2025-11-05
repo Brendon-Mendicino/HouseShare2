@@ -1,5 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.home
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -11,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.provider.LocalTopBarManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,11 +21,19 @@ fun MainTopBar(
     mainNavigation: MainNavigation,
     onNavigationClick: () -> Unit,
 ) {
+    val topBarConfig = LocalTopBarManager.current.topBarConfig.value
+
     CenterAlignedTopAppBar(
         title = { Text(stringResource(mainNavigation.asResource())) },
         navigationIcon = {
-            IconButton(onClick = onNavigationClick) {
-                Icon(Icons.Filled.Menu, contentDescription = null)
+            AnimatedContent(topBarConfig?.navigationIcon) { icon ->
+                if (icon != null) {
+                    icon()
+                } else {
+                    IconButton(onClick = onNavigationClick) {
+                        Icon(Icons.Filled.Menu, contentDescription = null)
+                    }
+                }
             }
         },
         actions = { AppBarActions() },

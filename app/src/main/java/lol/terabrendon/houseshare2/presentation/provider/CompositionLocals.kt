@@ -9,3 +9,7 @@ val LocalFabActionManager = compositionLocalOf<FabActionManager> {
 val LocalMenuActionManager = compositionLocalOf<MenuActionManager> {
     error("MenuActionManager not provided")
 }
+
+val LocalTopBarManager = compositionLocalOf<TopBarManager> {
+    error("TopBarManager not provided")
+}

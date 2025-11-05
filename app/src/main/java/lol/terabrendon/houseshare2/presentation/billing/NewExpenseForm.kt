@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.outlined.Cancel
@@ -54,6 +55,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
 import lol.terabrendon.houseshare2.domain.model.UserModel
+import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
+import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
@@ -71,10 +74,23 @@ fun NewExpenseForm(
     val users by viewModel.users.collectAsStateWithLifecycle()
     val userSelected by viewModel.userSelected.collectAsStateWithLifecycle()
     val simpleDivisionParts by viewModel.simpleDivisionParts.collectAsStateWithLifecycle()
+    var finished by remember { mutableStateOf(false) }
 
     ObserveAsEvent(viewModel.finishedChannelFlow) {
         onFinish()
     }
+
+    RegisterTopBarConfig(
+        config = TopBarConfig(navigationIcon = {
+            IconButton(onClick = {
+                finished = true
+                onFinish()
+            }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+            }
+        }),
+        enabled = !finished,
+    )
 
     NewExpenseFormInner(
         modifier = modifier,
