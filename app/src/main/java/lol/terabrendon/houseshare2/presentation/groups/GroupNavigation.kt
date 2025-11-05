@@ -1,6 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.groups
 
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation3.runtime.EntryProviderScope
@@ -22,7 +22,10 @@ fun EntryProviderScope<MainNavigation>.groupNavigation(
 
     entry<HomepageNavigation.GroupUsersForm> {
         formStore = LocalViewModelStoreOwner.current
-        GroupUsersFormScreen()
+        GroupUsersFormScreen(
+            onBack = { navigator.pop() },
+            onNext = { navigator.navigate(HomepageNavigation.GroupInfoForm) },
+        )
     }
 
     entry<HomepageNavigation.GroupInfoForm> {
@@ -34,6 +37,9 @@ fun EntryProviderScope<MainNavigation>.groupNavigation(
         val viewModel = hiltViewModel<GroupFormViewModel>(formStore!!)
         GroupInfoFormScreen(
             viewModel = viewModel,
+            onBack = {
+                navigator.pop()
+            },
             onSubmit = {
                 navigator.pop(elements = 2)
                 formStore = null

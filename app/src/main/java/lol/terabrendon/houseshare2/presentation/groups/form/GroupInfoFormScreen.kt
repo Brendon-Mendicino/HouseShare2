@@ -19,6 +19,7 @@ import lol.terabrendon.houseshare2.domain.model.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
+import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabAction
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
@@ -30,6 +31,7 @@ private const val TAG: String = "GroupInfoFormScreen"
 @Composable
 fun GroupInfoFormScreen(
     viewModel: GroupFormViewModel = hiltViewModel(),
+    onBack: () -> Unit,
     onSubmit: () -> Unit,
 ) {
     val formState by viewModel.groupFormState.collectAsState()
@@ -50,6 +52,8 @@ fun GroupInfoFormScreen(
             GroupFormUiEvent.SubmitSuccess -> onSubmit()
         }
     }
+
+    RegisterBackNavIcon(onClick = onBack)
 
     GroupInfoFormScreenInner(
         groupFormState = formState,

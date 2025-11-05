@@ -1,6 +1,7 @@
 package lol.terabrendon.houseshare2.presentation.provider
 
 import androidx.compose.runtime.compositionLocalOf
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 
 val LocalFabActionManager = compositionLocalOf<FabActionManager> {
     error("FabActionManager not provided")
@@ -13,3 +14,5 @@ val LocalMenuActionManager = compositionLocalOf<MenuActionManager> {
 val LocalTopBarManager = compositionLocalOf<TopBarManager> {
     error("TopBarManager not provided")
 }
+
+val LocalBackStack = compositionLocalOf<List<MainNavigation>?> { null }

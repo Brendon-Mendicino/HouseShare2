@@ -15,7 +15,6 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 class ShoppingSingleViewModel @AssistedInject constructor(
     @Assisted
     val route: HomepageNavigation.ShoppingItem,
-//    private val savedStateHandle: SavedStateHandle,
     shoppingItemRepository: ShoppingItemRepository,
 ) : ViewModel() {
     @AssistedFactory

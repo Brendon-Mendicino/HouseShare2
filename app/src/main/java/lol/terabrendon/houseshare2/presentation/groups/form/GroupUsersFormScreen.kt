@@ -55,17 +55,29 @@ import lol.terabrendon.houseshare2.domain.model.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
+import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabAction
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 
 private const val TAG: String = "GroupUsersFormScreen"
 
 @Composable
-fun GroupUsersFormScreen(viewModel: GroupFormViewModel = hiltViewModel()) {
+fun GroupUsersFormScreen(
+    viewModel: GroupFormViewModel = hiltViewModel(),
+    onBack: () -> Unit,
+    onNext: () -> Unit,
+) {
     Log.d(TAG, "GroupUsersFormScreen: entering screen")
 
     val formState by viewModel.groupFormState.collectAsState()
     val users by viewModel.users.collectAsState()
     val selectedUsers by viewModel.selectedUsers.collectAsState()
+
+    RegisterBackNavIcon(onClick = onBack)
+
+    RegisterFabAction {
+        onNext()
+    }
 
     GroupUsersFormScreenInner(
         groupFormState = formState,

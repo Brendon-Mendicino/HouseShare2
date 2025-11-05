@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.delay
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
+import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
+import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
 import lol.terabrendon.houseshare2.presentation.vm.LoginViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import kotlin.math.PI
@@ -55,6 +57,8 @@ fun UserLoginScreen(
             LoginUiEvent.LoginFailed -> loginIsError = true
         }
     }
+
+    RegisterTopBarConfig(config = TopBarConfig(navigationIcon = {}))
 
     UserLoginInner(
         modifier = modifier,

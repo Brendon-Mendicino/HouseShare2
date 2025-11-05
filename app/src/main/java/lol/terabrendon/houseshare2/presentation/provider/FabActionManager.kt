@@ -1,14 +1,10 @@
 package lol.terabrendon.houseshare2.presentation.provider
 
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 
-class FabActionManager {
-    private val _fabAction = mutableStateOf<(() -> Unit)?>(null)
-    val fabAction: State<(() -> Unit)?> get() = _fabAction
+class FabActionManager : StateManager<() -> Unit>() {
+    val fabAction: State<(() -> Unit)?> get() = _state
 
-    fun setFabAction(action: (() -> Unit)?) {
-        _fabAction.value = action
-    }
-
+    override val lazyMessage: String
+        get() = "You are configuring multiple FabActionManager at the same time! Check that you only have one RegisterFabAction() called!"
 }

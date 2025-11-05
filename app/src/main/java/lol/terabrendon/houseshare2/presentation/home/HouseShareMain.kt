@@ -33,6 +33,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.provider.FabActionManager
+import lol.terabrendon.houseshare2.presentation.provider.LocalBackStackProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalMenuActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalTopBarManagerProvider
@@ -89,7 +90,7 @@ private fun HouseShareMainInner(
         }
     }
 
-    MainProviders { fabActionManager, _ ->
+    MainProviders(backStack) { fabActionManager, _ ->
         ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
             MainDrawerSheet(
                 topLevelRoutes = homepageRoutes,
@@ -121,17 +122,11 @@ private fun HouseShareMainInner(
                                     HomepageNavigation.GroupUsersForm
                                 )
 
-                                is HomepageNavigation.GroupUsersForm -> navigator.navigate(
-                                    HomepageNavigation.GroupInfoForm
-                                )
-
                                 is HomepageNavigation.Billing -> navigator.navigate(
                                     HomepageNavigation.ExpenseForm
                                 )
 
-                                is HomepageNavigation.GroupInfoForm -> fabActionManager.fabAction.value?.invoke()
-
-                                else -> TODO()
+                                else -> fabActionManager.fabAction.value?.invoke()
                             }
                         },
                     )
@@ -173,11 +168,16 @@ private fun HouseShareMainInner(
 }
 
 @Composable
-private fun MainProviders(content: @Composable (FabActionManager, MenuActionManager) -> Unit) {
+private fun MainProviders(
+    backStack: List<MainNavigation>,
+    content: @Composable (FabActionManager, MenuActionManager) -> Unit
+) {
     LocalFabActionManagerProvider { fabActionManager ->
         LocalMenuActionManagerProvider { menuActionManager ->
             LocalTopBarManagerProvider {
-                content(fabActionManager, menuActionManager)
+                LocalBackStackProvider(backStack) {
+                    content(fabActionManager, menuActionManager)
+                }
             }
         }
     }

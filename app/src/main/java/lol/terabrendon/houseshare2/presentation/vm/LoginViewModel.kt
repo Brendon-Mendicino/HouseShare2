@@ -6,7 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
@@ -34,11 +35,14 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             getLoggedUser
                 .execute()
-                .first { it != null }
+                .filterNotNull()
+                .collect {
+                    Log.i(TAG, "init: user has logged in.")
 
-            Log.i(TAG, "init: user has logged in.")
+                    _uiEvent.send(LoginUiEvent.LoginSuccessful)
 
-            _uiEvent.send(LoginUiEvent.LoginSuccessful)
+                    delay(5000L)
+                }
         }
     }
 

@@ -5,7 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 private const val TAG: String = "LocalFabActionManagerProvider"
 
@@ -40,20 +43,29 @@ fun LocalFabActionManagerProvider(content: @Composable ((FabActionManager) -> Un
 }
 
 @Composable
-fun RegisterFabAction(action: () -> Unit) {
+fun RegisterFabAction(enabled: Boolean = true, action: () -> Unit) {
     val fabActionManager = LocalFabActionManager.current
 
-    LaunchedEffect(Unit) {
-        Log.i(TAG, "RegisterFabAction: setting-up fabActionManager")
-        fabActionManager.setFabAction {
-            action()
+    // Use the backStack to make dispositions happen quicker
+    val backStack = LocalBackStack.current
+    var backStackChanged by remember { mutableIntStateOf(0) }
+
+    if (backStack != null) {
+        LaunchedEffect(backStack) {
+            backStackChanged += 1
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(action, enabled, backStackChanged) {
+        if (!enabled || backStackChanged > 1)
+            return@DisposableEffect onDispose { }
+
+        Log.i(TAG, "RegisterFabAction: setting-up fabActionManager")
+        fabActionManager.setState(action)
+
         onDispose {
+            fabActionManager.resetState()
             Log.d(TAG, "RegisterFabAction: re-setting fabActionManager")
-            fabActionManager.setFabAction(null)
         }
     }
 }
