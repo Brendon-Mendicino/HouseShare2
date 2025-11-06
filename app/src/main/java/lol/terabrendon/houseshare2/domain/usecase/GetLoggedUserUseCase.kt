@@ -14,7 +14,7 @@ class GetLoggedUserUseCase @Inject constructor(
     private val userRepository: UserRepository,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun execute(): Flow<UserModel?> = sharedPreferencesRepository
+    operator fun invoke(): Flow<UserModel?> = sharedPreferencesRepository
         .currentLoggedUserId
         .flatMapLatest { userId ->
             userId

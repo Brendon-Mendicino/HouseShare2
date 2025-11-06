@@ -13,6 +13,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Gr
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Shopping
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.ShoppingForm
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.ShoppingItem
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.UserProfile
 
 @Serializable
 sealed class MainNavigation : NavKey {
@@ -23,11 +24,15 @@ sealed class MainNavigation : NavKey {
     data object Login : MainNavigation()
 
     companion object {
-        @JvmStatic
-        val topLevelRoutes = listOf<MainNavigation>(Login, Groups, Shopping, Billing, Cleaning)
 
         @JvmStatic
-        val homepageRoutes = listOf<MainNavigation>(Groups, Shopping, Billing, Cleaning)
+        val homepageRoutes = listOf<MainNavigation>(
+            Groups, Shopping, Billing, Cleaning,
+            UserProfile
+        )
+
+        @JvmStatic
+        val topLevelRoutes = listOf(Login) + homepageRoutes
     }
 
     @StringRes
@@ -43,6 +48,8 @@ sealed class MainNavigation : NavKey {
         is Groups -> R.string.groups
         is GroupUsersForm,
         is GroupInfoForm -> R.string.new_group
+
+        is UserProfile -> R.string.profile
     }
 }
 

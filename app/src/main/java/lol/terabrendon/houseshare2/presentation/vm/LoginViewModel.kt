@@ -33,8 +33,7 @@ class LoginViewModel @Inject constructor(
     init {
         // When a user is found it means that login was performed correctly.
         viewModelScope.launch {
-            getLoggedUser
-                .execute()
+            getLoggedUser()
                 .filterNotNull()
                 .collect {
                     Log.i(TAG, "init: user has logged in.")

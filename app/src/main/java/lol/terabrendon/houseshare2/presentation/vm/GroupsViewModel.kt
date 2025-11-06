@@ -34,8 +34,7 @@ class GroupsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val groups = getLoggedUser
-        .execute()
+    val groups = getLoggedUser()
         .flatMapLatest { loggedUser ->
             loggedUser
                 ?.let { userRepository.findGroupsByUserId(loggedUser.id) }

@@ -44,7 +44,7 @@ class GroupFormViewModel @Inject constructor(
     private var _uiEvent = Channel<GroupFormUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    private val loggedUser = getLoggedUserUseCase.execute()
+    private val loggedUser = getLoggedUserUseCase()
 
     // <UserId, UserModel>
     private var _selectedUsers = MutableStateFlow<Map<Long, UserModel>>(emptyMap())

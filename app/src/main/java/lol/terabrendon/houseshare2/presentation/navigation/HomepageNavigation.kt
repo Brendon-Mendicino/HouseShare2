@@ -4,9 +4,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class HomepageNavigation : MainNavigation() {
+    /** Cleaning **/
     @Serializable
     data object Cleaning : HomepageNavigation()
 
+    /** Shopping **/
     @Serializable
     data object Shopping : HomepageNavigation()
 
@@ -16,12 +18,14 @@ sealed class HomepageNavigation : MainNavigation() {
     @Serializable
     data class ShoppingItem(val shoppingItemId: Long) : HomepageNavigation()
 
+    /** Billing **/
     @Serializable
     data object Billing : HomepageNavigation()
 
     @Serializable
     data object ExpenseForm : HomepageNavigation()
 
+    /** Groups **/
     @Serializable
     data object Groups : HomepageNavigation()
 
@@ -30,4 +34,8 @@ sealed class HomepageNavigation : MainNavigation() {
 
     @Serializable
     data object GroupInfoForm : HomepageNavigation()
+
+    /** Profile **/
+    @Serializable
+    data object UserProfile : HomepageNavigation()
 }

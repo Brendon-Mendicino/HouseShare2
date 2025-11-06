@@ -41,6 +41,7 @@ import lol.terabrendon.houseshare2.presentation.provider.MenuActionManager
 import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
 import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
 import lol.terabrendon.houseshare2.presentation.shopping.shoppingNavigation
+import lol.terabrendon.houseshare2.presentation.user.userNavigation
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
@@ -95,7 +96,6 @@ private fun HouseShareMainInner(
     MainProviders(backStack) { fabActionManager, _ ->
         ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
             MainDrawerSheet(
-                topLevelRoutes = homepageRoutes,
                 itemSelected = { topLevelRoute ->
                     backStack.asReversed().firstOrNull { topLevelRoute.route == it } != null
                 },
@@ -163,6 +163,8 @@ private fun HouseShareMainInner(
                         billingNavigation(navigator = navigator)
 
                         groupNavigation(navigator = navigator)
+
+                        userNavigation(navigator = navigator)
                     }
                 )
             }

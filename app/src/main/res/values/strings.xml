@@ -74,4 +74,5 @@
     <string name="new_expense">New expense</string>
     <string name="advanced_division">Advanced division</string>
     <string name="back_action">Back action</string>
+    <string name="profile">Profile</string>
 </resources>

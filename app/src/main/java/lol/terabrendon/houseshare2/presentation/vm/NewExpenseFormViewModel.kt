@@ -50,7 +50,7 @@ class NewExpenseFormViewModel @Inject constructor(
      */
     val finishedChannelFlow: Flow<Unit> = finishedChannel.receiveAsFlow()
 
-    private val loggedUser = getLoggedUserUseCase.execute()
+    private val loggedUser = getLoggedUserUseCase()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val selectedGroup = getSelectedGroup.execute()

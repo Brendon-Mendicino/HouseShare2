@@ -6,7 +6,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
@@ -17,82 +19,113 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Billing
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Cleaning
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Groups
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Shopping
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.UserProfile
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 
-fun mapNavigationToRoute(navigation: MainNavigation): TopLevelRoute =
-    when (navigation) {
-        is HomepageNavigation.Cleaning -> TopLevelRoute(
+private fun MainNavigation.toDrawer(): TopLevelRoute =
+    when (this) {
+        is Cleaning -> TopLevelRoute(
             name = R.string.cleaning,
-            route = navigation,
+            route = this,
             icon = Icons.Filled.CleaningServices
         )
 
-        is HomepageNavigation.Shopping -> TopLevelRoute(
+        is Shopping -> TopLevelRoute(
             name = R.string.shopping_list,
-            route = navigation,
+            route = this,
             icon = Icons.Filled.ShoppingCart
         )
 
-        is HomepageNavigation.Billing -> TopLevelRoute(
+        is Billing -> TopLevelRoute(
             name = R.string.billing,
-            route = navigation,
+            route = this,
             icon = Icons.Filled.Payments
         )
 
-        is HomepageNavigation.Groups -> TopLevelRoute(
+        is Groups -> TopLevelRoute(
             name = R.string.groups,
-            route = navigation,
+            route = this,
             icon = Icons.Filled.Groups
         )
 
-        else -> throw IllegalStateException("Destination is not a top level route! destination=$navigation")
+        is UserProfile -> TopLevelRoute(
+            name = R.string.profile,
+            route = this,
+            icon = Icons.Filled.Person,
+        )
+
+        else -> throw IllegalStateException("Destination is not a top level route! destination=$this")
     }
 
 @Composable
 fun MainDrawerSheet(
     modifier: Modifier = Modifier,
-    topLevelRoutes: List<MainNavigation>,
     itemSelected: (TopLevelRoute) -> Boolean = { false },
     onItemClick: (TopLevelRoute) -> Unit = {},
 ) {
     val textPadding = PaddingValues(horizontal = 28.dp, vertical = 16.dp)
-    val itemPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
 
-    val mappedTopLevelRoutes = topLevelRoutes.map(::mapNavigationToRoute)
+    val firstSection = listOf(
+        Groups,
+        Shopping,
+        Billing,
+        Cleaning,
+    )
 
     ModalDrawerSheet(modifier) {
         Text(
             stringResource(R.string.house_activities),
-            modifier = Modifier.Companion.padding(textPadding)
+            modifier = Modifier.padding(textPadding)
         )
 
-        mappedTopLevelRoutes.forEach { topLevelRoute ->
-            NavigationDrawerItem(
-                modifier = Modifier.Companion.padding(itemPadding),
-                label = { Text(stringResource(topLevelRoute.name)) },
-                icon = {
-                    Icon(
-                        topLevelRoute.icon,
-                        contentDescription = stringResource(topLevelRoute.name)
-                    )
-                },
-                selected = itemSelected(topLevelRoute),
-                onClick = { onItemClick(topLevelRoute) },
+        firstSection.forEach {
+            DrawerItem(
+                route = it.toDrawer(),
+                itemSelected = itemSelected,
+                onItemClick = onItemClick
             )
         }
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+
+        DrawerItem(
+            route = UserProfile.toDrawer(),
+            itemSelected = itemSelected,
+            onItemClick = onItemClick
+        )
     }
+}
+
+@Composable
+private fun DrawerItem(
+    route: TopLevelRoute,
+    itemSelected: (TopLevelRoute) -> Boolean,
+    onItemClick: (TopLevelRoute) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val itemPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+
+    NavigationDrawerItem(
+        modifier = modifier.padding(itemPadding),
+        label = { Text(stringResource(route.name)) },
+        icon = {
+            Icon(
+                route.icon,
+                contentDescription = stringResource(route.name)
+            )
+        },
+        selected = itemSelected(route),
+        onClick = { onItemClick(route) },
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MainDrawerSheetPreview() {
-    val topLevelRoutes = listOf(
-        HomepageNavigation.Cleaning,
-        HomepageNavigation.Shopping,
-        HomepageNavigation.Billing,
-        HomepageNavigation.Groups,
-    )
-
-    MainDrawerSheet(topLevelRoutes = topLevelRoutes)
+private fun MainDrawerSheetPreview() {
+    MainDrawerSheet()
 }
