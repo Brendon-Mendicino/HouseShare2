@@ -9,7 +9,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +25,7 @@ import androidx.navigation3.ui.NavDisplay
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.presentation.billing.billingNavigation
 import lol.terabrendon.houseshare2.presentation.cleaning.cleaningNavigation
+import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.presentation.fab.MainFab
 import lol.terabrendon.houseshare2.presentation.groups.groupNavigation
 import lol.terabrendon.houseshare2.presentation.login.loginNavigation
@@ -38,6 +38,8 @@ import lol.terabrendon.houseshare2.presentation.provider.LocalFabActionManagerPr
 import lol.terabrendon.houseshare2.presentation.provider.LocalMenuActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalTopBarManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.MenuActionManager
+import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
+import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
 import lol.terabrendon.houseshare2.presentation.shopping.shoppingNavigation
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
@@ -148,7 +150,8 @@ private fun HouseShareMainInner(
                     ),
                     entryProvider = entryProvider {
                         entry<MainNavigation.Loading> {
-                            Text("Loading...")
+                            RegisterTopBarConfig(config = TopBarConfig(navigationIcon = {}))
+                            LoadingOverlayScreen()
                         }
 
                         loginNavigation(navigator = navigator)

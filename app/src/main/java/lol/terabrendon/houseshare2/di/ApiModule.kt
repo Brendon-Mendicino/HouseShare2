@@ -1,18 +1,23 @@
 package lol.terabrendon.houseshare2.di
 
+import android.content.Context
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.BuildConfig
 import lol.terabrendon.houseshare2.data.remote.api.CsrfInterceptor
 import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
 import lol.terabrendon.houseshare2.data.remote.api.LoginApi
+import lol.terabrendon.houseshare2.data.remote.api.SharedCookieIndexStore
+import lol.terabrendon.houseshare2.data.remote.api.SharedPrefCookieStore
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
 import lol.terabrendon.houseshare2.domain.typeadapter.OffsetDateTimeSerde
+import okhttp3.CookieJar
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -26,14 +31,31 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
-    private val cookieManager =
-        JavaNetCookieJar(CookieManager().apply { setCookiePolicy(CookiePolicy.ACCEPT_ALL) })
+    @Provides
+    @Singleton
+    fun provideCookieManager(
+        @ApplicationContext
+        context: Context
+    ): CookieJar =
+        JavaNetCookieJar(
+            CookieManager(
+                SharedPrefCookieStore(
+                    SharedCookieIndexStore(
+                        context.getSharedPreferences(
+                            "cookie_index",
+                            Context.MODE_PRIVATE
+                        )
+                    )
+                ),
+                null,
+            ).apply { setCookiePolicy(CookiePolicy.ACCEPT_ALL) })
+
 
     private val csrfManager = CsrfInterceptor()
 
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit = Retrofit.Builder()
+    fun provideRetrofit(cookieManager: CookieJar): Retrofit = Retrofit.Builder()
         .baseUrl(BuildConfig.BASE_URL + "api/v1/")
         .addConverterFactory(
             GsonConverterFactory.create(
@@ -75,7 +97,7 @@ object ApiModule {
 
     @Provides
     @Singleton
-    fun provideLogin(): LoginApi {
+    fun provideLogin(cookieManager: CookieJar): LoginApi {
         val retrofit = Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(

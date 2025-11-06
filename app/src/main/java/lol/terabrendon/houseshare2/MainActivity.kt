@@ -4,15 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.presentation.home.HouseShareMain
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
+import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val viewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -28,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             HouseShare2Theme {
-                HouseShareMain()
+                HouseShareMain(viewModel)
             }
         }
     }
