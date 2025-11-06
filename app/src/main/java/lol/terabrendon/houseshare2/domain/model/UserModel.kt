@@ -1,22 +1,25 @@
 package lol.terabrendon.houseshare2.domain.model
 
-import lol.terabrendon.houseshare2.data.entity.User
+import android.net.Uri
+import java.util.UUID
 
 data class UserModel(
     val id: Long,
     val username: String,
+    val email: String?,
+    val firstName: String?,
+    val lastName: String?,
+    val picture: Uri?,
 ) {
     companion object {
         @JvmStatic
-        fun from(user: User): UserModel = UserModel(
-            id = user.id,
-            username = user.username,
-        )
-
-        @JvmStatic
         fun default(): UserModel = UserModel(
             id = 0,
-            username = "Username",
+            username = UUID.randomUUID().toString(),
+            email = null,
+            firstName = null,
+            lastName = null,
+            picture = null,
         )
     }
 }

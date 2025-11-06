@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -30,7 +34,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
-import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.vm.GroupsViewModel
 
 @Composable
@@ -113,12 +116,15 @@ private fun GroupListItem(
                 .padding(vertical = 8.dp, horizontal = 16.dp)
                 .fillMaxWidth(),
         ) {
-            AvatarIcon(firstName = group.name)
+            Icon(Icons.Filled.Group, contentDescription = null, modifier = Modifier.size(40.dp))
 
             Spacer(Modifier.requiredWidth(16.dp))
 
-            Text(text = group.name, modifier = Modifier.weight(1f), maxLines = 1)
-            // TODO: add number of users as text?
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = group.name, maxLines = 1)
+                // TODO: add number of users text
+                Text("Participants: !TODO")
+            }
 
             Spacer(Modifier.requiredWidth(16.dp))
 

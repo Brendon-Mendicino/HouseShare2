@@ -74,9 +74,9 @@ private fun AddUserDialog(
         onDismissRequest = { onDismiss() },
         confirmButton = {
             TextButton(onClick = {
-                onConfirm(
-                    UserModel(id = 0, username = username)
-                )
+//                onConfirm(
+//                    UserModel(id = 0, username = username)
+//                )
             }) {
                 Text(stringResource(R.string.confirm))
             }

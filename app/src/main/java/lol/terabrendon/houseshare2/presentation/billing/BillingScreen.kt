@@ -161,10 +161,7 @@ private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: Bi
         ) {
             Spacer(Modifier.requiredWidth(16.dp))
 
-            AvatarIcon(
-                firstName = billingBalance.user.username,
-                lastName = billingBalance.user.username
-            )
+            AvatarIcon(user = billingBalance.user)
 
             Spacer(Modifier.requiredWidth(16.dp))
 

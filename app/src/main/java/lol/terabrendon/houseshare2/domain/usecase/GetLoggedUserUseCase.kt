@@ -17,8 +17,9 @@ class GetLoggedUserUseCase @Inject constructor(
     operator fun invoke(): Flow<UserModel?> = sharedPreferencesRepository
         .currentLoggedUserId
         .flatMapLatest { userId ->
-            userId
-                ?.let { userRepository.findById(it) }
-                ?: flowOf(null)
+            if (userId != null)
+                userRepository.findById(userId)
+            else
+                flowOf(null)
         }
 }

@@ -90,7 +90,7 @@ fun MainDrawerSheet(
             )
         }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+        HorizontalDivider(modifier = Modifier.padding(8.dp))
 
 
         DrawerItem(

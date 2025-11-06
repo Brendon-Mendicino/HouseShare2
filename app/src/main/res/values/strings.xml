@@ -75,4 +75,7 @@
     <string name="advanced_division">Advanced division</string>
     <string name="back_action">Back action</string>
     <string name="profile">Profile</string>
+    <string name="first_name">First name</string>
+    <string name="last_name">Last name</string>
+    <string name="email">Email</string>
 </resources>

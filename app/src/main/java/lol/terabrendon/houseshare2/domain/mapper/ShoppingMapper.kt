@@ -10,13 +10,12 @@ import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
-import lol.terabrendon.houseshare2.domain.model.UserModel
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 fun ShoppingItemWithUser.toModel() = ShoppingItemModel(
     info = ShoppingItemInfoModel.from(item),
-    itemOwner = UserModel.from(itemOwner),
+    itemOwner = itemOwner.toModel(),
     checkoffState = if (checkingUser == null || item.check == null) null
     else CheckoffStateModel(
         checkoffTime = item.check.checkoffTimestamp,

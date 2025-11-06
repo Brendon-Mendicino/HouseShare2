@@ -26,6 +26,7 @@ import java.util.concurrent.locks.ReentrantLock
  * @since 1.6
  * @hide Visible for testing only.
  */
+@Suppress("unchecked_cast")
 class SharedPrefCookieStore(
     private val cookieStore: SharedCookieIndexStore,
 ) : CookieStore {

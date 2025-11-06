@@ -14,6 +14,7 @@ import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
 import lol.terabrendon.houseshare2.di.IoDispatcher
 import lol.terabrendon.houseshare2.domain.mapper.toEntity
+import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import java.util.concurrent.atomic.AtomicBoolean
@@ -84,14 +85,14 @@ class UserRepositoryImpl @Inject constructor(
             }
         }
 
-        return userDao.findAll().map { users -> users.map { UserModel.from(it) } }
+        return userDao.findAll().map { users -> users.map { it.toModel() } }
     }
 
     override fun findById(id: Long): Flow<UserModel?> =
-        userDao.findById(id).map { it?.let { UserModel.from(it) } }
+        userDao.findById(id).map { it?.toModel() }
 
     override fun findAllById(ids: List<Long>): Flow<List<UserModel>> =
-        userDao.findAllById(ids).map { users -> users.map { UserModel.from(it) } }
+        userDao.findAllById(ids).map { users -> users.map { it.toModel() } }
 
     override fun findGroupsByUserId(userId: Long): Flow<List<GroupInfoModel>> {
         if (refreshGroups.compareAndSet(false, true)) {
@@ -105,7 +106,7 @@ class UserRepositoryImpl @Inject constructor(
                     GroupInfoModel(
                         groupId = it.id,
                         name = it.name,
-                        description = it.description
+                        description = it.description,
                     )
                 } ?: emptyList()
             }

@@ -177,7 +177,7 @@ private fun UserListItem(user: UserModel, selected: Boolean, onClick: (UserModel
     ) {
         Row(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
             Box {
-                AvatarIcon(firstName = user.username)
+                AvatarIcon(user = user)
                 // Without the full import for
                 // some strange reason the compiler was picking up the
                 // RowScope.AnimatedVisibility composable
@@ -260,7 +260,7 @@ private fun SelectedUserItem(
             }
         },
         avatar = {
-            AvatarIcon(size = 24.dp, firstName = user.username)
+            AvatarIcon(size = 24.dp, user = user)
         },
     )
 }

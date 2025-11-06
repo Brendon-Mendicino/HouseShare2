@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.entity.composite.ExpenseWithUsers
 import lol.terabrendon.houseshare2.data.entity.composite.PaymentWithUser
+import lol.terabrendon.houseshare2.domain.mapper.toModel
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.random.Random
@@ -56,8 +57,8 @@ data class ExpenseModel(
         fun from(expense: ExpenseWithUsers): ExpenseModel = ExpenseModel(
             id = expense.expense.id,
             amount = expense.expense.amount,
-            expenseOwner = UserModel.from(expense.owner),
-            expensePayer = UserModel.from(expense.payer),
+            expenseOwner = expense.owner.toModel(),
+            expensePayer = expense.payer.toModel(),
             groupId = expense.expense.groupId,
             category = expense.expense.category,
             title = expense.expense.title,
@@ -113,7 +114,7 @@ data class UserExpenseModel(
     companion object {
         @JvmStatic
         fun from(payment: PaymentWithUser): UserExpenseModel = UserExpenseModel(
-            user = UserModel.from(payment.user),
+            user = payment.user.toModel(),
             partAmount = payment.expensePart.partAmount,
         )
 
