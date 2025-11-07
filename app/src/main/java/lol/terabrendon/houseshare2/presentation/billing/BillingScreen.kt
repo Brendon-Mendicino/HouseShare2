@@ -167,14 +167,13 @@ private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: Bi
 
             Text(
                 text = billingBalance.user.username,
+                modifier = Modifier.weight(1f),
                 fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
 
-            Spacer(
-                Modifier
-                    .requiredWidth(16.dp)
-                    .weight(1f)
-            )
+            Spacer(Modifier.requiredWidth(16.dp))
 
             Text(
                 text = billingBalance.finalBalance.currencyFormat(),
