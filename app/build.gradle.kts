@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.protobuf)
     alias(libs.plugins.android.junit5)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.room)
 }
 
 idea {
@@ -35,10 +36,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
-        }
-
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 
@@ -117,6 +114,10 @@ androidComponents {
             }
         }
     }
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 kotlin {

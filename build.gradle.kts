@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.daggerHilt) apply false
     alias(libs.plugins.android.junit5) apply false
     alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.room) apply false
     alias(libs.plugins.idea)
 }
 
