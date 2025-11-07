@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -22,6 +23,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Billing
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Cleaning
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Groups
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Settings
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Shopping
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.UserProfile
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
@@ -58,6 +60,12 @@ private fun MainNavigation.toDrawer(): TopLevelRoute =
             icon = Icons.Filled.Person,
         )
 
+        is Settings -> TopLevelRoute(
+            name = R.string.settings,
+            route = this,
+            icon = Icons.Filled.Settings,
+        )
+
         else -> throw IllegalStateException("Destination is not a top level route! destination=$this")
     }
 
@@ -92,11 +100,16 @@ fun MainDrawerSheet(
 
         HorizontalDivider(modifier = Modifier.padding(8.dp))
 
-
         DrawerItem(
             route = UserProfile.toDrawer(),
             itemSelected = itemSelected,
             onItemClick = onItemClick
+        )
+
+        DrawerItem(
+            route = Settings.toDrawer(),
+            itemSelected = itemSelected,
+            onItemClick = onItemClick,
         )
     }
 }

@@ -79,6 +79,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    androidResources {
+        generateLocaleConfig = true
+    }
 }
 
 protobuf {
@@ -137,6 +140,11 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    // Appcompat
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.appcompat.resources)
+
 //    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.kotlinx.serialization.json)

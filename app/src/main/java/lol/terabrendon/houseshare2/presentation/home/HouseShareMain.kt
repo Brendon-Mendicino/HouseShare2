@@ -40,6 +40,7 @@ import lol.terabrendon.houseshare2.presentation.provider.LocalTopBarManagerProvi
 import lol.terabrendon.houseshare2.presentation.provider.MenuActionManager
 import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
 import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
+import lol.terabrendon.houseshare2.presentation.settings.settingsNavigation
 import lol.terabrendon.houseshare2.presentation.shopping.shoppingNavigation
 import lol.terabrendon.houseshare2.presentation.user.userNavigation
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
@@ -165,6 +166,8 @@ private fun HouseShareMainInner(
                         groupNavigation(navigator = navigator)
 
                         userNavigation(navigator = navigator)
+
+                        settingsNavigation(navigator = navigator)
                     }
                 )
             }

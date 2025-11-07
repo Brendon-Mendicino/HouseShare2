@@ -10,6 +10,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Ex
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.GroupInfoForm
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.GroupUsersForm
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Groups
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Settings
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.Shopping
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.ShoppingForm
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation.ShoppingItem
@@ -28,7 +29,7 @@ sealed class MainNavigation : NavKey {
         @JvmStatic
         val homepageRoutes = listOf<MainNavigation>(
             Groups, Shopping, Billing, Cleaning,
-            UserProfile
+            UserProfile, Settings,
         )
 
         @JvmStatic
@@ -50,6 +51,7 @@ sealed class MainNavigation : NavKey {
         is GroupInfoForm -> R.string.new_group
 
         is UserProfile -> R.string.profile
+        is Settings -> R.string.settings
     }
 }
 

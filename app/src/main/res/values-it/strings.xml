@@ -78,4 +78,7 @@
     <string name="first_name">Nome</string>
     <string name="last_name">Cognome</string>
     <string name="email">E-mail</string>
+    <string name="settings">Impostazioni</string>
+    <string name="current_language">Italiano</string>
+    <string name="language">Linguaggio</string>
 </resources>

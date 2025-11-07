@@ -38,4 +38,8 @@ sealed class HomepageNavigation : MainNavigation() {
     /** Profile **/
     @Serializable
     data object UserProfile : HomepageNavigation()
+
+    /** Settings **/
+    @Serializable
+    data object Settings : HomepageNavigation()
 }
