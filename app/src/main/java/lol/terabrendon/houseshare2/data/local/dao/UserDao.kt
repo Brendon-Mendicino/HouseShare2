@@ -32,4 +32,8 @@ interface UserDao {
 
     @Upsert
     suspend fun upsert(user: User): Long
+
+    @Upsert
+    @Transaction
+    suspend fun upsertAll(users: List<User>): LongArray
 }

@@ -37,8 +37,8 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             } catch (e: SerializationException) {
                 Log.w(
                     TAG,
-                    "savedBackStack: there was an error while deserializing the saved backStack. Providing default.",
-                    e
+                    "savedBackStack: there was an error while deserializing the saved backStack. Providing default.\n" +
+                            "${SerializationException::class.qualifiedName}: ${e.message}",
                 )
                 listOf(MainNavigation.Loading)
             }

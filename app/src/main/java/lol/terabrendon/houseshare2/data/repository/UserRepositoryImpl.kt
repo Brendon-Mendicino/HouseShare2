@@ -4,8 +4,10 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
@@ -27,8 +29,7 @@ class UserRepositoryImpl @Inject constructor(
     private val externalScope: CoroutineScope,
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
-    // TODO: REMOVE
-    private val sharedPreferencesRepository: UserPreferencesRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val groupDao: GroupDao,
 ) : UserRepository {
     companion object {
@@ -39,23 +40,19 @@ class UserRepositoryImpl @Inject constructor(
     private val refreshGroups = AtomicBoolean(false)
     private val refreshUsers = AtomicBoolean(false)
 
-    private suspend fun CoroutineScope.refreshUsers() {
-        Log.i(TAG, "refreshUsers: refresh users")
-
-        val usersDto = userApi.getUsers()
-        usersDto.content.map { async { userDao.upsert(it.toEntity()) } }.joinAll()
-    }
-
-    fun refreshUserGroups(userId: Long) {
+    private fun refreshUserGroups(userId: Long) {
         externalScope.launch(ioDispatcher) {
             Log.i(TAG, "refreshUserGroups: refreshing groups for userId=${userId}")
 
             val groups = userApi.getGroups(userId)
             val usersToRequest =
-                groups.flatMap { it.userIds }.filter { !userDao.existById(it) }.toSet()
+                groups.flatMap { group -> group.userIds.map { group.id to it } }
+                    .filter { (_, userId) -> !userDao.existById(userId) }
+                    .distinctBy { (_, userId) -> userId }
 
             // Get missing users from DB
-            usersToRequest.map { async { refreshUser(it) } }.joinAll()
+            usersToRequest.map { (groupId, userId) -> launch { refreshGroupUser(groupId, userId) } }
+                .joinAll()
 
             val groupIds = groups.map { it.id }.toSet()
 
@@ -114,11 +111,39 @@ class UserRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun refreshUser(userId: Long) {
-        externalScope.launch {
-            Log.i(TAG, "refreshUser: refreshing user id=$userId")
+    override suspend fun refreshUsers() {
+        externalScope.launch(ioDispatcher) {
+            Log.i(TAG, "refreshUsers: refreshing all visible users")
 
-            val userDto = userApi.getUser(userId)
+            val loggedUserId = userPreferencesRepository.currentLoggedUserId.filterNotNull().first()
+
+            val groups = userApi.getGroups(loggedUserId)
+            val usersToUpsert = groups
+                .flatMap { group -> group.userIds.map { group.id to it } }
+                .distinctBy { (_, userId) -> userId }
+                .map { (groupId, userId) -> async { userApi.getGroupUser(groupId, userId) } }
+                .awaitAll()
+
+            userDao.upsertAll(usersToUpsert.map { it.toEntity() })
+        }.join()
+    }
+
+
+    override suspend fun refreshGroupUsers(groupId: Long) {
+        externalScope.launch(ioDispatcher) {
+            Log.i(TAG, "refreshGroupUsers: refreshing users of groupId=$groupId")
+
+            val users = userApi.getGroupUsers(groupId)
+
+            userDao.upsertAll(users.map { it.toEntity() })
+        }.join()
+    }
+
+    override suspend fun refreshGroupUser(groupId: Long, userId: Long) {
+        externalScope.launch(ioDispatcher) {
+            Log.i(TAG, "refreshGroupUser: refreshing userId=$userId of groupId=$groupId")
+
+            val userDto = userApi.getGroupUser(groupId, userId)
 
             userDao.upsert(userDto.toEntity())
         }.join()

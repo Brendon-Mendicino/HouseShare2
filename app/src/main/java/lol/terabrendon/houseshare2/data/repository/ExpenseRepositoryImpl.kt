@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.local.dao.ExpenseDao
+import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
 import lol.terabrendon.houseshare2.di.IoDispatcher
 import lol.terabrendon.houseshare2.domain.mapper.toDto
@@ -23,6 +24,7 @@ class ExpenseRepositoryImpl @Inject constructor(
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
     private val userRepository: UserRepository,
+    private val userDao: UserDao,
 ) : ExpenseRepository {
     companion object {
         private const val TAG = "ExpenseRepositoryImpl"
@@ -57,13 +59,20 @@ class ExpenseRepositoryImpl @Inject constructor(
         // Get remote dto
         val dto = expenseApi.getExpenses(groupId).content
 
-        // Refresh users
+        // Refresh expenses users not already present in the db
         dto
             .flatMap { expense -> expense.expenseParts.map { it.userId } }
             .distinct()
-            .map { launch { userRepository.refreshUser(it) } }
+            .map { userId ->
+                launch {
+                    if (!userDao.existById(userId)) {
+                        userRepository.refreshGroupUser(groupId, userId)
+                    }
+                }
+            }
             .joinAll()
 
+        // Upsert all the expenses
         dto
             .map { expense -> expense.toEntity() to expense.expenseParts.map { it.toEntity() } }
             .onEach { (expense, _) -> toRemove.remove(expense.id) }
