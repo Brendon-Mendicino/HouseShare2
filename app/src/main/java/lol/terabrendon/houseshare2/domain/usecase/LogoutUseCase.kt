@@ -23,25 +23,33 @@ class LogoutUseCase @Inject constructor(
 
     // TODO: fix result error
     suspend operator fun invoke(): Result<Unit, String> {
+        var retval: Result<Unit, String> = Ok(Unit)
+
         val res = authApi.logout()
         Log.i(TAG, "invoke: logout response: $res")
 
-        if (res.code() !in 300..<400 || res.headers()["Location"] == null)
-            return Err("")
+        if (res.code() in 300..<400 && res.headers()["Location"] != null) {
+            // TODO: Handle if the request is not a redirect
+            val url = res.headers()["Location"]!!
+            val uri = url.toUri()
+                .setQuery("post_logout_redirect_uri", "app://lol.terabrendon.houseshare2/logout")
 
-        // TODO: Handle if the request is not a redirect
-        val url = res.headers()["Location"]!!
-        val uri = url.toUri()
-            .setQuery("post_logout_redirect_uri", "app://lol.terabrendon.houseshare2/logout")
-        val intent = Intent(Intent.ACTION_VIEW, uri)
-        ActivityQueue.activities.emit(intent)
+            val intent = Intent(Intent.ACTION_VIEW, uri)
+            ActivityQueue.activities.emit(intent)
+        } else {
+            // TODO: change Err type
+            retval = Err("")
+        }
 
         userDataRepository.updateCurrentLoggedUser(null)
         userDataRepository.updateSelectedGroupId(null)
         userDataRepository.updateBackStack(listOf(MainNavigation.Login))
 
-        Log.i(TAG, "invoke: logout successful!")
+        if (retval.isOk)
+            Log.i(TAG, "invoke: logout successful!")
+        else
+            Log.w(TAG, "invoke: logout failed!")
 
-        return Ok(Unit)
+        return retval
     }
 }

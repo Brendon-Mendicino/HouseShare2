@@ -137,7 +137,7 @@ class SharedPrefCookieStore(
 
             // store to shared
         } finally {
-            rt = Collections.unmodifiableList<HttpCookie?>(rt)
+            rt = Collections.unmodifiableList(rt)
             lock!!.unlock()
         }
 
@@ -204,17 +204,15 @@ class SharedPrefCookieStore(
             } else {
                 val cookies = uriIndex!!.get(uri)
                 if (cookies != null) {
-                    return cookies.remove(ck).also {
-
-                        // store to shared
-                        cookieStore.set(uriIndex as Map<URI, List<HttpCookie>>)
-                    }
+                    return cookies.remove(ck)
                 } else {
                     return false
                 }
             }
 
         } finally {
+            // store to shared
+            cookieStore.set(uriIndex as Map<URI, List<HttpCookie>>)
             lock!!.unlock()
         }
         // END Android-changed: Fix uri not being removed from uriIndex.
@@ -227,7 +225,7 @@ class SharedPrefCookieStore(
     override fun removeAll(): Boolean {
         lock!!.lock()
         // BEGIN Android-changed: Let removeAll() return false when there are no cookies.
-        var result = false
+        var result: Boolean
 
         try {
             result = !uriIndex!!.isEmpty()
@@ -402,7 +400,7 @@ class SharedPrefCookieStore(
     // the path will be taken into account when path-match algorithm applied
     //
     private fun getEffectiveURI(uri: URI?): URI? {
-        var effectiveURI: URI? = null
+        var effectiveURI: URI?
         // Android-added: Fix NullPointerException.
         if (uri == null) {
             return null
@@ -415,7 +413,7 @@ class SharedPrefCookieStore(
                 null,  // query component
                 null // fragment component
             )
-        } catch (ignored: URISyntaxException) {
+        } catch (_: URISyntaxException) {
             effectiveURI = uri
         }
 

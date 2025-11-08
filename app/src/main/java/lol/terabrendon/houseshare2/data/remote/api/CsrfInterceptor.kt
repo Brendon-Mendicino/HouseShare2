@@ -15,15 +15,29 @@ class CsrfInterceptor : Interceptor {
         private const val TAG = "CsrfInterceptor"
     }
 
-    private var csrfToken: String? = null
-
-
     override fun intercept(chain: Interceptor.Chain): Response {
         val oldRequest = chain.request()
         val builder = oldRequest.newBuilder()
 
-        if (oldRequest.method in listOf("POST", "PUT", "DELETE", "PATCH")) {
-            csrfToken?.let { builder.addHeader("X-XSRF-TOKEN", it) }
+        if (oldRequest.method in arrayOf("POST", "PUT", "DELETE", "PATCH")) {
+            // Get the token if it's in the request
+            val csrfToken = oldRequest
+                .headers("Cookie")
+                .joinToString(separator = ";")
+                .split(";")
+                .map { it.trim() }
+                .filter { it.split("=").size == 2 }
+                .firstNotNullOfOrNull {
+                    val (key, value) = it.split("=")
+                    if (key == "XSRF-TOKEN") value
+                    else null
+                }
+
+            // Attach the token to the request headers.
+            // This is needed by the server for the csrf protection.
+            if (csrfToken != null) {
+                builder.addHeader("X-XSRF-TOKEN", csrfToken)
+            }
         }
 
         val request = builder.build()
@@ -35,7 +49,6 @@ class CsrfInterceptor : Interceptor {
             .firstOrNull { cookie -> cookie.name == "XSRF-TOKEN" && cookie.value.isNotEmpty() }
 
         if (csrfCookie != null) {
-            csrfToken = csrfCookie.value
             Log.i(TAG, "intercept: new csrf intercepted.")
         }
 

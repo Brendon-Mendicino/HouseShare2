@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializer
+import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import java.net.HttpCookie
 import java.net.URI
@@ -77,7 +78,7 @@ class SharedCookieIndexStore(
         try {
             val map = gson.fromJson(index, token)
             return map
-        } catch (_: Throwable) {
+        } catch (_: JsonSyntaxException) {
             return mutableMapOf()
         }
     }
