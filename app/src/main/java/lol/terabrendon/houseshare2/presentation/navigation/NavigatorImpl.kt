@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.AuthRepository
-import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 
 class NavigatorImpl(
-    private val userPreferencesRepository: UserPreferencesRepository,
+    private val userDataRepository: UserDataRepository,
     private val coroutineScope: CoroutineScope,
     private val authRepository: AuthRepository,
 ) : Navigator<MainNavigation> {
@@ -20,7 +20,7 @@ class NavigatorImpl(
         private const val TAG = "NavigatorImpl"
     }
 
-    private val _backStack = userPreferencesRepository
+    private val _backStack = userDataRepository
         .savedBackStack
         .onEach { Log.i(TAG, "_backStack: $it") }
         .stateIn(coroutineScope, SharingStarted.Eagerly, listOf(MainNavigation.Loading))
@@ -31,11 +31,11 @@ class NavigatorImpl(
 
     init {
         coroutineScope.launch {
-            val backStack = userPreferencesRepository.savedBackStack.first()
+            val backStack = userDataRepository.savedBackStack.first()
 
             // TODO: change this in the future with login check ecc...
             if (backStack == listOf(MainNavigation.Loading) || authRepository.loggedUser().isErr) {
-                userPreferencesRepository.updateBackStack(listOf(MainNavigation.Login))
+                userDataRepository.updateBackStack(listOf(MainNavigation.Login))
             }
         }
     }
@@ -50,7 +50,7 @@ class NavigatorImpl(
 
     override fun navigate(dest: MainNavigation) {
         coroutineScope.launch {
-            userPreferencesRepository.updateBackStack(
+            userDataRepository.updateBackStack(
                 handleNavigationWithGraph(dest)
             )
         }
@@ -59,7 +59,7 @@ class NavigatorImpl(
     override fun replace(dest: MainNavigation) {
         coroutineScope.launch {
             val backStack = _backStack.value
-            userPreferencesRepository.updateBackStack(
+            userDataRepository.updateBackStack(
                 backStack.slice(0..backStack.size - 2) + dest
             )
         }
@@ -70,7 +70,7 @@ class NavigatorImpl(
 
         coroutineScope.launch {
             val backStack = _backStack.value
-            userPreferencesRepository.updateBackStack(
+            userDataRepository.updateBackStack(
                 backStack.slice(0..backStack.size - 1 - elements)
             )
         }

@@ -29,7 +29,7 @@ class UserRepositoryImpl @Inject constructor(
     private val externalScope: CoroutineScope,
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
-    private val userPreferencesRepository: UserPreferencesRepository,
+    private val userDataRepository: UserDataRepository,
     private val groupDao: GroupDao,
 ) : UserRepository {
     companion object {
@@ -115,7 +115,7 @@ class UserRepositoryImpl @Inject constructor(
         externalScope.launch(ioDispatcher) {
             Log.i(TAG, "refreshUsers: refreshing all visible users")
 
-            val loggedUserId = userPreferencesRepository.currentLoggedUserId.filterNotNull().first()
+            val loggedUserId = userDataRepository.currentLoggedUserId.filterNotNull().first()
 
             val groups = userApi.getGroups(loggedUserId)
             val usersToUpsert = groups

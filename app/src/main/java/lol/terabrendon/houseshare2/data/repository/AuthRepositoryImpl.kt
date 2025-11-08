@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
-    private val userPreferencesRepository: UserPreferencesRepository,
+    private val userDataRepository: UserDataRepository,
     private val userApi: UserApi,
 ) : AuthRepository {
     companion object {
@@ -29,11 +29,11 @@ class AuthRepositoryImpl @Inject constructor(
         val user = response.body() ?: throw HttpException(response)
 
         userDao.upsert(user.toEntity())
-        userPreferencesRepository.updateCurrentLoggedUser(user.id)
+        userDataRepository.updateCurrentLoggedUser(user.id)
 
         user.toModel()
     }.onFailure {
-        userPreferencesRepository.updateCurrentLoggedUser(null)
+        userDataRepository.updateCurrentLoggedUser(null)
     }
 
     override suspend fun finishLogin(): Result<UserModel, Throwable> = refreshUser()

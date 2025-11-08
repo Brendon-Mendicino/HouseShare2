@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.data.repository.UserRepository
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
@@ -22,7 +22,7 @@ import javax.inject.Inject
 class GroupsViewModel @Inject constructor(
     userRepository: UserRepository,
     getLoggedUser: GetLoggedUserUseCase,
-    private val sharedPreferencesRepository: UserPreferencesRepository,
+    private val sharedPreferencesRepository: UserDataRepository,
     getSelectedGroup: GetSelectedGroupUseCase,
 ) : ViewModel() {
     companion object {

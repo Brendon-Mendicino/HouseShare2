@@ -7,14 +7,14 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import lol.terabrendon.houseshare2.data.remote.api.AuthApi
-import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
 import lol.terabrendon.houseshare2.util.setQuery
 import javax.inject.Inject
 
 class LogoutUseCase @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository,
+    private val userDataRepository: UserDataRepository,
     private val authApi: AuthApi,
 ) {
     companion object {
@@ -36,9 +36,9 @@ class LogoutUseCase @Inject constructor(
         val intent = Intent(Intent.ACTION_VIEW, uri)
         ActivityQueue.activities.emit(intent)
 
-        userPreferencesRepository.updateCurrentLoggedUser(null)
-        userPreferencesRepository.updateSelectedGroupId(null)
-        userPreferencesRepository.updateBackStack(listOf(MainNavigation.Login))
+        userDataRepository.updateCurrentLoggedUser(null)
+        userDataRepository.updateSelectedGroupId(null)
+        userDataRepository.updateBackStack(listOf(MainNavigation.Login))
 
         Log.i(TAG, "invoke: logout successful!")
 

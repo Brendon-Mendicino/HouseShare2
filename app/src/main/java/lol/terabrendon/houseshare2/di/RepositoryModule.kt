@@ -12,8 +12,8 @@ import lol.terabrendon.houseshare2.data.repository.GroupRepository
 import lol.terabrendon.houseshare2.data.repository.GroupRepositoryImpl
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepositoryImpl
-import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepository
-import lol.terabrendon.houseshare2.data.repository.UserPreferencesRepositoryImpl
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository
+import lol.terabrendon.houseshare2.data.repository.UserDataRepositoryImpl
 import lol.terabrendon.houseshare2.data.repository.UserRepository
 import lol.terabrendon.houseshare2.data.repository.UserRepositoryImpl
 import javax.inject.Singleton
@@ -26,8 +26,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserPreferencesRepository(
-        repo: UserPreferencesRepositoryImpl
-    ): UserPreferencesRepository
+        repo: UserDataRepositoryImpl
+    ): UserDataRepository
 
     @Binds
     @Singleton

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 
 // TODO: rename userData
-interface UserPreferencesRepository {
+interface UserDataRepository {
     val savedBackStack: Flow<List<MainNavigation>>
 
     suspend fun updateBackStack(backStack: List<MainNavigation>)

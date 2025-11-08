@@ -12,9 +12,9 @@ import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import java.io.IOException
 import javax.inject.Inject
 
-class UserPreferencesRepositoryImpl @Inject constructor(
+class UserDataRepositoryImpl @Inject constructor(
     private val userPreferencesStore: DataStore<UserPreferences>,
-) : UserPreferencesRepository {
+) : UserDataRepository {
     companion object {
         private const val TAG = "UserPreferencesRepositoryImpl"
     }
