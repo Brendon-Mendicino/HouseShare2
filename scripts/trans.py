@@ -1,9 +1,12 @@
+#!/usr/bin/env python
+
 import asyncio
 import googletrans
 import re
+from pathlib import Path
 
 SRC = "en"
-LANGS = ["it"]
+LANGS = ["it", "de_DE", "es_ES", "fr_FR"]
 
 PATTERN = r"^(\s*<[^>]*>)(.*?)(</[^>]*>\s*)$"
 
@@ -22,13 +25,15 @@ async def trans_line(line: str, dest="auto") -> str:
 
 
 async def trans():
-    with open("../app/src/main/res/values/strings.xml", "r") as f:
-        tasks = []
-        for line in f.readlines():
-            tasks.append(asyncio.create_task(trans_line(line, "it")))
+    base = Path(__file__).parent.parent
+    for dest in LANGS:
+        with open(f"{base}/app/src/main/res/values/strings.xml", "r") as f:
+            tasks = []
+            for line in f.readlines():
+                tasks.append(asyncio.create_task(trans_line(line, dest)))
 
-        res = await asyncio.gather(*tasks)
-        print(''.join(res))
+            res = await asyncio.gather(*tasks)
+            print(''.join(res))
 
 
 if __name__ == "__main__":

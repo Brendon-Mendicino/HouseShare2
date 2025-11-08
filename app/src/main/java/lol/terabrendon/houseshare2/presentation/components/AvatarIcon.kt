@@ -63,7 +63,8 @@ fun AvatarIcon(
             Text(
                 text = initials,
                 fontSize = with(density) { (size * 2 / 3).toSp() },
-                color = Color.White
+                color = Color.White,
+                maxLines = 1,
             )
         }
     }

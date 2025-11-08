@@ -5,17 +5,17 @@ import androidx.core.net.toUri
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import lol.terabrendon.houseshare2.data.remote.api.LoginApi
+import lol.terabrendon.houseshare2.data.remote.api.AuthApi
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
 import retrofit2.HttpException
 import javax.inject.Inject
 
 class StartLoginUseCase @Inject constructor(
-    private val loginApi: LoginApi,
+    private val authApi: AuthApi,
 ) {
     suspend operator fun invoke(): Result<Unit, HttpException> {
         val res = try {
-            loginApi.login()
+            authApi.login()
         } catch (e: HttpException) {
             return Err(e)
         }

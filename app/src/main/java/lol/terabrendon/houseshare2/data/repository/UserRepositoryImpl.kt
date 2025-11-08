@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
@@ -89,7 +90,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override fun findById(id: Long): Flow<UserModel?> =
-        userDao.findById(id).map { it?.toModel() }
+        userDao.findById(id).distinctUntilChanged().map { it?.toModel() }
 
     override fun findAllById(ids: List<Long>): Flow<List<UserModel>> =
         userDao.findAllById(ids).map { users -> users.map { it.toModel() } }
@@ -101,6 +102,7 @@ class UserRepositoryImpl @Inject constructor(
 
         return userDao
             .findGroupsByUserId(userId)
+            .distinctUntilChanged()
             .map { groups ->
                 groups?.groups?.map {
                     GroupInfoModel(

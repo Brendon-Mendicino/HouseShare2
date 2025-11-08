@@ -6,7 +6,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.runSuspendCatching
 import com.github.michaelbull.result.onFailure
-import lol.terabrendon.houseshare2.data.remote.api.LoginApi
+import lol.terabrendon.houseshare2.data.remote.api.AuthApi
 import lol.terabrendon.houseshare2.data.repository.AuthRepository
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import javax.inject.Inject
@@ -16,7 +16,7 @@ import javax.inject.Inject
  * [StartLoginUseCase].
  */
 class FinishLoginUseCase @Inject constructor(
-    private val loginApi: LoginApi,
+    private val authApi: AuthApi,
     private val authRepository: AuthRepository,
 ) {
     companion object {
@@ -32,7 +32,7 @@ class FinishLoginUseCase @Inject constructor(
         Log.i(TAG, "invoke: Finishing login")
 
         runSuspendCatching {
-            loginApi.authCodeFlow(
+            authApi.authCodeFlow(
                 state = query("state"),
                 sessionState = query("session_state"),
                 iss = query("iss"),

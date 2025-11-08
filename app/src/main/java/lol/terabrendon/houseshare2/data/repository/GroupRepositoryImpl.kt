@@ -3,6 +3,7 @@ package lol.terabrendon.houseshare2.data.repository
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.entity.Group
@@ -23,7 +24,7 @@ class GroupRepositoryImpl @Inject constructor(
     }
 
     override fun findById(groupId: Long): Flow<GroupModel?> =
-        groupDao.findById(groupId).map { group -> group?.toModel() }
+        groupDao.findById(groupId).distinctUntilChanged().map { group -> group?.toModel() }
 
     override suspend fun insert(group: GroupModel) = externalScope.launch {
         val groupDto = groupApi.save(group.toDto())

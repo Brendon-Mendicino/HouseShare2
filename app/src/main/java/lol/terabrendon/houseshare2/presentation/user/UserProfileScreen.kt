@@ -5,12 +5,16 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.res.stringResource
@@ -38,17 +43,28 @@ import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 @Composable
 fun UserProfileScreen(modifier: Modifier = Modifier, viewModel: UserViewModel = hiltViewModel()) {
     val user by viewModel.user.collectAsStateWithLifecycle(null)
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     if (user == null) {
         LoadingOverlayScreen()
         return
     }
 
-    UserProfileInner(modifier = modifier, user = user!!)
+    UserProfileInner(
+        modifier = modifier,
+        user = user!!,
+        state = state,
+        onLogout = viewModel::onLogout,
+    )
 }
 
 @Composable
-private fun UserProfileInner(modifier: Modifier = Modifier, user: UserModel) {
+private fun UserProfileInner(
+    modifier: Modifier = Modifier,
+    user: UserModel,
+    state: UserViewModel.State,
+    onLogout: () -> Unit,
+) {
     Column(modifier = modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             AvatarIcon(
@@ -67,6 +83,28 @@ private fun UserProfileInner(modifier: Modifier = Modifier, user: UserModel) {
         UserField(text = user.firstName ?: "", label = stringResource(R.string.first_name))
 
         UserField(text = user.lastName ?: "", label = stringResource(R.string.last_name))
+
+        HorizontalDivider(Modifier.padding(vertical = 16.dp))
+
+        val enabled = !state.logoutPending
+        fun Color.disable() = if (!enabled) this.copy(alpha = 0.1f) else this
+        OutlinedButton(
+            onClick = onLogout,
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.error.disable(),
+            ),
+            enabled = enabled,
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                disabledContentColor = MaterialTheme.colorScheme.onErrorContainer.disable(),
+                disabledContainerColor = MaterialTheme.colorScheme.errorContainer.disable(),
+            ),
+        ) {
+            Text("Logout")
+        }
     }
 }
 
@@ -114,7 +152,9 @@ private fun Preview() {
     HouseShare2Theme {
         UserProfileInner(
             user = UserModel.default()
-                .copy(picture = "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png".toUri())
+                .copy(picture = "https://upload.wikimedia.org/wikipedia/commons/b/b6/Image_created_with_a_mobile_phone.png".toUri()),
+            state = UserViewModel.State(),
+            onLogout = {},
         )
     }
 }

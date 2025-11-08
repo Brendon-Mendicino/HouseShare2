@@ -41,6 +41,12 @@ class DeepLinkActivity : ComponentActivity() {
         // - code
         val uri = intent?.data ?: throw IllegalStateException("No URI present on activity launch!")
 
+        if (uri.path == "/logout") {
+            startActivity(mainActivity)
+            finish()
+            return
+        }
+
         lifecycleScope.launch {
             finishLoginUseCase(uri)
                 .onSuccess {

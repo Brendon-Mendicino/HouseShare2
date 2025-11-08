@@ -8,10 +8,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.BuildConfig
+import lol.terabrendon.houseshare2.data.remote.api.AuthApi
 import lol.terabrendon.houseshare2.data.remote.api.CsrfInterceptor
 import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
-import lol.terabrendon.houseshare2.data.remote.api.LoginApi
 import lol.terabrendon.houseshare2.data.remote.api.SharedCookieIndexStore
 import lol.terabrendon.houseshare2.data.remote.api.SharedPrefCookieStore
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
@@ -97,7 +97,7 @@ object ApiModule {
 
     @Provides
     @Singleton
-    fun provideLogin(cookieManager: CookieJar): LoginApi {
+    fun provideLogin(cookieManager: CookieJar): AuthApi {
         val retrofit = Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(
@@ -112,6 +112,6 @@ object ApiModule {
             )
             .build()
 
-        return retrofit.create<LoginApi>()
+        return retrofit.create<AuthApi>()
     }
 }
