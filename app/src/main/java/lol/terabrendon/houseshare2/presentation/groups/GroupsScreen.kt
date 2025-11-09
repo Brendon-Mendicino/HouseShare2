@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -34,12 +35,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.provider.FabConfig
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.GroupsViewModel
 
 @Composable
 fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel()) {
     val groups by viewModel.groups.collectAsState()
     val selectedGroup by viewModel.selectedGroup.collectAsState()
+
+    RegisterFabConfig<HomepageNavigation.Groups>(
+        config = FabConfig.Fab(
+            visible = true,
+            expanded = true,
+            text = "Groups",
+            icon = { Icon(Icons.Filled.Add, null) },
+        )
+    )
 
     GroupsScreenInner(groups = groups, selectedGroup = selectedGroup, onEvent = viewModel::onEvent)
 }

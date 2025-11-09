@@ -55,6 +55,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
@@ -77,7 +78,7 @@ fun NewExpenseForm(
         onFinish()
     }
 
-    RegisterBackNavIcon(onClick = onFinish)
+    RegisterBackNavIcon<HomepageNavigation.ExpenseForm>(onClick = onFinish)
 
     NewExpenseFormInner(
         modifier = modifier,
@@ -417,7 +418,7 @@ private fun SimplePartList(
     modifier: Modifier = Modifier,
     selected: List<Boolean>,
     payments: List<UserPaymentState>,
-    onToggle: (Int) -> Unit
+    onToggle: (Int) -> Unit,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         payments.zip(selected).forEachIndexed { index, (payment, selected) ->
@@ -530,7 +531,7 @@ private fun DivisionListForm(
 @Composable
 private fun FormPreview(
     state: ExpenseFormState = ExpenseFormState(),
-    payments: List<UserPaymentState> = (0..2).map { UserPaymentState.default() }
+    payments: List<UserPaymentState> = (0..2).map { UserPaymentState.default() },
 ) {
     NewExpenseFormInner(
         expenseFormState = state,

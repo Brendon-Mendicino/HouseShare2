@@ -3,7 +3,7 @@ package lol.terabrendon.houseshare2.presentation.provider
 import androidx.compose.runtime.compositionLocalOf
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 
-val LocalFabActionManager = compositionLocalOf<FabActionManager> {
+val LocalFabManager = compositionLocalOf<FabManager> {
     error("FabActionManager not provided")
 }
 

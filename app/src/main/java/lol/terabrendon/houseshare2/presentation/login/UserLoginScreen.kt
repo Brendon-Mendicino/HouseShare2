@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.delay
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
 import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
 import lol.terabrendon.houseshare2.presentation.vm.LoginViewModel
@@ -58,7 +59,7 @@ fun UserLoginScreen(
         }
     }
 
-    RegisterTopBarConfig(config = TopBarConfig(navigationIcon = {}))
+    RegisterTopBarConfig<MainNavigation.Login>(config = TopBarConfig(navigationIcon = {}))
 
     UserLoginInner(
         modifier = modifier,

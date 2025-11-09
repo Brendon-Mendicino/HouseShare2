@@ -41,6 +41,7 @@ import lol.terabrendon.houseshare2.domain.model.ShoppingItemPriority
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingItemFormViewModel
@@ -64,7 +65,7 @@ fun ShoppingItemFormScreen(
         }
     }
 
-    RegisterBackNavIcon(onClick = onBack)
+    RegisterBackNavIcon<HomepageNavigation.ShoppingForm>(onClick = onBack)
 
     ShoppingItemFormScreenInner(
         state = state,

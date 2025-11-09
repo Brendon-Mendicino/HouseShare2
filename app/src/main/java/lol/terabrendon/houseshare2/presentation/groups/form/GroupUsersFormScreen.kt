@@ -56,7 +56,9 @@ import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
-import lol.terabrendon.houseshare2.presentation.provider.RegisterFabAction
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.provider.FabConfig
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 
 private const val TAG: String = "GroupUsersFormScreen"
@@ -73,11 +75,13 @@ fun GroupUsersFormScreen(
     val users by viewModel.users.collectAsState()
     val selectedUsers by viewModel.selectedUsers.collectAsState()
 
-    RegisterBackNavIcon(onClick = onBack)
+    RegisterBackNavIcon<HomepageNavigation.GroupUsersForm>(onClick = onBack)
 
-    RegisterFabAction {
-        onNext()
-    }
+    RegisterFabConfig<HomepageNavigation.GroupUsersForm>(
+        FabConfig.Fab(
+            onClick = onNext,
+        )
+    )
 
     GroupUsersFormScreenInner(
         groupFormState = formState,

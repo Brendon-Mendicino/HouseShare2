@@ -10,11 +10,11 @@ import androidx.compose.runtime.remember
 private const val TAG: String = "LocalMenuActionManagerProvider"
 
 @Composable
-fun LocalMenuActionManagerProvider(content: @Composable (MenuActionManager) -> Unit) {
+fun LocalMenuActionManagerProvider(content: @Composable () -> Unit) {
     val menuAction = remember { MenuActionManager() }
 
     CompositionLocalProvider(LocalMenuActionManager provides menuAction) {
-        content(menuAction)
+        content()
     }
 }
 

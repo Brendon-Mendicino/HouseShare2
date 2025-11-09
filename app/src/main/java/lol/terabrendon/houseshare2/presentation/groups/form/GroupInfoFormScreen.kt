@@ -20,7 +20,9 @@ import lol.terabrendon.houseshare2.domain.model.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
-import lol.terabrendon.houseshare2.presentation.provider.RegisterFabAction
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.provider.FabConfig
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
@@ -37,10 +39,14 @@ fun GroupInfoFormScreen(
     val formState by viewModel.groupFormState.collectAsState()
     val scope = rememberCoroutineScope()
 
-    RegisterFabAction {
-        Log.d(TAG, "GroupInfoFormScreen: fab has been clicked")
-        viewModel.onEvent(GroupFormEvent.Submit)
-    }
+    RegisterFabConfig<HomepageNavigation.GroupInfoForm>(
+        config = FabConfig.Fab(
+            onClick = {
+                Log.d(TAG, "GroupInfoFormScreen: fab has been clicked")
+                viewModel.onEvent(GroupFormEvent.Submit)
+            },
+        )
+    )
 
     ObserveAsEvent(viewModel.uiEvent) { event ->
         when (event) {
@@ -53,7 +59,7 @@ fun GroupInfoFormScreen(
         }
     }
 
-    RegisterBackNavIcon(onClick = onBack)
+    RegisterBackNavIcon<HomepageNavigation.GroupInfoForm>(onClick = onBack)
 
     GroupInfoFormScreenInner(
         groupFormState = formState,

@@ -32,12 +32,10 @@ import lol.terabrendon.houseshare2.presentation.login.loginNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
-import lol.terabrendon.houseshare2.presentation.provider.FabActionManager
 import lol.terabrendon.houseshare2.presentation.provider.LocalBackStackProvider
-import lol.terabrendon.houseshare2.presentation.provider.LocalFabActionManagerProvider
+import lol.terabrendon.houseshare2.presentation.provider.LocalFabManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalMenuActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalTopBarManagerProvider
-import lol.terabrendon.houseshare2.presentation.provider.MenuActionManager
 import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
 import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
 import lol.terabrendon.houseshare2.presentation.settings.settingsNavigation
@@ -57,13 +55,11 @@ fun HouseShareMain(
 
     HouseShareMainInner(
         navigator = navigator,
-        homepageRoutes = MainNavigation.homepageRoutes,
     )
 }
 
 @Composable
 private fun HouseShareMainInner(
-    homepageRoutes: List<MainNavigation>,
     navigator: Navigator<MainNavigation>,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -94,7 +90,7 @@ private fun HouseShareMainInner(
         }
     }
 
-    MainProviders(backStack) { fabActionManager, _ ->
+    MainProviders(backStack) {
         ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
             MainDrawerSheet(
                 itemSelected = { topLevelRoute ->
@@ -129,7 +125,7 @@ private fun HouseShareMainInner(
                                     HomepageNavigation.ExpenseForm
                                 )
 
-                                else -> fabActionManager.fabAction.value?.invoke()
+                                else -> {}
                             }
                         },
                     )
@@ -151,7 +147,10 @@ private fun HouseShareMainInner(
                     ),
                     entryProvider = entryProvider {
                         entry<MainNavigation.Loading> {
-                            RegisterTopBarConfig(config = TopBarConfig(navigationIcon = {}))
+                            RegisterTopBarConfig<MainNavigation.Loading>(
+                                config = TopBarConfig(
+                                    navigationIcon = {})
+                            )
                             LoadingOverlayScreen()
                         }
 
@@ -178,13 +177,13 @@ private fun HouseShareMainInner(
 @Composable
 private fun MainProviders(
     backStack: List<MainNavigation>,
-    content: @Composable (FabActionManager, MenuActionManager) -> Unit
+    content: @Composable () -> Unit,
 ) {
-    LocalFabActionManagerProvider { fabActionManager ->
-        LocalMenuActionManagerProvider { menuActionManager ->
+    LocalFabManagerProvider {
+        LocalMenuActionManagerProvider {
             LocalTopBarManagerProvider {
                 LocalBackStackProvider(backStack) {
-                    content(fabActionManager, menuActionManager)
+                    content()
                 }
             }
         }

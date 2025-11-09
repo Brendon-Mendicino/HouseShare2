@@ -44,6 +44,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -59,7 +60,8 @@ import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
-import lol.terabrendon.houseshare2.presentation.provider.RegisterMenuAction
+import lol.terabrendon.houseshare2.presentation.provider.FabConfig
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 import lol.terabrendon.houseshare2.util.fullFormat
 import lol.terabrendon.houseshare2.util.inlineFormat
@@ -80,19 +82,28 @@ fun ShoppingScreen(
     val itemSorting by viewModel.itemSorting.collectAsStateWithLifecycle()
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
-    RegisterMenuAction(TAG) {
-        AnimatedVisibility(visible = isAnySelected) {
-            Row {
-                IconButton(onClick = { showDeleteDialog = true }) {
+    RegisterFabConfig<HomepageNavigation.Shopping>(
+        config = FabConfig.Toolbar(
+            visible = true,
+            expanded = isAnySelected,
+            content = { expanded ->
+                IconButton(
+                    onClick = { showDeleteDialog = true },
+                    Modifier.focusProperties { canFocus = expanded },
+                ) {
                     Icon(imageVector = Icons.Filled.Delete, contentDescription = null)
                 }
 
-                IconButton(onClick = { viewModel.onEvent(ShoppingScreenEvent.ItemsCheckoff) }) {
+                IconButton(
+                    onClick = { viewModel.onEvent(ShoppingScreenEvent.ItemsCheckoff) },
+                    Modifier.focusProperties { canFocus = expanded },
+                ) {
                     Icon(imageVector = Icons.Filled.Checklist, contentDescription = null)
                 }
-            }
-        }
-    }
+            },
+            fab = FabConfig.Fab()
+        )
+    )
 
     if (showDeleteDialog) {
         DeleteShoppingItemsDialog(
