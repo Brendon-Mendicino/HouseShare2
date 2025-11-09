@@ -56,6 +56,8 @@ import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.provider.FabConfig
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
@@ -77,6 +79,14 @@ fun NewExpenseForm(
     ObserveAsEvent(viewModel.finishedChannelFlow) {
         onFinish()
     }
+
+    RegisterFabConfig<HomepageNavigation.ExpenseForm>(
+        config = FabConfig.Fab(
+            visible = true,
+            expanded = false,
+            icon = { Icon(Icons.Default.Check, null) }
+        )
+    )
 
     RegisterBackNavIcon<HomepageNavigation.ExpenseForm>(onClick = onFinish)
 

@@ -58,6 +58,9 @@ import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.provider.FabConfig
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel
 import lol.terabrendon.houseshare2.util.currencyFormat
 import lol.terabrendon.houseshare2.util.inlineFormat
@@ -88,10 +91,19 @@ private val tabItems = listOf(
 
 @Composable
 fun BillingScreen(
-    billingViewModel: BillingViewModel = hiltViewModel()
+    billingViewModel: BillingViewModel = hiltViewModel(),
 ) {
     val expenses by billingViewModel.expenses.collectAsStateWithLifecycle()
     val balances by billingViewModel.balances.collectAsStateWithLifecycle()
+
+    RegisterFabConfig<HomepageNavigation.Billing>(
+        config = FabConfig.Fab(
+            visible = true,
+            expanded = true,
+            text = "Create",
+            icon = { Icon(Icons.Default.Receipt, null) }
+        )
+    )
 
     BillingInnerScreen(expenses = expenses, balances = balances)
 }
@@ -209,7 +221,7 @@ private fun ExpenseItem(
     modifier: Modifier = Modifier,
     expense: ExpenseModel,
     isExpanded: Boolean = false,
-    onExpandedToggle: () -> Unit = {}
+    onExpandedToggle: () -> Unit = {},
 ) {
     Column(
         modifier
@@ -302,7 +314,7 @@ fun ExpenseItemPreview(
         .copy(
             userExpenses = (0..5).map { UserExpenseModel.default() }.toList(),
             title = "Very looooooooooooooooooooooooooooooooooooooooooooooooooong title",
-        )
+        ),
 ) {
 
     ExpenseItem(expense = expense, modifier = Modifier.fillMaxWidth(), isExpanded = true)

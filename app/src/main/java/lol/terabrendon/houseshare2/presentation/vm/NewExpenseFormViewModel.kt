@@ -231,11 +231,11 @@ class NewExpenseFormViewModel @Inject constructor(
                 }
             }
 
-            ExpenseFormEvent.Submit -> viewModelScope.launch { onConfirm() }
+            ExpenseFormEvent.Submit -> viewModelScope.launch { onSubmit() }
         }
     }
 
-    private suspend fun onConfirm() {
+    private suspend fun onSubmit() {
         // The owner of the expense if the current logged user.
         // TODO: refactor some failure event of some sort...
         val owner = loggedUser.value ?: throw IllegalStateException("No logged users!")

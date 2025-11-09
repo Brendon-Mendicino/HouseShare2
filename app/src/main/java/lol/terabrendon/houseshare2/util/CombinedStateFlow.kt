@@ -5,6 +5,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Creates a [MutableStateFlow] staring from an initial [value] and
@@ -41,17 +43,32 @@ fun <T, U> CombinedStateFlow(
     transform: (T, U) -> T
 ): MutableStateFlow<T> {
     val curr = MutableStateFlow(transform(value, other.value))
+    val mutex = Mutex()
+    var emitted: T = value
 
     coroutineScope.launch {
         launch {
             other.collect { otherValue ->
-                curr.update { transform(it, otherValue) }
+                mutex.withLock {
+                    curr.update {
+                        emitted = transform(it, otherValue)
+                        emitted
+                    }
+                }
             }
         }
 
         launch {
-            curr.collect {
-                curr.update { transform(it, other.value) }
+            curr.collect { newValue ->
+                mutex.withLock {
+                    if (newValue === emitted)
+                        return@withLock
+
+                    curr.update {
+                        emitted = transform(newValue, other.value)
+                        emitted
+                    }
+                }
             }
         }
     }
