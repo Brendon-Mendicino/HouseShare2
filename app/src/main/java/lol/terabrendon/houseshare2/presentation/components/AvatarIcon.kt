@@ -51,7 +51,7 @@ fun AvatarIcon(
     }
     val initials = when {
         text != null -> text
-        size > 39.dp -> (firstName.take(1) + lastName.take(1)).uppercase()
+        size >= 24.dp -> (firstName.take(1) + lastName.take(1)).uppercase()
         else -> firstName.take(1).uppercase()
     }
 

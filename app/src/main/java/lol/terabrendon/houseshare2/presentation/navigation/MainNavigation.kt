@@ -42,7 +42,7 @@ sealed class MainNavigation : NavKey {
         is Login -> R.string.login
         is Cleaning -> R.string.cleaning
         is Shopping -> R.string.shopping_list
-        is ShoppingItem -> R.string.description
+        is ShoppingItem -> R.string.shopping_item
         is ShoppingForm -> R.string.new_item
         is Billing -> R.string.billing
         is ExpenseForm -> R.string.new_expense

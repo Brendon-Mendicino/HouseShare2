@@ -4,6 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
@@ -41,17 +42,17 @@ class ShoppingItemRepositoryImpl @Inject constructor(
         .map { it.map { item -> item.toModel() } }
 
     override fun findById(shoppingItemId: Long): Flow<ShoppingItemModel?> =
-        shoppingItemDao.findById(shoppingItemId).map { it?.toModel() }
+        shoppingItemDao.findById(shoppingItemId).distinctUntilChanged().map { it?.toModel() }
 
     override fun findUnchecked(
         groupId: Long,
-        sorting: ShoppingItemRepository.Sorting
+        sorting: ShoppingItemRepository.Sorting,
     ): Flow<List<ShoppingItemModel>> = shoppingItemDao.findUnchecked(groupId, sorting)
         .mapInner { it.toModel() }
 
     override fun findChecked(
         groupId: Long,
-        sorting: ShoppingItemRepository.Sorting
+        sorting: ShoppingItemRepository.Sorting,
     ): Flow<List<ShoppingItemModel>> = shoppingItemDao.findChecked(groupId, sorting)
         .mapInner { it.toModel() }
 
@@ -101,6 +102,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
         userId: Long,
     ) {
         externalScope.launch(ioDispatcher) {
+            Log.i(TAG, "checkoffItems: userId=$userId itemIds=$shoppingItemIds")
             val timestamp = OffsetDateTime.now()
 
             shoppingItemIds
@@ -116,5 +118,21 @@ class ShoppingItemRepositoryImpl @Inject constructor(
                 }
                 .joinAll()
         }.join()
+    }
+
+    override suspend fun uncheckItems(
+        groupId: Long,
+        shoppingItemIds: List<Long>,
+    ) {
+        externalScope.launch(ioDispatcher) {
+            Log.i(TAG, "uncheckItems: itemIds=$shoppingItemIds")
+
+            shoppingItemIds.map { shoppingId ->
+                launch {
+                    shoppingApi.uncheckShoppingItem(groupId = groupId, shoppingItemId = shoppingId)
+                    shoppingItemDao.uncheck(shoppingId)
+                }
+            }.joinAll()
+        }
     }
 }

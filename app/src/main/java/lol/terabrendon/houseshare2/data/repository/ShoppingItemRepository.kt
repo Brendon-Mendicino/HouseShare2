@@ -30,4 +30,6 @@ interface ShoppingItemRepository {
     suspend fun deleteAll(items: List<ShoppingItemInfoModel>)
 
     suspend fun checkoffItems(groupId: Long, shoppingItemIds: List<Long>, userId: Long)
+
+    suspend fun uncheckItems(groupId: Long, shoppingItemIds: List<Long>)
 }
