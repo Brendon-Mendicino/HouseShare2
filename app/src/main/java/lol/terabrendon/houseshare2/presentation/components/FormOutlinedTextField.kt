@@ -1,6 +1,7 @@
 package lol.terabrendon.houseshare2.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,7 +22,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import io.github.brendonmendicino.aformvalidator.annotation.ParamState
 import io.github.brendonmendicino.aformvalidator.annotation.ValidationError
 import lol.terabrendon.houseshare2.presentation.util.errorText
@@ -37,7 +42,7 @@ import lol.terabrendon.houseshare2.presentation.util.errorText
  * ![Outlined text field image](https://developer.android.com/images/reference/androidx/compose/material3/outlined-text-field.png)
  *
  * See example usage:
- * @sample androidx.compose.material3.samples.SimpleOutlinedTextFieldSample
+ * //@sample androidx.compose.material3.samples.SimpleOutlinedTextFieldSample
  *
  * If apart from input text change you also want to observe the cursor location, selection range,
  * or IME composition use the OutlinedTextField overload with the [TextFieldValue] parameter
@@ -94,18 +99,18 @@ import lol.terabrendon.houseshare2.presentation.util.errorText
  */
 @Composable
 fun <T : Any?, E : Any> FormOutlinedTextField(
-    modifier: Modifier = Modifier,
     param: ParamState<T, E>,
+    onValueChange: (String) -> Unit,
+    labelText: String,
+    modifier: Modifier = Modifier,
     supportParams: List<ParamState<out Any?, E>> = emptyList(),
     used: Boolean = param.used || supportParams.any { it.used },
     error: E? = param.error ?: supportParams.firstNotNullOfOrNull { it.error },
-    onValueChange: (String) -> Unit,
-    labelText: String,
+    value: String = param.value?.toString() ?: "",
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
     singleLine: Boolean = false,
-    value: String = param.value?.toString() ?: "",
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     label: @Composable (() -> Unit)? = { Text(labelText) },
@@ -140,17 +145,12 @@ fun <T : Any?, E : Any> FormOutlinedTextField(
             }
         }
     },
-    supportingText: @Composable (() -> Unit)? = {
-        error?.let {
-            if (used) {
-                Text(errorConverter(it))
-            }
-        }
-    },
+    supportingText: @Composable (() -> Unit)? = error.takeIf { used }
+        ?.let { { Text(errorConverter(it)) } },
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = OutlinedTextFieldDefaults.shape,
-    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
 ) {
     OutlinedTextField(
         value = value,
@@ -176,5 +176,36 @@ fun <T : Any?, E : Any> FormOutlinedTextField(
         interactionSource = interactionSource,
         shape = shape,
         colors = colors,
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Preview() {
+    FormOutlinedTextField(
+        param = ParamState("hello"),
+        onValueChange = {},
+        labelText = "My super test"
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Empty() {
+    FormOutlinedTextField(
+        param = ParamState(null),
+        onValueChange = {},
+        labelText = "My super test"
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun Error() {
+    val p = ParamState("hello", listOf { "error text" }, true)
+    FormOutlinedTextField(
+        param = p,
+        onValueChange = {},
+        labelText = "My super test"
     )
 }

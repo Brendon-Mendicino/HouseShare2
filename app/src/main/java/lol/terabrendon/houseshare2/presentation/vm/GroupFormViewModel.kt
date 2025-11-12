@@ -119,12 +119,12 @@ class GroupFormViewModel @Inject constructor(
             loggedUser.first() ?: throw IllegalStateException("No current logged-in user!")
 
         if (formState.isError) {
-            val (parameter, error) = formState.errors.first()
+            val (parameterName, error) = formState.errors.first()
 
             _uiEvent.send(
                 GroupFormUiEvent.SubmitFailure(
                     error = error.errorText(
-                        parameter.name,
+                        parameterName,
                         context
                     )
                 )

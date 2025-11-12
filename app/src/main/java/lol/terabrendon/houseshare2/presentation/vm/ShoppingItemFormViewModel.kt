@@ -75,7 +75,7 @@ class ShoppingItemFormViewModel @Inject constructor(
             _uiEvents.send(
                 ShoppingItemFormUiEvent.SubmitFailure(
                     error = error.errorText(
-                        property.name,
+                        property,
                         context
                     )
                 )

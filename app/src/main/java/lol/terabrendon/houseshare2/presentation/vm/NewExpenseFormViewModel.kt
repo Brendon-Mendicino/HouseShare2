@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.getOrElse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.brendonmendicino.aformvalidator.annotation.ValidationError
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,10 +24,8 @@ import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormEvent
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormState
-import lol.terabrendon.houseshare2.presentation.billing.PaymentUnit
-import lol.terabrendon.houseshare2.presentation.billing.UserPaymentState
-import lol.terabrendon.houseshare2.util.CombinedStateFlow
-import lol.terabrendon.houseshare2.util.combineState
+import lol.terabrendon.houseshare2.presentation.billing.UserPart
+import lol.terabrendon.houseshare2.presentation.billing.toValidator
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,19 +34,26 @@ class NewExpenseFormViewModel @Inject constructor(
     getSelectedGroup: GetSelectedGroupUseCase,
     getLoggedUserUseCase: GetLoggedUserUseCase,
 ) : ViewModel() {
+    sealed class UiEvent {
+        data object Finish : UiEvent()
+
+        // TODO: change label from String to R.strings
+        data class Error(val error: ValidationError, val label: String) : UiEvent()
+    }
+
     companion object {
         private const val TAG = "NewExpenseFormViewModel"
     }
 
     private val expenseModelMapper: ExpenseModelMapper = ExpenseModelMapper()
 
-    private val finishedChannel = Channel<Unit>()
+    private val eventChannel = Channel<UiEvent>()
 
     /**
      * This channel is used to terminate the screen when all the operations
      * are finished
      */
-    val finishedChannelFlow: Flow<Unit> = finishedChannel.receiveAsFlow()
+    val eventChannelFlow = eventChannel.receiveAsFlow()
 
     private val loggedUser = getLoggedUserUseCase()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -67,27 +72,30 @@ class NewExpenseFormViewModel @Inject constructor(
             viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
         )
 
-    private var _expenseFormState =
-        CombinedStateFlow(ExpenseFormState(), viewModelScope, users) { formState, users ->
-            // Keep the formState lists updated in case their sizes differs from
-            // the number of users.
-            val size = users.size
+    private var _expenseFormState = MutableStateFlow(ExpenseFormState().toValidator())
+    val expenseFormState = _expenseFormState.asStateFlow()
 
-            if (size == formState.paymentUnits.size)
-                return@CombinedStateFlow formState
-
-            Log.i(
-                TAG,
-                "CombinedStateFlow: updating _expenseFormSate lists because their sizes differ from the one the user! users.size=$size, formState.paymentUnits.size=${formState.paymentUnits.size}"
-            )
-
-            formState.copy(
-                paymentUnits = (0..<size).map { PaymentUnit.Additive },
-                paymentValueUnits = (0..<size).map { null },
-            )
+    init {
+        viewModelScope.launch {
+            users.collect { users ->
+                _expenseFormState.update {
+                    it.update {
+                        userParts = List(users.size) { UserPart() }
+                    }
+                }
+            }
         }
 
-    val expenseFormState = _expenseFormState.asStateFlow()
+        viewModelScope.launch {
+            loggedUser.collect { user ->
+                _expenseFormState.update { state ->
+                    state.update {
+                        payer = user
+                    }
+                }
+            }
+        }
+    }
 
     private val _userSelected = MutableStateFlow(emptyList<Boolean>())
     val userSelected = _userSelected.asStateFlow()
@@ -105,98 +113,33 @@ class NewExpenseFormViewModel @Inject constructor(
             val noSelected = selectedUsers.count { it }
 
             users.zip(selectedUsers).map { (user, selected) ->
-                UserPaymentState(
-                    user = user,
-                    unit = PaymentUnit.Additive,
-                    amountUnit = "",
-                    amountMoney = if (selected) formState.moneyAmount / noSelected else 0.0
-                )
+                if (selected) {
+                    formState.totalAmountNum.value / noSelected
+                } else 0.0
             }
         }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
-    val payments =
-        combineState(
-            viewModelScope,
-            users,
-            expenseFormState,
-        ) { users, formState ->
-            val totalMoney = formState.moneyAmount
-            val paymentUnits = formState.paymentUnits
-            val paymentValueUnits = formState.paymentValueUnits.map { it?.toDoubleOrNull() ?: 0.0 }
-
-            val nonQuotaMoney = paymentUnits
-                .zip(paymentValueUnits)
-                .sumOf { (unit, value) ->
-                    when (unit) {
-                        PaymentUnit.Additive -> value
-                        PaymentUnit.Percentage -> totalMoney * (value / 100.0)
-                        PaymentUnit.Quota -> 0.0
-                    }
-                }
-
-            val totalQuotes = paymentUnits.zip(paymentValueUnits)
-                .sumOf { (unit, value) -> if (unit == PaymentUnit.Quota) value else 0.0 }
-
-            users
-                .zip(paymentUnits)
-                .zip(paymentValueUnits)
-                .map { (pair, amountUnit) ->
-                    val (user, unit) = pair
-                    val moneyPerQuota =
-                        if (totalQuotes != 0.0) (totalMoney - nonQuotaMoney) * amountUnit / totalQuotes else 0.0
-
-                    when (unit) {
-                        PaymentUnit.Additive -> UserPaymentState(
-                            user = user,
-                            unit = unit,
-                            amountUnit = "",
-                            amountMoney = amountUnit,
-                        )
-
-                        PaymentUnit.Percentage -> UserPaymentState(
-                            user = user,
-                            unit = unit,
-                            amountUnit = "",
-                            amountMoney = (amountUnit / 100.0) * totalMoney,
-                        )
-
-                        PaymentUnit.Quota -> UserPaymentState(
-                            user = user,
-                            unit = unit,
-                            amountUnit = "",
-                            amountMoney = moneyPerQuota,
-                        )
-
-                    }
-                }
-                // Fill the payments with the current string values in the form
-                .zip(formState.paymentValueUnits)
-                .map { (user, amountUnit) ->
-                    user.copy(amountUnit = amountUnit ?: "")
-                }
-        }
-
     fun onEvent(event: ExpenseFormEvent) {
         when (event) {
-            is ExpenseFormEvent.CategoryChanged -> {
-                _expenseFormState.update { it.copy(category = event.category) }
+            is ExpenseFormEvent.CategoryToggled -> {
+                _expenseFormState.update { it.update { category = event.category } }
             }
 
             is ExpenseFormEvent.DescriptionChanged -> {
-                _expenseFormState.update { it.copy(description = event.description) }
+                _expenseFormState.update { it.update { description = event.description } }
             }
 
-            is ExpenseFormEvent.MoneyAmountChanged -> {
-                _expenseFormState.update { it.copy(moneyAmount = event.money) }
+            is ExpenseFormEvent.TotalAmountChanged -> {
+                _expenseFormState.update { it.update { totalAmount = event.amount } }
             }
 
             is ExpenseFormEvent.PayerChanged -> {
-                _expenseFormState.update { it.copy(payer = event.payer) }
+                _expenseFormState.update { it.update { payer = event.payer } }
             }
 
             is ExpenseFormEvent.TitleChanged -> {
-                _expenseFormState.update { it.copy(title = event.title) }
+                _expenseFormState.update { it.update { title = event.title } }
             }
 
             is ExpenseFormEvent.SimpleDivisionUserToggled -> {
@@ -206,28 +149,36 @@ class NewExpenseFormViewModel @Inject constructor(
             }
 
             is ExpenseFormEvent.SimpleDivisionToggled -> {
-                _expenseFormState.update { it.copy(simpleDivisionEnabled = !it.simpleDivisionEnabled) }
+                _expenseFormState.update {
+                    it.update {
+                        simpleDivisionEnabled = !simpleDivisionEnabled
+                    }
+                }
             }
 
             is ExpenseFormEvent.UnitChanged -> {
                 Log.i(TAG, "Updating paymentUnits with index ${event.index}")
                 _expenseFormState.update {
-                    it.copy(
-                        paymentUnits = it.paymentUnits.toMutableList().apply {
-                            this[event.index] = event.newUnit
-                        },
-                    )
+                    it.update {
+                        val parts = userParts.toMutableList()
+                        val part = parts[event.index]
+
+                        userParts =
+                            parts.apply { set(event.index, part.copy(paymentUnit = event.newUnit)) }
+                    }
                 }
             }
 
-            is ExpenseFormEvent.ValueUnitChanged -> {
+            is ExpenseFormEvent.UserPartChanged -> {
                 Log.i(TAG, "Updating paymentValueUnits with index ${event.index}")
                 _expenseFormState.update {
-                    it.copy(
-                        paymentValueUnits = it.paymentValueUnits.toMutableList().apply {
-                            this[event.index] = event.newValue
-                        },
-                    )
+                    it.update {
+                        val parts = userParts.toMutableList()
+                        val part = parts[event.index]
+
+                        userParts =
+                            parts.apply { set(event.index, part.copy(amount = event.newValue)) }
+                    }
                 }
             }
 
@@ -236,6 +187,7 @@ class NewExpenseFormViewModel @Inject constructor(
     }
 
     private suspend fun onSubmit() {
+        val formState = expenseFormState.value
         // The owner of the expense if the current logged user.
         // TODO: refactor some failure event of some sort...
         val owner = loggedUser.value ?: throw IllegalStateException("No logged users!")
@@ -248,15 +200,23 @@ class NewExpenseFormViewModel @Inject constructor(
                 throw IllegalStateException(msg)
             }
 
-        val formState = expenseFormState.value
-        val payments =
-            if (formState.simpleDivisionEnabled) simpleDivisionParts.value else payments.value
+        val error = formState.errors.firstOrNull()
+        if (error != null) {
+            // TODO: improve errors
+            eventChannel.send(UiEvent.Error(label = error.first, error = error.second))
+            return
+        }
+
+        val state = formState.toData()
+        val userParts =
+            if (state.simpleDivisionEnabled) simpleDivisionParts.value.zip(users.value)
+            else state.userParts.map { it.amountNum }.zip(users.value)
 
         val expense = expenseModelMapper
             .map(
-                formState = formState,
+                formState = state,
                 expenseOwner = owner,
-                payments = payments.filter { it.amountMoney > 0.0 },
+                userParts = userParts.filter { (amount, _) -> amount > 0.0 },
                 groupId = groupId,
             )
             .getOrElse {
@@ -269,6 +229,6 @@ class NewExpenseFormViewModel @Inject constructor(
 
         expenseRepository.insert(expense)
 
-        finishedChannel.send(Unit)
+        eventChannel.send(UiEvent.Finish)
     }
 }

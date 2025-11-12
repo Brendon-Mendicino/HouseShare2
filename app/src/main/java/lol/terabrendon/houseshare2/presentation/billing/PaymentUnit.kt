@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Percent
 import androidx.compose.ui.graphics.vector.ImageVector
 import lol.terabrendon.houseshare2.R
 
+// TODO: rename to PartPaymentKind
 enum class PaymentUnit {
     Additive,
     Percentage,

@@ -7,16 +7,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -33,17 +33,17 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,15 +51,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
 import lol.terabrendon.houseshare2.domain.model.UserModel
+import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
+import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
+import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
+import lol.terabrendon.houseshare2.presentation.util.errorText
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
-import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
+import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel.UiEvent
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import lol.terabrendon.houseshare2.util.currencyFormat
 
@@ -70,21 +76,36 @@ fun NewExpenseForm(
     viewModel: NewExpenseFormViewModel = hiltViewModel(),
     onFinish: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val expenseFormState by viewModel.expenseFormState.collectAsStateWithLifecycle()
-    val payments by viewModel.payments.collectAsStateWithLifecycle()
     val users by viewModel.users.collectAsStateWithLifecycle()
     val userSelected by viewModel.userSelected.collectAsStateWithLifecycle()
     val simpleDivisionParts by viewModel.simpleDivisionParts.collectAsStateWithLifecycle()
 
-    ObserveAsEvent(viewModel.finishedChannelFlow) {
-        onFinish()
+    ObserveAsEvent(viewModel.eventChannelFlow) { event ->
+        when (event) {
+            is UiEvent.Error -> scope.launch {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(
+                        message = event.error.errorText(
+                            event.label,
+                            context
+                        )
+                    )
+                )
+            }
+
+            is UiEvent.Finish -> onFinish()
+        }
     }
 
     RegisterFabConfig<HomepageNavigation.ExpenseForm>(
         config = FabConfig.Fab(
             visible = true,
             expanded = false,
-            icon = { Icon(Icons.Default.Check, null) }
+            icon = { Icon(Icons.Default.Check, null) },
+            onClick = { viewModel.onEvent(ExpenseFormEvent.Submit) }
         )
     )
 
@@ -92,12 +113,10 @@ fun NewExpenseForm(
 
     NewExpenseFormInner(
         modifier = modifier,
-        expenseFormState = expenseFormState,
+        state = expenseFormState,
         users = users,
-        payments = payments,
         userSelected = userSelected,
         simpleDivisionParts = simpleDivisionParts,
-        onFinish = onFinish,
         onEvent = viewModel::onEvent,
     )
 }
@@ -106,115 +125,61 @@ fun NewExpenseForm(
 @Composable
 fun NewExpenseFormInner(
     modifier: Modifier = Modifier,
-    expenseFormState: ExpenseFormState,
+    state: ExpenseFormStateValidator,
     users: List<UserModel>,
-    payments: List<UserPaymentState>,
     userSelected: List<Boolean>,
-    simpleDivisionParts: List<UserPaymentState>,
+    simpleDivisionParts: List<Double>,
     onEvent: (ExpenseFormEvent) -> Unit = {},
-    onFinish: () -> Unit = {},
 ) {
     var categoryExpended by remember { mutableStateOf(false) }
     var payerExpanded by remember { mutableStateOf(false) }
-
-
-    val moneyAmount = expenseFormState.moneyAmount
-    val description = expenseFormState.description
-    val title = expenseFormState.title
-    val category = expenseFormState.category
-    val payer = expenseFormState.payer
-
-
-    // TODO: in the future... handle errors from the viewmodel
-    val amountError = { moneyAmount <= 0.0 }
-    val categoryError = { category == null }
-    val payerError = { payer == null }
-    val titleError = { title.isEmpty() }
-    val paymentsMoneyError =
-        { !expenseFormState.simpleDivisionEnabled && payments.any { it.amountMoney < 0 } }
-    val moneySumError =
-        {
-            !expenseFormState.simpleDivisionEnabled && payments.sumOf { it.amountMoney }
-                .currencyFormat() != moneyAmount.currencyFormat()
-        }
-
-    val errors =
-        listOf(
-            amountError,
-            categoryError,
-            payerError,
-            titleError,
-            paymentsMoneyError,
-            moneySumError,
-        )
+    val simpleDivision = state.simpleDivisionEnabled.value
 
     Column(
         modifier
             .padding(8.dp)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .animateContentSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        FormTextField(
-            value = if (moneyAmount != 0.0) moneyAmount.currencyFormat() else "",
-            onValueChange = {
-                onEvent(
-                    ExpenseFormEvent.MoneyAmountChanged(
-                        it.currencyFormat() ?: 0.0
-                    )
-                )
-            },
-            isError = amountError,
-            errorText = {
-                Text(stringResource(R.string.amount_should_be_greater_than_0))
-            },
-            label = { Text(stringResource(R.string.amount), maxLines = 1) },
+        FormOutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            param = state.totalAmount,
+            supportParams = listOf(state.totalAmountNum),
+            onValueChange = { onEvent(ExpenseFormEvent.TotalAmountChanged(it)) },
+            labelText = stringResource(R.string.amount),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Decimal,
             ),
-            modifier = Modifier.fillMaxWidth()
         )
 
-
-        FormTextField(
-            value = title,
+        FormOutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            param = state.title,
             onValueChange = { onEvent(ExpenseFormEvent.TitleChanged(it)) },
-            label = { Text(stringResource(R.string.title), maxLines = 1) },
-            isError = titleError,
-            errorText = { Text(stringResource(R.string.title_should_not_be_empty)) },
-            maxLines = 1,
+            labelText = stringResource(R.string.title),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
             ),
-            modifier = Modifier.fillMaxWidth()
         )
 
-
+        // TODO: aggiustare
         ExposedDropdownMenuBox(
             expanded = categoryExpended,
             onExpandedChange = { categoryExpended = it },
         ) {
-            var used by rememberSaveable { mutableStateOf(false) }
-            val isError = if (!used) false else categoryError()
+            val category = state.category.value
 
-            OutlinedTextField(
+            FormOutlinedTextField(
                 modifier = Modifier
                     .animateContentSize()
                     .menuAnchor(PrimaryNotEditable),
                 readOnly = true,
-                maxLines = 1,
+                param = state.category,
                 value = category?.let { stringResource(it.toStringRes()) } ?: "",
                 onValueChange = {},
-                leadingIcon = category?.let {
-                    {
-                        Icon(it.toImageVector(), contentDescription = null)
-                    }
-                },
-                isError = isError,
-                supportingText = if (!isError) null else ({
-                    Text(stringResource(R.string.you_should_choose_a_category))
-                }),
-                label = { Text(stringResource(R.string.category), maxLines = 1) },
+                labelText = stringResource(R.string.category),
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = categoryExpended,
@@ -233,9 +198,8 @@ fun NewExpenseFormInner(
                             Icon(entry.toImageVector(), contentDescription = null)
                         },
                         onClick = {
-                            onEvent(ExpenseFormEvent.CategoryChanged(if (entry == category) null else entry))
                             categoryExpended = false
-                            used = true
+                            onEvent(ExpenseFormEvent.CategoryToggled(entry))
                         },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                     )
@@ -243,26 +207,21 @@ fun NewExpenseFormInner(
             }
         }
 
+        // TODO: aggiustrare
         ExposedDropdownMenuBox(
             expanded = payerExpanded,
             onExpandedChange = { payerExpanded = it }
         ) {
-            var used by rememberSaveable { mutableStateOf(false) }
-            val isError = if (!used) false else payerError()
-
-            OutlinedTextField(
+            FormOutlinedTextField(
                 modifier = Modifier
                     .animateContentSize()
                     .menuAnchor(PrimaryNotEditable),
                 readOnly = true,
-                maxLines = 1,
-                value = payer?.username ?: "",
+                param = state.payer,
+                value = state.payer.value?.username ?: "",
                 onValueChange = {},
-                isError = isError,
-                supportingText = if (!isError) null else ({
-                    Text(stringResource(R.string.you_should_choose_a_payer))
-                }),
-                label = { Text(stringResource(R.string.payed_by)) },
+                labelText = stringResource(R.string.payed_by),
+                leadingIcon = state.payer.value?.let { { AvatarIcon(user = it, size = 24.dp) } },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
                         expanded = payerExpanded,
@@ -277,10 +236,10 @@ fun NewExpenseFormInner(
                 users.forEach { user ->
                     DropdownMenuItem(
                         text = { Text(user.username, maxLines = 1) },
+                        leadingIcon = { AvatarIcon(user = user, size = 24.dp) },
                         onClick = {
                             onEvent(ExpenseFormEvent.PayerChanged(user))
                             payerExpanded = false
-                            used = true
                         },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                     )
@@ -288,18 +247,17 @@ fun NewExpenseFormInner(
             }
         }
 
-        FormTextField(
-            value = description ?: "",
+
+        FormOutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            param = state.description,
             onValueChange = { onEvent(ExpenseFormEvent.DescriptionChanged(it)) },
-            label = {
-                Text(stringResource(R.string.description))
-            },
+            labelText = stringResource(R.string.description),
             minLines = 3,
-            maxLines = 10,
+            maxLines = 5,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
             ),
-            modifier = Modifier.fillMaxWidth()
         )
 
         // List of contributors
@@ -310,12 +268,12 @@ fun NewExpenseFormInner(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Switch(
-                checked = !expenseFormState.simpleDivisionEnabled,
+                checked = !simpleDivision,
                 onCheckedChange = {
                     onEvent(ExpenseFormEvent.SimpleDivisionToggled)
                 },
                 thumbContent = {
-                    AnimatedVisibility(!expenseFormState.simpleDivisionEnabled) {
+                    AnimatedVisibility(!simpleDivision) {
                         Icon(
                             imageVector = Icons.Filled.Check,
                             contentDescription = null,
@@ -328,210 +286,130 @@ fun NewExpenseFormInner(
             Text(stringResource(R.string.advanced_division))
         }
 
-        // Draw the list of payments
-        AnimatedContent(expenseFormState.simpleDivisionEnabled) { simple ->
-            if (simple) {
-                SimplePartList(
-                    payments = simpleDivisionParts,
-                    selected = userSelected,
-                    onToggle = {
-                        onEvent(ExpenseFormEvent.SimpleDivisionUserToggled(it))
-                    },
-                )
-            } else {
-                DivisionListForm(
-                    payments = payments,
-                    onUpdateUnit = { index, unit ->
-                        onEvent(ExpenseFormEvent.UnitChanged(index, unit))
-                    },
-                    onValueUnitChange = { index, value ->
-                        onEvent(ExpenseFormEvent.ValueUnitChanged(index, value))
-                    }
-                )
+        // Draw the list of user parts
+        AnimatedContent(simpleDivision) { simpleDivision ->
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (simpleDivision) {
+                    simpleDivisionParts.zip(userSelected).zip(users)
+                        .forEachIndexed { index, (pair, user) ->
+                            val (money, selected) = pair
+
+                            SimplePartItem(
+                                selected = selected,
+                                money = money,
+                                username = user.username,
+                                onToggle = {
+                                    onEvent(ExpenseFormEvent.SimpleDivisionUserToggled(index))
+                                },
+                            )
+                        }
+                } else {
+                    state.userParts.value.zip(state.convertedValues.value).zip(users)
+                        .forEachIndexed { index, (pair, user) ->
+                            val (part, converted) = pair
+                            UserPartField(
+                                part = part.toValidator(),
+                                user = user,
+                                convertedAmount = converted,
+                                onUnitChanged = {
+                                    onEvent(ExpenseFormEvent.UnitChanged(index, it))
+                                },
+                                onAmountChanged = {
+                                    onEvent(ExpenseFormEvent.UserPartChanged(index, it))
+                                },
+                            )
+                        }
+                }
             }
         }
 
-        Column(modifier = Modifier.animateContentSize()) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                TextButton(onClick = { onFinish() }) {
-                    Text(stringResource(R.string.dismiss))
-                }
-
-                TextButton(
-                    onClick = {
-                        onEvent(ExpenseFormEvent.Submit)
-                    },
-                    enabled = !errors.any { isError -> isError() },
-                ) {
-                    Text(stringResource(R.string.confirm))
-                }
-            }
-
-            if (moneySumError()) {
-                Text(
-                    stringResource(R.string.the_sum_of_the_money_should_equal_the_total_amount),
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        }
+        Spacer(Modifier.requiredHeight(100.dp))
     }
 }
 
 @Composable
-private fun FormTextField(
+private fun SimplePartItem(
     modifier: Modifier = Modifier,
-    label: (@Composable () -> Unit)? = null,
-    errorText: (@Composable () -> Unit)? = null,
-    isError: () -> Boolean = { false },
-    value: String,
-    onValueChange: (String) -> Unit,
-    minLines: Int = 1,
-    maxLines: Int = 1,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(),
+    selected: Boolean,
+    money: Double,
+    username: String,
+    onToggle: () -> Unit,
 ) {
-    var used by rememberSaveable { mutableStateOf(false) }
-    val error = if (!used) false else isError()
+    val color = if (selected) MaterialTheme.colorScheme.onSurface
+    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
 
-    OutlinedTextField(
-        value = value,
-        onValueChange = {
-            onValueChange(it)
-            used = true
-        },
-        trailingIcon = if (error) ({
-            Icon(
-                Icons.Filled.Error,
-                stringResource(R.string.error),
-                tint = MaterialTheme.colorScheme.error
-            )
-        })
-        else if (value != "") ({
-            IconButton(onClick = { onValueChange("") }) {
-                Icon(imageVector = Icons.Outlined.Cancel, contentDescription = null)
-            }
-        }) else null,
-        supportingText = if (error) errorText else null,
-        keyboardOptions = keyboardOptions,
-        minLines = minLines,
-        maxLines = maxLines,
-        label = label,
-        isError = error,
-        modifier = modifier.animateContentSize(),
-    )
-}
-
-@Composable
-private fun SimplePartList(
-    modifier: Modifier = Modifier,
-    selected: List<Boolean>,
-    payments: List<UserPaymentState>,
-    onToggle: (Int) -> Unit,
-) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        payments.zip(selected).forEachIndexed { index, (payment, selected) ->
-            val color = if (selected) MaterialTheme.colorScheme.onSurface
-            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-
-            CompositionLocalProvider(
-                LocalContentColor provides color
-            ) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .animateContentSize()
-                        .fillMaxWidth(),
-                    readOnly = true,
-                    value = payment.user.username,
-                    onValueChange = {},
-                    leadingIcon = {
-                        Checkbox(
-                            checked = selected,
-                            onCheckedChange = { onToggle(index) }
-                        )
-                    },
-                    suffix = {
-                        Text(payment.amountMoney.currencyFormat())
-                    },
+    CompositionLocalProvider(
+        LocalContentColor provides color
+    ) {
+        OutlinedTextField(
+            modifier = modifier
+                .animateContentSize()
+                .fillMaxWidth(),
+            readOnly = true,
+            value = username,
+            onValueChange = {},
+            leadingIcon = {
+                Checkbox(
+                    checked = selected,
+                    onCheckedChange = { onToggle() }
                 )
-            }
-        }
+            },
+            suffix = {
+                Text(money.currencyFormat())
+            },
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DivisionListForm(
-    payments: List<UserPaymentState>,
-    onUpdateUnit: (index: Int, newUnit: PaymentUnit) -> Unit,
-    onValueUnitChange: (index: Int, newValue: String?) -> Unit,
+private fun UserPartField(
+    part: UserPartValidator,
+    user: UserModel,
+    convertedAmount: Double,
+    onUnitChanged: (unit: PaymentUnit) -> Unit,
+    onAmountChanged: (amount: String) -> Unit,
 ) {
-    Column {
-        payments.forEachIndexed { index, payment ->
-            var expanded by rememberSaveable { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
 
-            val valueError = { payment.amountMoney < 0 }
-            val errors = listOf(valueError)
-            val error = errors.any { isError -> isError() }
-
-            Box {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .animateContentSize()
-                        .fillMaxWidth(),
-                    maxLines = 1,
-                    value = payment.amountUnit,
-                    onValueChange = { newValue ->
-                        onValueUnitChange(index, newValue)
-                    },
-                    leadingIcon = {
-                        IconButton(onClick = { expanded = !expanded }) {
-                            Icon(payment.unit.toImageVector(), contentDescription = null)
-                        }
-                    },
-                    suffix = {
-                        Text(payment.amountMoney.currencyFormat())
-                    },
-                    isError = error,
-                    label = { Text(payment.user.username) },
-                    trailingIcon = {
-                        if (!error)
-                            return@OutlinedTextField
-
-                        Icon(
-                            Icons.Filled.Error,
-                            stringResource(R.string.error),
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    },
-                    supportingText = if (!error) null else ({
-                        Text(stringResource(R.string.amount_should_be_greater_than_0))
-                    }),
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Decimal,
-                    )
-                )
-
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    PaymentUnit.entries.forEach { entry ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(entry.toStringRes()), maxLines = 1) },
-                            leadingIcon = {
-                                Icon(entry.toImageVector(), contentDescription = null)
-                            },
-                            onClick = {
-                                onUpdateUnit(index, entry)
-                                expanded = false
-                            },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                        )
-                    }
+    Box {
+        FormOutlinedTextField(
+            modifier = Modifier
+                .animateContentSize()
+                .fillMaxWidth(),
+            param = part.amount,
+            labelText = user.username,
+            onValueChange = { onAmountChanged(it) },
+            suffix = {
+                Text(convertedAmount.currencyFormat())
+            },
+            leadingIcon = {
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(part.paymentUnit.value.toImageVector(), contentDescription = null)
                 }
+            },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next,
+                keyboardType = KeyboardType.Decimal,
+            )
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            PaymentUnit.entries.forEach { entry ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(entry.toStringRes()), maxLines = 1) },
+                    leadingIcon = {
+                        Icon(entry.toImageVector(), contentDescription = null)
+                    },
+                    onClick = {
+                        expanded = false
+                        onUnitChanged(entry)
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
             }
         }
     }
@@ -541,11 +419,9 @@ private fun DivisionListForm(
 @Composable
 private fun FormPreview(
     state: ExpenseFormState = ExpenseFormState(),
-    payments: List<UserPaymentState> = (0..2).map { UserPaymentState.default() },
 ) {
     NewExpenseFormInner(
-        expenseFormState = state,
-        payments = payments,
+        state = state.toValidator(),
         users = emptyList(),
         userSelected = emptyList(),
         simpleDivisionParts = emptyList()
@@ -555,36 +431,36 @@ private fun FormPreview(
 @Preview(showBackground = true)
 @Composable
 private fun UserListPreview() {
-    val payments = rememberSaveable {
-        mutableStateListOf(*(0..5).map {
-            UserPaymentState.default()
-        }.toTypedArray())
-    }
-
-    DivisionListForm(
-        payments = listOf(
-            UserPaymentState.default().copy(amountMoney = 123.44, amountUnit = "123.44")
-        ) + payments,
-        onUpdateUnit = { _, _ -> },
-        onValueUnitChange = { _, _ -> })
+//    val payments = rememberSaveable {
+//        mutableStateListOf(*(0..5).map {
+//            UserPaymentState.default()
+//        }.toTypedArray())
+//    }
+//
+//    DivisionListForm(
+//        payments = listOf(
+//            UserPaymentState.default().copy(amountMoney = 123.44, amountUnit = "123.44")
+//        ) + payments,
+//        onUpdateUnit = { _, _ -> },
+//        onValueUnitChange = { _, _ -> })
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun SimplePartListPreview() {
-    val payments = rememberSaveable {
-        mutableStateListOf(*(0..5).map {
-            UserPaymentState.default()
-        }.toTypedArray())
-    }
-
-    HouseShare2Theme {
-        SimplePartList(
-            payments = listOf(
-                UserPaymentState.default().copy(amountMoney = 123.44, amountUnit = "123.44")
-            ) + payments,
-            onToggle = {},
-            selected = listOf(true, true, false, false, false)
-        )
-    }
+//    val payments = rememberSaveable {
+//        mutableStateListOf(*(0..5).map {
+//            UserPaymentState.default()
+//        }.toTypedArray())
+//    }
+//
+//    HouseShare2Theme {
+//        SimplePartList(
+//            payments = listOf(
+//                UserPaymentState.default().copy(amountMoney = 123.44, amountUnit = "123.44")
+//            ) + payments,
+//            onToggle = {},
+//            selected = listOf(true, true, false, false, false)
+//        )
+//    }
 }
