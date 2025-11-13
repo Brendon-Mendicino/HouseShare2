@@ -36,12 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.GroupsViewModel
 
 @Composable
-fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel()) {
+fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel(), navigate: (MainNavigation) -> Unit) {
     val groups by viewModel.groups.collectAsState()
     val selectedGroup by viewModel.selectedGroup.collectAsState()
 
@@ -51,6 +52,7 @@ fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel()) {
             expanded = true,
             text = "Groups",
             icon = { Icon(Icons.Filled.Add, null) },
+            onClick = { navigate(HomepageNavigation.GroupUsersForm) }
         )
     )
 

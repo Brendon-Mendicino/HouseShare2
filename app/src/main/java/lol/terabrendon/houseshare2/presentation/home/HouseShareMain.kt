@@ -29,7 +29,6 @@ import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.presentation.fab.MainFab
 import lol.terabrendon.houseshare2.presentation.groups.groupNavigation
 import lol.terabrendon.houseshare2.presentation.login.loginNavigation
-import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.provider.LocalBackStackProvider
@@ -111,23 +110,6 @@ private fun HouseShareMainInner(
                 floatingActionButton = {
                     MainFab(
                         lastEntry = backStack.last(),
-                        onClick = {
-                            when (backStack.last()) {
-                                is HomepageNavigation.Shopping -> navigator.navigate(
-                                    HomepageNavigation.ShoppingForm
-                                )
-
-                                is HomepageNavigation.Groups -> navigator.navigate(
-                                    HomepageNavigation.GroupUsersForm
-                                )
-
-                                is HomepageNavigation.Billing -> navigator.navigate(
-                                    HomepageNavigation.ExpenseForm
-                                )
-
-                                else -> {}
-                            }
-                        },
                     )
                 },
                 snackbarHost = {

@@ -41,7 +41,6 @@ import lol.terabrendon.houseshare2.presentation.provider.LocalFabManager
 fun MainFab(
     modifier: Modifier = Modifier,
     lastEntry: MainNavigation,
-    onClick: () -> Unit,
 ) {
     val fabConfig by LocalFabManager.current.fabConfig
     val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
@@ -68,7 +67,7 @@ fun MainFab(
                         colors = vibrantColors,
                         floatingActionButton = {
                             FloatingToolbarDefaults.VibrantFloatingActionButton(
-                                onClick = fabConfig.fab.onClick ?: onClick,
+                                onClick = fabConfig.fab.onClick ?: {},
                             ) {
                                 fabConfig.fab.icon?.invoke() ?: defaultIcon(
                                     fabConfig.fab.text ?: defaultText
@@ -91,21 +90,11 @@ fun MainFab(
                                 fabConfig.text ?: defaultText
                             )
                         },
-                        onClick = fabConfig.onClick ?: onClick,
+                        onClick = fabConfig.onClick ?: {},
                     )
 
                 null -> {}
-//                    ExtendedFloatingActionButton(
-//                        modifier = modifier,
-//                        text = { Text(defaultText) },
-//                        expanded = defaultFabExpanded,
-//                        icon = {
-//                            defaultIcon(defaultText)
-//                        },
-//                        onClick = onClick,
-//                    )
             }
-
         }
     }
 }
@@ -124,7 +113,8 @@ private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is HomepageNavigation.Cleaning,
     is MainNavigation.Loading,
     is HomepageNavigation.Settings,
-    is HomepageNavigation.UserProfile -> Icons.Filled.Add
+    is HomepageNavigation.UserProfile,
+        -> Icons.Filled.Add
 }
 
 @StringRes
@@ -137,7 +127,8 @@ private fun MainNavigation.fabExpanded(): Boolean = when (this) {
     is HomepageNavigation.Billing,
     is HomepageNavigation.Cleaning,
     is HomepageNavigation.Groups,
-    is HomepageNavigation.Shopping -> true
+    is HomepageNavigation.Shopping,
+        -> true
 
 
     is HomepageNavigation.ExpenseForm,
@@ -148,7 +139,8 @@ private fun MainNavigation.fabExpanded(): Boolean = when (this) {
     is HomepageNavigation.UserProfile,
     is HomepageNavigation.Settings,
     is MainNavigation.Login,
-    is MainNavigation.Loading -> false
+    is MainNavigation.Loading,
+        -> false
 
 }
 
@@ -158,7 +150,8 @@ private fun MainNavigation.fabVisible(): Boolean = when (this) {
     is HomepageNavigation.Shopping,
     is HomepageNavigation.Groups,
     is HomepageNavigation.GroupInfoForm,
-    is HomepageNavigation.GroupUsersForm -> true
+    is HomepageNavigation.GroupUsersForm,
+        -> true
 
 
     is MainNavigation.Login,
@@ -167,7 +160,8 @@ private fun MainNavigation.fabVisible(): Boolean = when (this) {
     is HomepageNavigation.Settings,
     is HomepageNavigation.ExpenseForm,
     is HomepageNavigation.ShoppingForm,
-    is HomepageNavigation.ShoppingItem -> false
+    is HomepageNavigation.ShoppingItem,
+        -> false
 }
 
 @Preview
@@ -189,7 +183,7 @@ private fun ExpFabPreview() {
     CompositionLocalProvider(
         LocalFabManager provides m
     ) {
-        MainFab(lastEntry = MainNavigation.Loading) { }
+        MainFab(lastEntry = MainNavigation.Loading)
     }
 }
 
@@ -209,7 +203,7 @@ private fun FabPreview() {
     CompositionLocalProvider(
         LocalFabManager provides m
     ) {
-        MainFab(lastEntry = MainNavigation.Loading) { }
+        MainFab(lastEntry = MainNavigation.Loading)
     }
 }
 
@@ -247,7 +241,7 @@ private fun ExpToolbarPreview() {
     CompositionLocalProvider(
         LocalFabManager provides m
     ) {
-        MainFab(lastEntry = MainNavigation.Loading) { }
+        MainFab(lastEntry = MainNavigation.Loading)
     }
 }
 
@@ -272,6 +266,6 @@ private fun ToolbarPreview() {
     CompositionLocalProvider(
         LocalFabManager provides m
     ) {
-        MainFab(lastEntry = MainNavigation.Loading) { }
+        MainFab(lastEntry = MainNavigation.Loading)
     }
 }

@@ -10,7 +10,7 @@ const val TAG = "BillingNavigation"
 
 fun EntryProviderScope<MainNavigation>.billingNavigation(navigator: Navigator<MainNavigation>) {
     entry<HomepageNavigation.Billing> {
-        BillingScreen()
+        BillingScreen(navigate = navigator::navigate)
     }
 
     entry<HomepageNavigation.ExpenseForm> { entry ->

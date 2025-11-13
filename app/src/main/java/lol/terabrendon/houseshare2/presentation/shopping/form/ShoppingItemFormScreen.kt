@@ -3,12 +3,13 @@ package lol.terabrendon.houseshare2.presentation.shopping.form
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType.Companion.PrimaryNotEditable
@@ -17,7 +18,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -42,6 +41,8 @@ import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.provider.FabConfig
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingItemFormViewModel
@@ -65,12 +66,19 @@ fun ShoppingItemFormScreen(
         }
     }
 
+    RegisterFabConfig<HomepageNavigation.ShoppingForm>(
+        config = FabConfig.Fab(
+            visible = true,
+            icon = { Icon(Icons.Filled.Check, null) },
+            onClick = { viewModel.onEvent(ShoppingItemFormEvent.Submit) },
+        )
+    )
+
     RegisterBackNavIcon<HomepageNavigation.ShoppingForm>(onClick = onBack)
 
     ShoppingItemFormScreenInner(
         state = state,
         onEvent = viewModel::onEvent,
-        onBack = { onBack() }
     )
 }
 
@@ -79,7 +87,6 @@ fun ShoppingItemFormScreen(
 private fun ShoppingItemFormScreenInner(
     state: ShoppingItemFormStateValidator,
     onEvent: (ShoppingItemFormEvent) -> Unit,
-    onBack: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     var categoryExpended by remember { mutableStateOf(false) }
@@ -165,22 +172,6 @@ private fun ShoppingItemFormScreenInner(
                 keyboardType = KeyboardType.Decimal,
             ),
         )
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            TextButton(onClick = { onBack() }) {
-                Text(stringResource(R.string.dismiss))
-            }
-
-            TextButton(
-                onClick = { onEvent(ShoppingItemFormEvent.Submit) },
-                enabled = !state.isError
-            ) {
-                Text(stringResource(R.string.confirm))
-            }
-        }
     }
 }
 
@@ -189,7 +180,6 @@ private fun ShoppingItemFormScreenInner(
 private fun ShoppingItemFormScreenPreview() {
     ShoppingItemFormScreenInner(
         state = ShoppingItemFormState().toValidator(),
-        onBack = {},
         onEvent = {},
     )
 }

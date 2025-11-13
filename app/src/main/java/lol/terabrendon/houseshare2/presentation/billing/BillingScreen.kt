@@ -58,6 +58,7 @@ import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel
@@ -91,6 +92,7 @@ private val tabItems = listOf(
 @Composable
 fun BillingScreen(
     billingViewModel: BillingViewModel = hiltViewModel(),
+    navigate: (MainNavigation) -> Unit,
 ) {
     val expenses by billingViewModel.expenses.collectAsStateWithLifecycle()
     val balances by billingViewModel.balances.collectAsStateWithLifecycle()
@@ -100,7 +102,8 @@ fun BillingScreen(
             visible = true,
             expanded = true,
             text = "Create",
-            icon = { Icon(Icons.Default.Receipt, null) }
+            icon = { Icon(Icons.Default.Receipt, null) },
+            onClick = { navigate(HomepageNavigation.ExpenseForm) },
         )
     )
 

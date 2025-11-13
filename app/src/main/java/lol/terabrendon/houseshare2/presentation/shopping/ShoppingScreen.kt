@@ -101,7 +101,9 @@ fun ShoppingScreen(
                     Icon(imageVector = Icons.Filled.Checklist, contentDescription = null)
                 }
             },
-            fab = FabConfig.Fab()
+            fab = FabConfig.Fab(
+                onClick = { navigate(HomepageNavigation.ShoppingForm) }
+            )
         )
     )
 
@@ -225,7 +227,7 @@ private fun DateHeader(modifier: Modifier = Modifier, date: LocalDateTime) {
 private fun SortingRow(
     modifier: Modifier = Modifier,
     itemSorting: ShoppingItemRepository.Sorting,
-    onEvent: (ShoppingScreenEvent) -> Unit
+    onEvent: (ShoppingScreenEvent) -> Unit,
 ) {
     LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         items(ShoppingItemRepository.Sorting.entries) { entry ->

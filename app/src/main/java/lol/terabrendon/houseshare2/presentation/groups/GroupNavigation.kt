@@ -17,7 +17,7 @@ fun EntryProviderScope<MainNavigation>.groupNavigation(
     var formStore: ViewModelStoreOwner? = null
 
     entry<HomepageNavigation.Groups> {
-        GroupsScreen()
+        GroupsScreen(navigate = navigator::navigate)
     }
 
     entry<HomepageNavigation.GroupUsersForm> {
