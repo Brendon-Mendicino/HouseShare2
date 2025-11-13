@@ -6,7 +6,6 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
-import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import java.time.LocalDateTime
 
 @Entity(
@@ -30,7 +29,6 @@ import java.time.LocalDateTime
 data class Expense(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
-    val amount: Double,
     /**
      * The [User] who created the [Expense]
      */
@@ -60,21 +58,6 @@ data class Expense(
         @TypeConverter
         fun expenseCategoryFromString(category: String?): ExpenseCategory? =
             category?.let { ExpenseCategory.valueOf(category) }
-    }
-
-    companion object {
-        @JvmStatic
-        fun from(expense: ExpenseModel): Expense = Expense(
-            id = expense.id,
-            amount = expense.amount,
-            ownerId = expense.expenseOwner.id,
-            payerId = expense.expensePayer.id,
-            groupId = expense.groupId,
-            title = expense.title,
-            category = expense.category,
-            description = expense.description,
-            creationTimestamp = expense.creationTimestamp,
-        )
     }
 }
 

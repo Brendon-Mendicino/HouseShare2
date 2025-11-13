@@ -14,6 +14,7 @@ import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
 import lol.terabrendon.houseshare2.di.IoDispatcher
 import lol.terabrendon.houseshare2.domain.mapper.toDto
 import lol.terabrendon.houseshare2.domain.mapper.toEntity
+import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import javax.inject.Inject
 
@@ -31,12 +32,12 @@ class ExpenseRepositoryImpl @Inject constructor(
     }
 
     override fun findAll(): Flow<List<ExpenseModel>> = expenseDao.findAll().map { expenses ->
-        expenses.map { ExpenseModel.from(it) }
+        expenses.map { it.toModel() }
     }
 
     override fun findByGroupId(groupId: Long): Flow<List<ExpenseModel>> = expenseDao
         .findByGroupId(groupId)
-        .map { expenses -> expenses.map { ExpenseModel.from(it) } }
+        .map { expenses -> expenses.map { it.toModel() } }
 
     override suspend fun insert(expense: ExpenseModel) = externalScope.launch(ioDispatcher) {
         Log.i(TAG, "insert: starting expense insertion")

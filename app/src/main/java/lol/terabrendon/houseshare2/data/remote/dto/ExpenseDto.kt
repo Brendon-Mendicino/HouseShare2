@@ -5,7 +5,6 @@ import java.time.OffsetDateTime
 
 data class ExpenseDto(
     val id: Long,
-    val amount: Double,
     val category: ExpenseCategory,
     val title: String,
     val description: String?,

@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.ui.graphics.vector.ImageVector
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.data.entity.composite.ExpenseWithUsers
 import lol.terabrendon.houseshare2.data.entity.composite.PaymentWithUser
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import java.time.LocalDateTime
@@ -53,20 +52,6 @@ data class ExpenseModel(
     val userExpenses: List<UserExpenseModel>,
 ) {
     companion object {
-        @JvmStatic
-        fun from(expense: ExpenseWithUsers): ExpenseModel = ExpenseModel(
-            id = expense.expense.id,
-            amount = expense.expense.amount,
-            expenseOwner = expense.owner.toModel(),
-            expensePayer = expense.payer.toModel(),
-            groupId = expense.expense.groupId,
-            category = expense.expense.category,
-            title = expense.expense.title,
-            description = expense.expense.description,
-            creationTimestamp = expense.expense.creationTimestamp,
-            userExpenses = expense.expensesWithUser.map { UserExpenseModel.from(it) },
-        )
-
         @JvmStatic
         fun default(): ExpenseModel = ExpenseModel(
             id = 0,

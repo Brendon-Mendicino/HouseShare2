@@ -188,8 +188,8 @@ class NewExpenseFormViewModel @Inject constructor(
 
     private suspend fun onSubmit() {
         val formState = expenseFormState.value
+
         // The owner of the expense if the current logged user.
-        // TODO: refactor some failure event of some sort...
         val owner = loggedUser.value ?: throw IllegalStateException("No logged users!")
 
         val groupId = selectedGroup.value?.info?.groupId
@@ -210,7 +210,7 @@ class NewExpenseFormViewModel @Inject constructor(
         val state = formState.toData()
         val userParts =
             if (state.simpleDivisionEnabled) simpleDivisionParts.value.zip(users.value)
-            else state.userParts.map { it.amountNum }.zip(users.value)
+            else state.convertedValues.zip(users.value)
 
         val expense = expenseModelMapper
             .map(

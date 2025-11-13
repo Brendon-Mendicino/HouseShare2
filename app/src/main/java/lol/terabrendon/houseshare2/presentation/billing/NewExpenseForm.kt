@@ -164,7 +164,6 @@ fun NewExpenseFormInner(
             ),
         )
 
-        // TODO: aggiustare
         ExposedDropdownMenuBox(
             expanded = categoryExpended,
             onExpandedChange = { categoryExpended = it },
@@ -173,6 +172,7 @@ fun NewExpenseFormInner(
 
             FormOutlinedTextField(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .animateContentSize()
                     .menuAnchor(PrimaryNotEditable),
                 readOnly = true,
@@ -207,13 +207,13 @@ fun NewExpenseFormInner(
             }
         }
 
-        // TODO: aggiustrare
         ExposedDropdownMenuBox(
             expanded = payerExpanded,
             onExpandedChange = { payerExpanded = it }
         ) {
             FormOutlinedTextField(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .animateContentSize()
                     .menuAnchor(PrimaryNotEditable),
                 readOnly = true,
