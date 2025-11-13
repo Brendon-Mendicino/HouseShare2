@@ -3,6 +3,7 @@ package lol.terabrendon.houseshare2.data.repository
 import android.util.Log
 import androidx.datastore.core.DataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.serialization.SerializationException
@@ -57,9 +58,11 @@ class UserDataRepositoryImpl @Inject constructor(
 
     override val currentLoggedUserId: Flow<Long?>
         get() = userPreferencesFlow.map { if (it.currentLoggedUserId == 0L) null else it.currentLoggedUserId }
+            .distinctUntilChanged()
 
     override val selectedGroupId: Flow<Long?>
         get() = userPreferencesFlow.map { if (it.selectedGroupId == 0L) null else it.selectedGroupId }
+            .distinctUntilChanged()
 
     override suspend fun updateCurrentLoggedUser(userId: Long?) {
         userPreferencesStore.updateData { preferences ->
