@@ -49,6 +49,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -159,16 +160,11 @@ fun ShoppingScreenInner(
             .animateContentSize()
     ) {
         item {
-            Text("Shopping list ordering:", fontStyle = FontStyle.Italic)
-
             SortingRow(
                 modifier = modifier.padding(vertical = 8.dp),
                 itemSorting = itemSorting,
                 onEvent = onEvent,
             )
-
-            HorizontalDivider()
-
         }
 
         items(
@@ -188,20 +184,24 @@ fun ShoppingScreenInner(
 
         // Checked items
         item {
-            Row(
-                modifier = Modifier.clickable { showCheckItems = !showCheckItems },
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text("Checked items")
+            AnimatedVisibility(checkedItems.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .clickable { showCheckItems = !showCheckItems },
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(stringResource(R.string.selected_items), fontWeight = FontWeight.Bold)
 
-                HorizontalDivider(modifier = Modifier.weight(1f))
+                    HorizontalDivider(modifier = Modifier.weight(1f))
 
-                AnimatedContent(showCheckItems) { show ->
-                    if (show)
-                        Icon(Icons.Filled.ArrowDropDown, null, modifier = modifier.size(24.dp))
-                    else
-                        Icon(Icons.Filled.ArrowDropUp, null, modifier = modifier.size(24.dp))
+                    AnimatedContent(showCheckItems) { show ->
+                        if (show)
+                            Icon(Icons.Filled.ArrowDropDown, null, modifier = modifier.size(24.dp))
+                        else
+                            Icon(Icons.Filled.ArrowDropUp, null, modifier = modifier.size(24.dp))
+                    }
                 }
             }
         }

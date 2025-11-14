@@ -82,4 +82,7 @@
     <string name="current_language">Italiano</string>
     <string name="language">Linguaggio</string>
     <string name="shopping_item">Articolo</string>
+    <string name="no_group_selected">Nessun gruppo selezionato</string>
+    <string name="please_go_to_the_group_tab_and_select_a_group">Vai nella pagina dei gruppi e selezionane uno</string>
+    <string name="selected_items">Articoli selezionati</string>
 </resources>
