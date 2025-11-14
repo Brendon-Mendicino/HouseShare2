@@ -32,8 +32,11 @@ class ShoppingViewModel @Inject constructor(
         private const val TAG = "ShoppingViewModel"
     }
 
-
-    private val currentGroup = getSelectedGroupUseCase.execute()
+    val currentGroup = getSelectedGroupUseCase().stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        initialValue = null
+    )
 
     init {
         // TODO: remove when having a decent refreshing system
@@ -105,7 +108,7 @@ class ShoppingViewModel @Inject constructor(
                     .map { it.info.id }
 
                 val loggedUser = getLoggedUserUseCase().first()!!
-                val groupId = getSelectedGroupUseCase.execute().first()!!.info.groupId
+                val groupId = currentGroup.value!!.info.groupId
 
                 Log.i(TAG, "onEvent: check of ${items.size} ShoppingItems from the repository.")
 

@@ -5,10 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
@@ -29,7 +31,14 @@ class GroupsViewModel @Inject constructor(
         private const val TAG: String = "GroupsViewModel"
     }
 
-    val selectedGroup = getSelectedGroup.execute()
+    sealed class UiEvent {
+        data class GroupSelected(val groupId: Long?) : UiEvent()
+    }
+
+    private val eventChannel = Channel<UiEvent>()
+    val uiEvent = eventChannel.receiveAsFlow()
+
+    val selectedGroup = getSelectedGroup()
         .map { it?.info }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
@@ -54,6 +63,7 @@ class GroupsViewModel @Inject constructor(
 
                 Log.i(TAG, "onEvent: updating selectedGroupId=$selectedGroupId")
                 sharedPreferencesRepository.updateSelectedGroupId(selectedGroupId)
+                eventChannel.send(UiEvent.GroupSelected(selectedGroupId))
             }
         }
     }

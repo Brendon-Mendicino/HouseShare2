@@ -58,7 +58,7 @@ class NewExpenseFormViewModel @Inject constructor(
     private val loggedUser = getLoggedUserUseCase()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    private val selectedGroup = getSelectedGroup.execute()
+    private val selectedGroup = getSelectedGroup()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
 

@@ -14,11 +14,12 @@ class GetSelectedGroupUseCase @Inject constructor(
     private val groupRepository: GroupRepository,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun execute(): Flow<GroupModel?> = sharedPreferencesRepository
+    operator fun invoke(): Flow<GroupModel?> = sharedPreferencesRepository
         .selectedGroupId
         .flatMapLatest { groupId ->
-            groupId?.let {
-                groupRepository.findById(it)
-            } ?: flowOf(null)
+            if (groupId != null)
+                groupRepository.findById(groupId)
+            else
+                flowOf(null)
         }
 }

@@ -20,12 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -35,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
@@ -42,20 +38,21 @@ import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.GroupsViewModel
+import lol.terabrendon.houseshare2.util.ObserveAsEvent
 
 @Composable
 fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel(), navigate: (MainNavigation) -> Unit) {
-    val groups by viewModel.groups.collectAsState()
-    val selectedGroup by viewModel.selectedGroup.collectAsState()
-    var selected by remember { mutableStateOf(false) }
+    val groups by viewModel.groups.collectAsStateWithLifecycle()
+    val selectedGroup by viewModel.selectedGroup.collectAsStateWithLifecycle()
 
     // Navigate when you select a new group
-    LaunchedEffect(selectedGroup) {
-        if (selected && selectedGroup != null)
-            navigate(HomepageNavigation.Shopping)
-
-        if (selectedGroup != null)
-            selected = true
+    ObserveAsEvent(viewModel.uiEvent) { event ->
+        when (event) {
+            is GroupsViewModel.UiEvent.GroupSelected ->
+                if (event.groupId != null) {
+                    navigate(HomepageNavigation.Shopping)
+                }
+        }
     }
 
     RegisterFabConfig<HomepageNavigation.Groups>(
@@ -68,7 +65,11 @@ fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel(), navigate: (MainNa
         )
     )
 
-    GroupsScreenInner(groups = groups, selectedGroup = selectedGroup, onEvent = viewModel::onEvent)
+    GroupsScreenInner(
+        groups = groups,
+        selectedGroup = selectedGroup,
+        onEvent = viewModel::onEvent
+    )
 }
 
 @Composable

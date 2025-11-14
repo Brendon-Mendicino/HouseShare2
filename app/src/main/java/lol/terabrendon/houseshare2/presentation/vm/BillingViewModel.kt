@@ -23,7 +23,8 @@ class BillingViewModel @Inject constructor(
     getSelectedGroupUseCase: GetSelectedGroupUseCase,
 ) : ViewModel() {
 
-    private val currentGroup = getSelectedGroupUseCase.execute()
+    val currentGroup = getSelectedGroupUseCase()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     init {
         // TODO: remove when having a decent refreshing system

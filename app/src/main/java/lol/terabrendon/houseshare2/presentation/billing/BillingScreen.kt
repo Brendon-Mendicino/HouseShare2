@@ -58,6 +58,7 @@ import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
+import lol.terabrendon.houseshare2.presentation.components.ChooseGroup
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
@@ -95,18 +96,25 @@ fun BillingScreen(
     billingViewModel: BillingViewModel = hiltViewModel(),
     navigate: (MainNavigation) -> Unit,
 ) {
+    val groupAvailable = billingViewModel.currentGroup.collectAsStateWithLifecycle().value != null
     val expenses by billingViewModel.expenses.collectAsStateWithLifecycle()
     val balances by billingViewModel.balances.collectAsStateWithLifecycle()
 
     RegisterFabConfig<HomepageNavigation.Billing>(
         config = FabConfig.Fab(
+            // TODO: when having a nice config management put the groupAvailable here
             visible = true,
             expanded = true,
             text = "Create",
             icon = { Icon(Icons.Default.Receipt, null) },
-            onClick = { navigate(HomepageNavigation.ExpenseForm) },
+            onClick = { navigate(HomepageNavigation.ExpenseForm) }.takeIf { groupAvailable },
         )
     )
+
+    if (!groupAvailable) {
+        ChooseGroup(modifier = Modifier.fillMaxSize())
+        return
+    }
 
     BillingInnerScreen(expenses = expenses, balances = balances)
 }

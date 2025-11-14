@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
@@ -58,6 +59,7 @@ import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.mapper.toStringRes
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
+import lol.terabrendon.houseshare2.presentation.components.ChooseGroup
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
@@ -75,6 +77,8 @@ fun ShoppingScreen(
     viewModel: ShoppingViewModel = hiltViewModel(),
     navigate: (MainNavigation) -> Unit,
 ) {
+    val currentGroup by viewModel.currentGroup.collectAsStateWithLifecycle()
+    val groupAvailable = currentGroup != null
     val shoppingItems by viewModel.shoppingItems.collectAsStateWithLifecycle()
     val checkedItems by viewModel.checkedItems.collectAsStateWithLifecycle()
     val isAnySelected by viewModel.isAnySelected.collectAsStateWithLifecycle()
@@ -84,6 +88,7 @@ fun ShoppingScreen(
 
     RegisterFabConfig<HomepageNavigation.Shopping>(
         config = FabConfig.Toolbar(
+            // TODO: when having a nice config management put the groupAvailable here
             visible = true,
             expanded = isAnySelected,
             content = { expanded ->
@@ -102,9 +107,24 @@ fun ShoppingScreen(
                 }
             },
             fab = FabConfig.Fab(
-                onClick = { navigate(HomepageNavigation.ShoppingForm) }
+                onClick = { navigate(HomepageNavigation.ShoppingForm) }.takeIf { groupAvailable }
             )
         )
+    )
+
+    if (!groupAvailable) {
+        ChooseGroup(modifier = Modifier.fillMaxSize())
+        return
+    }
+
+    ShoppingScreenInner(
+        modifier = modifier,
+        shoppingItems = shoppingItems,
+        checkedItems = checkedItems,
+        selectedItems = selectedItems,
+        itemSorting = itemSorting,
+        onEvent = viewModel::onEvent,
+        onItemClick = { navigate(HomepageNavigation.ShoppingItem(it.info.id)) }
     )
 
     if (showDeleteDialog) {
@@ -117,15 +137,6 @@ fun ShoppingScreen(
         )
     }
 
-    ShoppingScreenInner(
-        modifier = modifier,
-        shoppingItems = shoppingItems,
-        checkedItems = checkedItems,
-        selectedItems = selectedItems,
-        itemSorting = itemSorting,
-        onEvent = viewModel::onEvent,
-        onItemClick = { navigate(HomepageNavigation.ShoppingItem(it.info.id)) }
-    )
 }
 
 

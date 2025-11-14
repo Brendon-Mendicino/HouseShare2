@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.delay
@@ -118,6 +120,7 @@ private fun UserLoginInner(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AnimatedCleaningEmojis(modifier: Modifier = Modifier) {
     val cleaningEmojis = listOf(
@@ -141,7 +144,7 @@ private fun AnimatedCleaningEmojis(modifier: Modifier = Modifier) {
 
     LaunchedEffect(Unit) {
         val s = { x: Double -> abs(sin(x).pow(8) - 1) }
-        val g = { x: Double -> s(x) + 2.0.pow(-s(x) / 8) - 2.0.pow(-s(0.0) / 8) }
+        val g = { x: Double -> (s(x) + 0.3) / 1.3 }
         val f = { x: Double -> (g(x) * 1000).toLong() }
 
         while (true) {
@@ -155,10 +158,19 @@ private fun AnimatedCleaningEmojis(modifier: Modifier = Modifier) {
         }
     }
 
+    val slide = MaterialTheme.motionScheme.fastSpatialSpec<IntOffset>()
+    val fade = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+
     AnimatedContent(
         targetState = currentEmoji,
         transitionSpec = {
-            slideIntoContainer(towards = Up) + fadeIn() togetherWith slideOutOfContainer(towards = Up) + fadeOut()
+            slideIntoContainer(
+                animationSpec = slide,
+                towards = Up
+            ) + fadeIn(fade) togetherWith slideOutOfContainer(
+                animationSpec = slide,
+                towards = Up
+            ) + fadeOut(fade)
         }) { icon ->
         Text(icon, modifier = modifier, style = MaterialTheme.typography.displaySmall)
     }

@@ -7,6 +7,8 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -19,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -60,10 +63,12 @@ fun HouseShareMain(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HouseShareMainInner(
     navigator: Navigator<MainNavigation>,
 ) {
+    val slideSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val snackbarHostState = remember { SnackbarHostState() }
     val backStack by navigator.backStack.collectAsStateWithLifecycle(listOf(MainNavigation.Loading))
@@ -155,18 +160,30 @@ private fun HouseShareMainInner(
                     },
                     transitionSpec = {
                         // Slide in from right when navigating forward
-                        slideInHorizontally(initialOffsetX = { it }) togetherWith
-                                slideOutHorizontally(targetOffsetX = { -it })
+                        slideInHorizontally(
+                            animationSpec = slideSpec,
+                            initialOffsetX = { it }) togetherWith
+                                slideOutHorizontally(
+                                    animationSpec = slideSpec,
+                                    targetOffsetX = { -it })
                     },
                     popTransitionSpec = {
                         // Slide in from left when navigating back
-                        slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                                slideOutHorizontally(targetOffsetX = { it })
+                        slideInHorizontally(
+                            animationSpec = slideSpec,
+                            initialOffsetX = { -it }) togetherWith
+                                slideOutHorizontally(
+                                    animationSpec = slideSpec,
+                                    targetOffsetX = { it })
                     },
                     predictivePopTransitionSpec = {
                         // Slide in from left when navigating back
-                        slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                                slideOutHorizontally(targetOffsetX = { it })
+                        slideInHorizontally(
+                            animationSpec = slideSpec,
+                            initialOffsetX = { -it }) togetherWith
+                                slideOutHorizontally(
+                                    animationSpec = slideSpec,
+                                    targetOffsetX = { it })
                     },
                 )
             }

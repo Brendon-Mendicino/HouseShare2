@@ -66,7 +66,7 @@ class ShoppingItemFormViewModel @Inject constructor(
     private suspend fun onSubmit() {
         val formState = _formState.value
         val loggedUser = getLoggedUserUseCase().first()!!
-        val selectedGroup = getSelectedGroupUseCase.execute().first()!!
+        val selectedGroup = getSelectedGroupUseCase().first()!!
 
         val formError = formState.errors.firstOrNull()
         if (formError != null) {
