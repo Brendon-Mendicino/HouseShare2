@@ -1,11 +1,13 @@
 package lol.terabrendon.houseshare2.presentation.billing
 
 import android.annotation.SuppressLint
+import io.github.brendonmendicino.aformvalidator.annotation.DependsOn
 import io.github.brendonmendicino.aformvalidator.annotation.FormState
 import io.github.brendonmendicino.aformvalidator.annotation.Min
 import io.github.brendonmendicino.aformvalidator.annotation.MinDouble
 import io.github.brendonmendicino.aformvalidator.annotation.NotBlank
 import io.github.brendonmendicino.aformvalidator.annotation.NotNull
+import io.github.brendonmendicino.aformvalidator.annotation.Size
 import io.github.brendonmendicino.aformvalidator.annotation.ToNumber
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
 import lol.terabrendon.houseshare2.domain.model.UserModel
@@ -18,16 +20,21 @@ data class ExpenseFormState(
     @NotBlank
     @ToNumber(Double::class)
     val totalAmount: String = "",
+    @NotBlank
+    @Size(max = 250)
     val description: String? = null,
     @NotBlank
+    @Size(max = 250)
     val title: String = "",
+    @NotNull
     val category: ExpenseCategory? = null,
     @NotNull
     val payer: UserModel? = null,
     val userParts: List<UserPart> = emptyList(),
     val simpleDivisionEnabled: Boolean = true,
 ) {
-    @MinDouble(0.0)
+    @MinDouble(0.01)
+    @DependsOn(["totalAmount"])
     val totalAmountNum: Double = totalAmount.toDoubleOrNull() ?: 0.0
 
     val convertedValues: List<Double>
@@ -76,5 +83,6 @@ data class UserPart(
     val amount: String = "",
 ) {
     @Min(0)
+    @DependsOn(["amount"])
     val amountNum: Double = amount.toDoubleOrNull() ?: 0.0
 }

@@ -84,14 +84,14 @@ class GroupFormViewModel @Inject constructor(
 
         when (event) {
             is GroupFormEvent.NameChanged -> {
-                _groupFormState.update {
-                    it.copy(name = it.name.update(event.name))
-                }
+                _groupFormState.update { it.update { name = event.name } }
             }
 
             is GroupFormEvent.DescriptionChanged -> {
                 _groupFormState.update {
-                    it.copy(description = it.description.update(event.description))
+                    it.update {
+                        description = event.description.takeIf { desc -> desc.isNotEmpty() }
+                    }
                 }
             }
 
@@ -118,8 +118,9 @@ class GroupFormViewModel @Inject constructor(
         val loggedUser =
             loggedUser.first() ?: throw IllegalStateException("No current logged-in user!")
 
-        if (formState.isError) {
-            val (parameterName, error) = formState.errors.first()
+        val formError = formState.errors.firstOrNull()
+        if (formError != null) {
+            val (parameterName, error) = formError
 
             _uiEvent.send(
                 GroupFormUiEvent.SubmitFailure(

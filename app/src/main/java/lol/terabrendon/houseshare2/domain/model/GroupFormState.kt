@@ -7,8 +7,11 @@ import io.github.brendonmendicino.aformvalidator.annotation.Size
 @FormState
 data class GroupFormState(
     @NotBlank
+    @Size(max = 250)
     val name: String = "",
+    @NotBlank
+    @Size(max = 250)
     val description: String? = null,
-    @Size(min = 1)
+    @Size(max = 100)
     val users: List<UserModel> = emptyList(),
 )

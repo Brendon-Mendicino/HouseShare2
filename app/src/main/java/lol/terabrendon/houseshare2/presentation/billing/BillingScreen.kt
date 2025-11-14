@@ -5,6 +5,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -142,9 +143,9 @@ private fun BillingInnerScreen(
 
         HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth()) { pageIndex ->
             when (pageIndex) {
-                0 -> ExpenseList(expenses = expenses, modifier = Modifier.fillMaxWidth())
-                1 -> AccountBalance(balances = balances, modifier = Modifier.fillMaxWidth())
-                else -> Text("2")
+                0 -> ExpenseList(expenses = expenses, modifier = Modifier.fillMaxSize())
+                1 -> AccountBalance(balances = balances, modifier = Modifier.fillMaxSize())
+                else -> throw RuntimeException("Page index out of bounds! pageIndex=$pageIndex")
             }
         }
     }
@@ -167,7 +168,7 @@ private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: Bi
         else -> Color.Gray
     }
 
-    Column(modifier = modifier) {
+    Box(modifier = modifier) {
         Row(
             modifier = Modifier
                 .padding(horizontal = 0.dp, vertical = 8.dp),

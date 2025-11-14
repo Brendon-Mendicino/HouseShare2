@@ -65,12 +65,12 @@ class ShoppingItemFormViewModel @Inject constructor(
 
     private suspend fun onSubmit() {
         val formState = _formState.value
-        // TODO: leave these here or not?
         val loggedUser = getLoggedUserUseCase().first()!!
         val selectedGroup = getSelectedGroupUseCase.execute().first()!!
 
-        if (formState.isError) {
-            val (property, error) = formState.errors.first()
+        val formError = formState.errors.firstOrNull()
+        if (formError != null) {
+            val (property, error) = formError
 
             _uiEvents.send(
                 ShoppingItemFormUiEvent.SubmitFailure(

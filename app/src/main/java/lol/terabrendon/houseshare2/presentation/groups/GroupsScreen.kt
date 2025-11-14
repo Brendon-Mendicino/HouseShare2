@@ -20,8 +20,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -43,6 +47,16 @@ import lol.terabrendon.houseshare2.presentation.vm.GroupsViewModel
 fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel(), navigate: (MainNavigation) -> Unit) {
     val groups by viewModel.groups.collectAsState()
     val selectedGroup by viewModel.selectedGroup.collectAsState()
+    var selected by remember { mutableStateOf(false) }
+
+    // Navigate when you select a new group
+    LaunchedEffect(selectedGroup) {
+        if (selected && selectedGroup != null)
+            navigate(HomepageNavigation.Shopping)
+
+        if (selectedGroup != null)
+            selected = true
+    }
 
     RegisterFabConfig<HomepageNavigation.Groups>(
         config = FabConfig.Fab(
@@ -97,6 +111,7 @@ private fun GroupListItem(
     onCheckedToggle: () -> Unit,
 ) {
     Card(
+        onClick = {},
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
