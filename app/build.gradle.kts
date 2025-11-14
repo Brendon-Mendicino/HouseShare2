@@ -155,6 +155,7 @@ dependencies {
     implementation(libs.bundles.kotlin.result)
 
     implementation(libs.com.google.dagger.hilt)
+    implementation(libs.androidx.compose.ui.text.google.fonts)
     ksp(libs.com.google.dagger.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 //    implementation(libs.androidx.hilt.lifecycle.viewmodel)
