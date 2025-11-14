@@ -10,7 +10,7 @@ import androidx.navigation3.ui.NavDisplay
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private val SPEC: FiniteAnimationSpec<Float>
-    get() = MotionScheme.expressive().slowSpatialSpec()
+    get() = MotionScheme.expressive().slowEffectsSpec()
 
 val TOP_LEVEL_TRANSITION = NavDisplay.transitionSpec {
     // Fade in content, keeping the old content in place underneath

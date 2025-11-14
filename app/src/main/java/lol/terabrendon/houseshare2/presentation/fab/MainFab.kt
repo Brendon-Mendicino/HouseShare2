@@ -3,7 +3,12 @@ package lol.terabrendon.houseshare2.presentation.fab
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
@@ -15,11 +20,12 @@ import androidx.compose.material.icons.filled.Man
 import androidx.compose.material.icons.filled.Pool
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumExtendedFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -28,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
@@ -45,7 +52,6 @@ fun MainFab(
     val fabConfig by LocalFabManager.current.fabConfig
     val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
 
-    val visible = fabConfig?.visible ?: lastEntry.fabVisible()
     val defaultFabExpanded = lastEntry.fabExpanded()
     val defaultText = stringResource(lastEntry.fabText())
     val defaultIcon = @Composable { t: String? ->
@@ -54,47 +60,59 @@ fun MainFab(
             contentDescription = t,
         )
     }
+    val fadeSpec: FiniteAnimationSpec<Float> = MaterialTheme.motionScheme.slowEffectsSpec()
+    val slideSpec: FiniteAnimationSpec<IntOffset> = MaterialTheme.motionScheme.slowSpatialSpec()
 
-    AnimatedVisibility(visible = visible) {
-        AnimatedContent(
-            fabConfig to lastEntry,
-            contentKey = { it.second },
-        ) { (fabConfig, _) ->
-            when (fabConfig) {
-                is FabConfig.Toolbar ->
-                    HorizontalFloatingToolbar(
-                        expanded = fabConfig.expanded ?: false,
-                        colors = vibrantColors,
-                        floatingActionButton = {
-                            FloatingToolbarDefaults.VibrantFloatingActionButton(
-                                onClick = fabConfig.fab.onClick ?: {},
-                            ) {
-                                fabConfig.fab.icon?.invoke() ?: defaultIcon(
-                                    fabConfig.fab.text ?: defaultText
-                                )
-                            }
+    AnimatedContent(
+        fabConfig to lastEntry,
+        contentKey = { it.second },
+        transitionSpec = {
+            slideInHorizontally(
+                slideSpec,
+                initialOffsetX = { it }
+            ) + fadeIn(fadeSpec) togetherWith slideOutHorizontally(
+                slideSpec,
+                targetOffsetX = { it },
+            ) + fadeOut(fadeSpec)
+        }
+    ) { (fabConfig, _) ->
+        // TODO: fix the visibility
+        val visible = fabConfig?.visible ?: lastEntry.fabVisible()
 
-                        },
-                        content = {
-                            fabConfig.content?.invoke(this, fabConfig.expanded ?: false)
-                        },
-                    )
-
-                is FabConfig.Fab ->
-                    ExtendedFloatingActionButton(
-                        modifier = modifier,
-                        text = { Text(fabConfig.text ?: defaultText) },
-                        expanded = fabConfig.expanded ?: defaultFabExpanded,
-                        icon = {
-                            fabConfig.icon?.invoke() ?: defaultIcon(
-                                fabConfig.text ?: defaultText
+        when (fabConfig) {
+            is FabConfig.Toolbar ->
+                HorizontalFloatingToolbar(
+                    expanded = fabConfig.expanded ?: false,
+                    colors = vibrantColors,
+                    floatingActionButton = {
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = fabConfig.fab.onClick ?: {},
+                        ) {
+                            fabConfig.fab.icon?.invoke() ?: defaultIcon(
+                                fabConfig.fab.text ?: defaultText
                             )
-                        },
-                        onClick = fabConfig.onClick ?: {},
-                    )
+                        }
 
-                null -> {}
-            }
+                    },
+                    content = {
+                        fabConfig.content?.invoke(this, fabConfig.expanded ?: false)
+                    },
+                )
+
+            is FabConfig.Fab ->
+                MediumExtendedFloatingActionButton(
+                    modifier = modifier,
+                    text = { Text(fabConfig.text ?: defaultText) },
+                    expanded = fabConfig.expanded ?: defaultFabExpanded,
+                    icon = {
+                        fabConfig.icon?.invoke() ?: defaultIcon(
+                            fabConfig.text ?: defaultText
+                        )
+                    },
+                    onClick = fabConfig.onClick ?: {},
+                )
+
+            null -> {}
         }
     }
 }
