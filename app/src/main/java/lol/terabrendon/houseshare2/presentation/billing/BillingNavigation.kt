@@ -5,11 +5,14 @@ import androidx.navigation3.runtime.EntryProviderScope
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
+import lol.terabrendon.houseshare2.presentation.util.TOP_LEVEL_TRANSITION
 
 const val TAG = "BillingNavigation"
 
 fun EntryProviderScope<MainNavigation>.billingNavigation(navigator: Navigator<MainNavigation>) {
-    entry<HomepageNavigation.Billing> {
+    entry<HomepageNavigation.Billing>(
+        metadata = TOP_LEVEL_TRANSITION
+    ) {
         BillingScreen(navigate = navigator::navigate)
     }
 

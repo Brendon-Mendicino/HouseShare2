@@ -9,6 +9,7 @@ import lol.terabrendon.houseshare2.presentation.groups.form.GroupUsersFormScreen
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
+import lol.terabrendon.houseshare2.presentation.util.TOP_LEVEL_TRANSITION
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 
 fun EntryProviderScope<MainNavigation>.groupNavigation(
@@ -16,7 +17,9 @@ fun EntryProviderScope<MainNavigation>.groupNavigation(
 ) {
     var formStore: ViewModelStoreOwner? = null
 
-    entry<HomepageNavigation.Groups> {
+    entry<HomepageNavigation.Groups>(
+        metadata = TOP_LEVEL_TRANSITION,
+    ) {
         GroupsScreen(navigate = navigator::navigate)
     }
 

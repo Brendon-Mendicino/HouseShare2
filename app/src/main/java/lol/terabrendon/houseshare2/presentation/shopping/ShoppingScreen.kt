@@ -162,7 +162,7 @@ fun ShoppingScreenInner(
 
         items(
             items = shoppingItems,
-            key = { item -> item.info.id },
+            key = { item -> "${item.info.id}uncheck" },
         ) { item ->
             ShoppingListItem(
                 shoppingItem = item,
@@ -198,7 +198,7 @@ fun ShoppingScreenInner(
         if (showCheckItems) {
             items(
                 items = checkedItems,
-                key = { item -> item.info.id },
+                key = { item -> "${item.info.id}check" },
             ) { item ->
                 CheckedShoppingListItem(
                     modifier = Modifier
@@ -206,8 +206,6 @@ fun ShoppingScreenInner(
                         .animateItem(),
                     shoppingItem = item,
                     onItemClick = onItemClick,
-//                    onChecked = { onEvent(ShoppingScreenEvent.ItemChecked(item.info)) },
-//                    selected = item.info.id in selectedItems,
                 )
             }
         }

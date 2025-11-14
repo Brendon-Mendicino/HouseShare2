@@ -1,6 +1,9 @@
 package lol.terabrendon.houseshare2.presentation.home
 
 import android.util.Log
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
@@ -48,7 +51,7 @@ private const val TAG = "HouseShareMain"
 
 @Composable
 fun HouseShareMain(
-    mainViewModel: MainViewModel = hiltViewModel()
+    mainViewModel: MainViewModel = hiltViewModel(),
 ) {
     val navigator = mainViewModel.navigator
 
@@ -130,9 +133,9 @@ private fun HouseShareMainInner(
                     entryProvider = entryProvider {
                         entry<MainNavigation.Loading> {
                             RegisterTopBarConfig<MainNavigation.Loading>(
-                                config = TopBarConfig(
-                                    navigationIcon = {})
+                                config = TopBarConfig(navigationIcon = {})
                             )
+
                             LoadingOverlayScreen()
                         }
 
@@ -149,7 +152,22 @@ private fun HouseShareMainInner(
                         userNavigation(navigator = navigator)
 
                         settingsNavigation(navigator = navigator)
-                    }
+                    },
+                    transitionSpec = {
+                        // Slide in from right when navigating forward
+                        slideInHorizontally(initialOffsetX = { it }) togetherWith
+                                slideOutHorizontally(targetOffsetX = { -it })
+                    },
+                    popTransitionSpec = {
+                        // Slide in from left when navigating back
+                        slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                                slideOutHorizontally(targetOffsetX = { it })
+                    },
+                    predictivePopTransitionSpec = {
+                        // Slide in from left when navigating back
+                        slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                                slideOutHorizontally(targetOffsetX = { it })
+                    },
                 )
             }
         }
