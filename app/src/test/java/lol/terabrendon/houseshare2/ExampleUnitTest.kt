@@ -1,8 +1,8 @@
 package lol.terabrendon.houseshare2
 
-import assertk.assertThat
-import assertk.assertions.isEqualTo
-import org.junit.jupiter.api.Test
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
+
 
 class ExampleUnitTest {
     @Test

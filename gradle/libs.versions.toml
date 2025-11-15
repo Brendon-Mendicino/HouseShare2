@@ -34,21 +34,19 @@ aformvalidator = "0.6.4"
 retrofit = "3.0.0"
 # IMPORTANT: do not change! this version is bound by retrofit!
 okHttp = "4.12.0"
-appauth = "0.11.1"
 navigation3 = "1.0.0-rc01"
 lifecycleViewmodel = "2.10.0-beta01"
 nav3Material = "1.3.0-alpha02"
 animation = "1.9.4"
 uiTextGoogleFonts = "1.9.4"
+junit4 = "4.13.2"
+truth = "1.4.5"
+testCore = "1.7.0"
+mockito = "5.20.0"
+mockitoKotlin = "6.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-
-# Unit test
-junit-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junitJupiter" }
-junit-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitJupiter" }
-junit-jupiter-params = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junitJupiter" }
-assertk = { group = "com.willowtreeapps.assertk", name = "assertk", version.ref = "assertk" }
 
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -115,9 +113,6 @@ logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-intercep
 okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "okHttp" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 
-# Oauth2
-#appauth = { group = "net.openid", name = "appauth", version.ref = "appauth" }
-
 # Navigation3
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
@@ -128,6 +123,16 @@ androidx-material3-navigation3 = { group = "androidx.compose.material3.adaptive"
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
+# Test core
+androidx-test-core = { module = "androidx.test:core", version.ref = "testCore" }
+androidx-test-core-ktx = { module = "androidx.test:core-ktx", version.ref = "testCore" }
+
+# Unit test
+junit4 = { module = "junit:junit", version.ref = "junit4" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -137,12 +142,11 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 daggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
-android-junit5 = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
 idea = { id = "idea" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [bundles]
-unittest = ["junit-jupiter-api", "junit-jupiter-engine", "junit-jupiter-params", "assertk"]
+unittest = ["junit4", "truth", "mockito-core", "mockito-kotlin"]
 kotlin-result = ["kotlin-result", "kotlin-result-coroutines"]
 aformvalidator = ["aformvalidator-annotation", "aformvalidator-processor"]
 retrofit = ["retrofit", "retrofit-converter-gson", "logging-interceptor", "okhttp-urlconnection"]

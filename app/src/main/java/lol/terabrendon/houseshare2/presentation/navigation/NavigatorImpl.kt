@@ -17,8 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.AuthRepository
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import kotlin.time.Duration.Companion.minutes
 
 class NavigatorImpl(
     private val userDataRepository: UserDataRepository,
@@ -53,7 +52,7 @@ class NavigatorImpl(
                     isLoading.value = false
 
                     // Check again in 5 minutes if the user is still logged-in
-                    delay(5.toDuration(DurationUnit.MINUTES))
+                    delay(5.minutes)
                 }
             }
         }

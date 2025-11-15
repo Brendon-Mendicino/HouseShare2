@@ -7,16 +7,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import org.junit.Test
+import kotlin.time.Duration.Companion.seconds
 
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CombinedStateFlowTest {
     @Test
-    fun `test flows`() = runTest(timeout = 10.toDuration(DurationUnit.SECONDS)) {
+    fun `test flows`() = runTest(timeout = 10.seconds) {
         val users = MutableStateFlow(listOf("a", "b", "c"))
         val mapped =
             CombinedStateFlow(

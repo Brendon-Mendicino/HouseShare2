@@ -10,7 +10,6 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.daggerHilt)
     alias(libs.plugins.protobuf)
-    alias(libs.plugins.android.junit5)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.room)
 }
@@ -150,7 +149,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.test)
 
     implementation(libs.bundles.kotlin.result)
 
@@ -190,11 +188,17 @@ dependencies {
     coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)
 
     ksp(libs.com.google.dagger.hilt.compiler)
+
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.core.ktx)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.bundles.unittest)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
