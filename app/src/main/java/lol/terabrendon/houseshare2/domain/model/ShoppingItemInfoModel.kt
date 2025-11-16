@@ -7,7 +7,7 @@ import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.filled.WatchLater
 import androidx.compose.ui.graphics.vector.ImageVector
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.data.entity.ShoppingItem
+import lol.terabrendon.houseshare2.domain.mapper.toDto
 import java.time.LocalDateTime
 
 data class ShoppingItemInfoModel(
@@ -16,25 +16,11 @@ data class ShoppingItemInfoModel(
     val groupId: Long,
     val name: String,
     val amount: Int,
-    val price: Double?,
+    val price: Money?,
     val creationTimestamp: LocalDateTime,
     val priority: ShoppingItemPriority,
 ) {
     companion object {
-        @JvmStatic
-        fun from(item: ShoppingItem): ShoppingItemInfoModel {
-            return ShoppingItemInfoModel(
-                id = item.id,
-                ownerId = item.ownerId,
-                groupId = item.groupId,
-                name = item.name,
-                amount = item.amount,
-                price = item.price,
-                creationTimestamp = item.creationTimestamp,
-                priority = item.priority,
-            )
-        }
-
         @JvmStatic
         fun default() = ShoppingItemInfoModel(
             id = 0,
@@ -46,6 +32,10 @@ data class ShoppingItemInfoModel(
             creationTimestamp = LocalDateTime.now(),
             priority = ShoppingItemPriority.Later,
         )
+    }
+
+    fun t() {
+        this.toDto()
     }
 }
 

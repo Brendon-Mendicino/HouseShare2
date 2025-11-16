@@ -27,5 +27,5 @@ data class ShoppingItemFormState(
 
     @Min(0)
     @DependsOn(["priceStr"])
-    val price: Double? = priceStr?.toDoubleOrNull()
+    val price: Money? = priceStr?.toMoneyOrNull()
 }

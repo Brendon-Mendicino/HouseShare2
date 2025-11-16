@@ -6,6 +6,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemPriority
 import java.time.LocalDateTime
 
@@ -48,7 +49,10 @@ data class ShoppingItem(
     val groupId: Long,
     val name: String,
     val amount: Int,
-    val price: Double?,
+    /**
+     * [price] has money [Money.compact] representation.
+     */
+    val price: Long?,
     @ColumnInfo(defaultValue = "(datetime('now', 'localtime'))")
     val creationTimestamp: LocalDateTime = LocalDateTime.now(),
     val priority: ShoppingItemPriority,

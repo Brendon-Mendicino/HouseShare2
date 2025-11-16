@@ -27,6 +27,8 @@ interface ShoppingItemRepository {
 
     suspend fun insert(newItem: ShoppingItemInfoModel)
 
+    suspend fun update(item: ShoppingItemInfoModel)
+
     suspend fun deleteAll(items: List<ShoppingItemInfoModel>)
 
     suspend fun checkoffItems(groupId: Long, shoppingItemIds: List<Long>, userId: Long)

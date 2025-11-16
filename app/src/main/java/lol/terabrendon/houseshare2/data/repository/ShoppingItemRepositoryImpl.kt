@@ -35,7 +35,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
 
     override fun getAll(): Flow<List<ShoppingItemInfoModel>> = shoppingItemDao
         .findAll()
-        .map { it.map { item -> ShoppingItemInfoModel.from(item) } }
+        .map { it.map { item -> item.toModel() } }
 
     override fun findAllByGroupId(groupId: Long): Flow<List<ShoppingItemModel>> = shoppingItemDao
         .findAllByGroupId(groupId)
@@ -83,6 +83,16 @@ class ShoppingItemRepositoryImpl @Inject constructor(
             val dto = shoppingApi.save(newItem.groupId, newItem.toDto())
 
             shoppingItemDao.insert(newItem.copy(id = dto.id).toEntity())
+        }.join()
+    }
+
+    override suspend fun update(item: ShoppingItemInfoModel) {
+        externalScope.launch(ioDispatcher) {
+            Log.i(TAG, "update: updating shopping item")
+
+            val dto = shoppingApi.update(item.groupId, item.id, item.toDto())
+
+            shoppingItemDao.upsert(dto.toEntity())
         }.join()
     }
 

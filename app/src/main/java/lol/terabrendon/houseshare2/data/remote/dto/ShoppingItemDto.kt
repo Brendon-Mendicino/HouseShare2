@@ -9,7 +9,7 @@ data class ShoppingItemDto(
     val groupId: Long,
     val name: String,
     val amount: Int,
-    val price: Double?,
+    val price: Long?,
     val priority: ShoppingItemPriority,
     val createdAt: OffsetDateTime,
     val check: CheckDto?,

@@ -7,14 +7,27 @@ import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
 import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
+import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
+
+fun ShoppingItem.toModel() = ShoppingItemInfoModel(
+    id = id,
+    ownerId = ownerId,
+    groupId = groupId,
+    name = name,
+    amount = amount,
+    price = price?.let { Money.fromCompact(it) },
+    creationTimestamp = creationTimestamp,
+    priority = priority,
+)
+
 fun ShoppingItemWithUser.toModel() = ShoppingItemModel(
-    info = ShoppingItemInfoModel.from(item),
+    info = item.toModel(),
     itemOwner = itemOwner.toModel(),
     checkoffState = if (checkingUser == null || item.check == null) null
     else CheckoffStateModel(
@@ -34,13 +47,22 @@ fun ShoppingItemFormState.toModel() = ShoppingItemInfoModel(
     priority = priority,
 )
 
+fun ShoppingItemInfoModel.toForm() = ShoppingItemFormState(
+    name = name,
+    amountStr = amount.toString(),
+    priceStr = price?.toString(),
+    priority = priority,
+    ownerId = ownerId,
+    groupId = groupId,
+)
+
 fun ShoppingItemInfoModel.toDto() = ShoppingItemDto(
     id = id,
     ownerId = ownerId,
     groupId = groupId,
     name = name,
     amount = amount,
-    price = price,
+    price = price?.compact,
     priority = priority,
     createdAt = OffsetDateTime.now(),
     check = null,
@@ -52,7 +74,7 @@ fun ShoppingItemInfoModel.toEntity() = ShoppingItem(
     groupId = groupId,
     name = name,
     amount = amount,
-    price = price,
+    price = price?.compact,
     priority = priority,
     check = null,
 )
