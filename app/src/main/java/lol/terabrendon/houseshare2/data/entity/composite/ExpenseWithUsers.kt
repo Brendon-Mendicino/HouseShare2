@@ -25,31 +25,4 @@ data class ExpenseWithUsers(
         entityColumn = "expenseId"
     )
     val expensesWithUser: List<PaymentWithUser>,
-) {
-//    companion object {
-//        @JvmStatic
-//        fun from(expense: ExpenseModel): ExpenseWithUsers {
-//            return ExpenseWithUsers(
-//                expense = Expense(
-//                    id = expense.id,
-//                    amount = expense.amount,
-//                    ownerId = expense.expenseOwner.id,
-//                    category = expense.category,
-//                    title = expense.title,
-//                    description = expense.description,
-//                ),
-//                owner = User.from(expense.expenseOwner),
-//                expensesWithUser = expense.userExpenses.map {
-//                    PaymentWithUser(
-//                        payment = Payment(
-//                            expenseId = expense.id,
-//                            userId = it.user.id,
-//                            amount = it.amount,
-//                        ),
-//                        user = User.from(it.user)
-//                    )
-//                }
-//            )
-//        }
-//    }
-}
+)

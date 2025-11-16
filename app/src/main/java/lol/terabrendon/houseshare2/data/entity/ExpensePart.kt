@@ -36,6 +36,9 @@ data class ExpensePart(
     val id: Long,
     val expenseId: Long,
     val userId: Long,
-    /** What are the total user debts in the expense */
-    val partAmount: Double,
+    /**
+     * What are the total user debts in the expense. This value represents cents, this means
+     * that 1 euro is equal to 100 partAmount.
+     */
+    val partAmount: Long,
 )

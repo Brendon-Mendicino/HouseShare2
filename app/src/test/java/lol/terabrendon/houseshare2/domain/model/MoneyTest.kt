@@ -89,4 +89,9 @@ class MoneyTest {
             assertThat(m).isEqualTo(expected.toMoney())
         }
     }
+
+    @Test
+    fun `test test`() {
+        println(10.toBigDecimal() / 3.toBigDecimal())
+    }
 }

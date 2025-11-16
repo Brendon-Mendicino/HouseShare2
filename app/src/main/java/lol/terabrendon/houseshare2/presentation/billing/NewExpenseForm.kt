@@ -54,6 +54,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
+import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
@@ -67,7 +68,6 @@ import lol.terabrendon.houseshare2.presentation.util.errorText
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel.UiEvent
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
-import lol.terabrendon.houseshare2.util.currencyFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,7 +128,7 @@ fun NewExpenseFormInner(
     state: ExpenseFormStateValidator,
     users: List<UserModel>,
     userSelected: List<Boolean>,
-    simpleDivisionParts: List<Double>,
+    simpleDivisionParts: List<Money>,
     onEvent: (ExpenseFormEvent) -> Unit = {},
 ) {
     var categoryExpended by remember { mutableStateOf(false) }
@@ -145,7 +145,7 @@ fun NewExpenseFormInner(
         FormOutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             param = state.totalAmount,
-            supportParams = listOf(state.totalAmountNum),
+            supportParams = listOf(state.totalAmountMoney),
             onValueChange = { onEvent(ExpenseFormEvent.TotalAmountChanged(it)) },
             labelText = stringResource(R.string.amount),
             keyboardOptions = KeyboardOptions(
@@ -331,7 +331,7 @@ fun NewExpenseFormInner(
 private fun SimplePartItem(
     modifier: Modifier = Modifier,
     selected: Boolean,
-    money: Double,
+    money: Money,
     username: String,
     onToggle: () -> Unit,
 ) {
@@ -355,7 +355,7 @@ private fun SimplePartItem(
                 )
             },
             suffix = {
-                Text(money.currencyFormat())
+                Text(money.toCurrency())
             },
         )
     }
@@ -366,7 +366,7 @@ private fun SimplePartItem(
 private fun UserPartField(
     part: UserPartValidator,
     user: UserModel,
-    convertedAmount: Double,
+    convertedAmount: Money,
     onUnitChanged: (unit: PaymentUnit) -> Unit,
     onAmountChanged: (amount: String) -> Unit,
 ) {
@@ -381,7 +381,7 @@ private fun UserPartField(
             labelText = user.username,
             onValueChange = { onAmountChanged(it) },
             suffix = {
-                Text(convertedAmount.currencyFormat())
+                Text(convertedAmount.toCurrency())
             },
             leadingIcon = {
                 IconButton(onClick = { expanded = !expanded }) {

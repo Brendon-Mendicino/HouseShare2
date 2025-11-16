@@ -20,12 +20,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseModelMapper
+import lol.terabrendon.houseshare2.domain.model.Money
+import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormEvent
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormState
 import lol.terabrendon.houseshare2.presentation.billing.UserPart
 import lol.terabrendon.houseshare2.presentation.billing.toValidator
+import lol.terabrendon.houseshare2.util.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -110,12 +113,29 @@ class NewExpenseFormViewModel @Inject constructor(
 
     val simpleDivisionParts =
         combine(_userSelected, users, expenseFormState) { selectedUsers, users, formState ->
+            val total = formState.totalAmountMoney.value
             val noSelected = selectedUsers.count { it }
 
-            users.zip(selectedUsers).map { (user, selected) ->
-                if (selected) {
-                    formState.totalAmountNum.value / noSelected
-                } else 0.0
+            val moneyEach = if (noSelected > 0) total / noSelected
+            else 0.toMoney()
+
+            var remainder = if (noSelected > 0) total - (moneyEach * noSelected)
+            else 0.toMoney()
+
+            val getCent = {
+                if (remainder > 0) {
+                    remainder -= Money.ATOM
+                    Money.ATOM
+                } else {
+                    Money.ZERO
+                }
+            }
+
+            selectedUsers.map { selected ->
+                if (selected) moneyEach + getCent()
+                else 0.toMoney()
+            }.also {
+                check(remainder == 0.toMoney()) { "Remainder check failed! remainder=$remainder" }
             }
         }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
@@ -160,11 +180,8 @@ class NewExpenseFormViewModel @Inject constructor(
                 Log.i(TAG, "Updating paymentUnits with index ${event.index}")
                 _expenseFormState.update {
                     it.update {
-                        val parts = userParts.toMutableList()
-                        val part = parts[event.index]
-
                         userParts =
-                            parts.apply { set(event.index, part.copy(paymentUnit = event.newUnit)) }
+                            userParts.update(event.index) { part -> part.copy(paymentUnit = event.newUnit) }
                     }
                 }
             }
@@ -173,11 +190,8 @@ class NewExpenseFormViewModel @Inject constructor(
                 Log.i(TAG, "Updating paymentValueUnits with index ${event.index}")
                 _expenseFormState.update {
                     it.update {
-                        val parts = userParts.toMutableList()
-                        val part = parts[event.index]
-
                         userParts =
-                            parts.apply { set(event.index, part.copy(amount = event.newValue)) }
+                            userParts.update(event.index) { part -> part.copy(amount = event.newValue) }
                     }
                 }
             }
@@ -216,7 +230,7 @@ class NewExpenseFormViewModel @Inject constructor(
             .map(
                 formState = state,
                 expenseOwner = owner,
-                userParts = userParts.filter { (amount, _) -> amount > 0.0 },
+                userParts = userParts.filter { (amount, _) -> amount > 0.toMoney() },
                 groupId = groupId,
             )
             .getOrElse {

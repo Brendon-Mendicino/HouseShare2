@@ -2,6 +2,8 @@ package lol.terabrendon.houseshare2.domain.mapper
 
 import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
+import lol.terabrendon.houseshare2.domain.model.sum
+import lol.terabrendon.houseshare2.domain.model.toMoney
 import javax.inject.Inject
 
 // TODO: remove from here
@@ -18,13 +20,13 @@ class ExpenseBalanceMapper @Inject constructor() {
                 .map { userPart -> Pair(userPart.user, -userPart.partAmount) }
 
             // Add the payer of the expense with a positive debt
-            val credit = Pair(expense.expensePayer, debts.sumOf { -it.second })
+            val credit = Pair(expense.expensePayer, debts.map { -it.second }.sum())
 
             debts.plus(credit)
         }
         .groupingBy { (user, _) -> user }
         // Sum the balances for each user
-        .fold({ user, _ -> BillingBalanceModel(user, 0.0) }) { _, balance, (_, expense) ->
+        .fold({ user, _ -> BillingBalanceModel(user, 0.toMoney()) }) { _, balance, (_, expense) ->
             balance.copy(finalBalance = balance.finalBalance + expense)
         }
         .values

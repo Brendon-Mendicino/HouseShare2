@@ -7,18 +7,24 @@ import io.github.brendonmendicino.aformvalidator.annotation.Min
 import io.github.brendonmendicino.aformvalidator.annotation.MinDouble
 import io.github.brendonmendicino.aformvalidator.annotation.NotBlank
 import io.github.brendonmendicino.aformvalidator.annotation.NotNull
+import io.github.brendonmendicino.aformvalidator.annotation.Pattern
 import io.github.brendonmendicino.aformvalidator.annotation.Size
 import io.github.brendonmendicino.aformvalidator.annotation.ToNumber
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
+import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.UserModel
+import lol.terabrendon.houseshare2.domain.model.sum
+import lol.terabrendon.houseshare2.domain.model.toMoney
+import lol.terabrendon.houseshare2.domain.model.toMoneyOrNull
 import lol.terabrendon.houseshare2.util.IsTrue
-import lol.terabrendon.houseshare2.util.currencyFormat
+import java.math.BigDecimal
 
 @SuppressLint("KotlinNullnessAnnotation")
 @FormState
 data class ExpenseFormState(
     @NotBlank
     @ToNumber(Double::class)
+    @Pattern("""^\s*\d+(\.(\d{1,2})?)?\s*$""")
     val totalAmount: String = "",
     @NotBlank
     @Size(max = 250)
@@ -35,45 +41,66 @@ data class ExpenseFormState(
 ) {
     @MinDouble(0.01)
     @DependsOn(["totalAmount"])
-    val totalAmountNum: Double = totalAmount.toDoubleOrNull() ?: 0.0
+    val totalAmountMoney: Money = totalAmount.toMoneyOrNull() ?: Money.ZERO
 
-    val convertedValues: List<Double>
+    val convertedValues: List<Money>
         get() {
-            val totalMoney = totalAmount.toDoubleOrNull() ?: 0.0
+            val totalMoney = totalAmountMoney
 
             val nonQuotaMoney = userParts
-                .sumOf { part ->
+                .map { part ->
                     when (part.paymentUnit) {
-                        PaymentUnit.Additive -> part.amountNum
-                        PaymentUnit.Percentage -> totalMoney * (part.amountNum / 100.0)
-                        PaymentUnit.Quota -> 0.0
+                        PaymentUnit.Additive -> part.amountMoney
+                        PaymentUnit.Percentage -> (totalMoney * part.amountDouble) / 100
+                        PaymentUnit.Quota -> 0.toMoney()
                     }
                 }
+                .sum()
 
             val totalQuotes = userParts
-                .sumOf { part -> if (part.paymentUnit == PaymentUnit.Quota) part.amountNum else 0.0 }
+                .sumOf { part -> if (part.paymentUnit == PaymentUnit.Quota) part.amountDouble else 0.0 }
 
             val converted = userParts
                 .map { part ->
                     val moneyPerQuota =
-                        if (totalQuotes != 0.0) (totalMoney - nonQuotaMoney) * part.amountNum / totalQuotes else 0.0
+                        if (totalQuotes > 0.0) (totalMoney - nonQuotaMoney) * (part.amountDouble / totalQuotes)
+                        else 0.toMoney()
 
-                    val paymentAmount = when (part.paymentUnit) {
-                        PaymentUnit.Additive -> part.amountNum
-                        PaymentUnit.Percentage -> (part.amountNum / 100.0) * totalMoney
+                    when (part.paymentUnit) {
+                        PaymentUnit.Additive -> part.amountMoney
+                        PaymentUnit.Percentage -> (totalMoney * part.amountDouble) / 100
                         PaymentUnit.Quota -> moneyPerQuota
                     }
+                }
+                .toMutableList()
 
-                    paymentAmount
+            // Assign left overs for quotas or percentages
+            val totalPerc = userParts.sumOf { it.amountBig }.toInt()
+            if (totalQuotes != 0.0 || totalPerc == 100) {
+                var leftovers = totalMoney - converted.sum()
+
+                val indexes = generateSequence { 0..<converted.size }.flatMap { it }.iterator()
+
+                while (leftovers > 0) {
+                    val i = indexes.next()
+                    val unit = userParts[i].paymentUnit
+                    if (unit != PaymentUnit.Quota && unit != PaymentUnit.Percentage) {
+                        continue
+                    }
+
+                    converted[i] += Money.ATOM
+                    leftovers -= Money.ATOM
                 }
 
-            return converted
+                check(converted.sum() == totalMoney) { "Converted money must be equal to the total the leftover assignment!" }
+            }
+
+            return converted.toList()
         }
 
     @IsTrue
     val partsEqualTotal: Boolean =
-        simpleDivisionEnabled || convertedValues.sum()
-            .currencyFormat() == totalAmountNum.currencyFormat()
+        simpleDivisionEnabled || convertedValues.sum() == totalAmountMoney
 }
 
 @FormState
@@ -84,5 +111,9 @@ data class UserPart(
 ) {
     @Min(0)
     @DependsOn(["amount"])
-    val amountNum: Double = amount.toDoubleOrNull() ?: 0.0
+    val amountDouble: Double = amount.toDoubleOrNull() ?: 0.0
+
+    val amountBig: BigDecimal = amount.toBigDecimalOrNull() ?: 0.toBigDecimal()
+
+    val amountMoney: Money = amount.toMoneyOrNull() ?: Money.ZERO
 }

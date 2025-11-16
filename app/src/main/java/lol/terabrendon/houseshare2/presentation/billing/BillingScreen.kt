@@ -57,6 +57,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
+import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.ChooseGroup
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
@@ -64,7 +65,6 @@ import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel
-import lol.terabrendon.houseshare2.util.currencyFormat
 import lol.terabrendon.houseshare2.util.inlineFormat
 
 
@@ -199,7 +199,7 @@ private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: Bi
             Spacer(Modifier.requiredWidth(16.dp))
 
             Text(
-                text = billingBalance.finalBalance.currencyFormat(),
+                text = billingBalance.finalBalance.toCurrency(),
                 fontWeight = FontWeight.Bold,
                 color = userBillingColor,
             )
@@ -264,7 +264,7 @@ private fun ExpenseItem(
                     stringResource(
                         R.string.paid,
                         expense.expensePayer.username,
-                        expense.amount.currencyFormat()
+                        expense.amount.toCurrency()
                     )
                 )
             }
@@ -301,7 +301,7 @@ private fun ExpenseItem(
 
                         Spacer(Modifier.requiredWidth(16.dp))
 
-                        Text("${item.user.username}: ${item.partAmount.currencyFormat()}")
+                        Text("${item.user.username}: ${item.partAmount.toCurrency()}")
                     }
                 }
             }
@@ -341,7 +341,7 @@ fun AccountBalancePreview() {
                 0 -> 10.0
                 1 -> -10.0
                 else -> 0.0
-            },
+            }.toMoney(),
         )
     }.take(6).toList()
 
