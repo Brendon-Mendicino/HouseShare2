@@ -6,81 +6,60 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.Json
-import lol.terabrendon.houseshare2.UserPreferences
+import lol.terabrendon.houseshare2.data.local.preferences.UserData
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import java.io.IOException
 import javax.inject.Inject
 
 class UserDataRepositoryImpl @Inject constructor(
-    private val userPreferencesStore: DataStore<UserPreferences>,
+    private val userPreferencesStore: DataStore<UserData>,
 ) : UserDataRepository {
     companion object {
-        private const val TAG = "UserPreferencesRepositoryImpl"
+        private const val TAG = "UserDataRepositoryImpl"
     }
 
-    // TODO: remove this function, it should expose classes from data layer!
-    private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
+    private val userPreferencesFlow: Flow<UserData> = userPreferencesStore.data
         .retryWhen { cause, attempt ->
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (cause !is IOException) throw cause
 
             Log.e(TAG, "userPreferencesFlow: Error reading user preferences.", cause)
-            emit(UserPreferences.getDefaultInstance())
+            emit(UserData())
             true
         }
 
     override val savedBackStack: Flow<List<MainNavigation>> = userPreferencesFlow
-        .map {
-            try {
-                Json.decodeFromString<List<MainNavigation>>(it.backStack)
-            } catch (e: SerializationException) {
-                Log.w(
-                    TAG,
-                    "savedBackStack: there was an error while deserializing the saved backStack. Providing default.\n" +
-                            "${SerializationException::class.qualifiedName}: ${e.message}",
-                )
-                listOf(MainNavigation.Loading)
-            }
-        }
+        .map { it.backStack }
         .map { it.ifEmpty { listOf(MainNavigation.Loading) } }
 
     override suspend fun updateBackStack(backStack: List<MainNavigation>) {
-        userPreferencesStore.updateData { preferences ->
-            Log.i(TAG, "updateMainDestination: saving backStack to DataStore. $backStack")
-
-            preferences.toBuilder()
-                .setBackStack(Json.encodeToString(backStack))
-                .build()
+        Log.i(TAG, "updateMainDestination: saving backStack to DataStore. $backStack")
+        userPreferencesStore.updateData { data ->
+            data.copy(backStack = backStack)
         }
     }
 
     override val currentLoggedUserId: Flow<Long?>
-        get() = userPreferencesFlow.map { if (it.currentLoggedUserId == 0L) null else it.currentLoggedUserId }
+        get() = userPreferencesFlow
+            .map { data -> data.currentLoggedUserId.takeIf { 0L != it } }
             .distinctUntilChanged()
 
     override val selectedGroupId: Flow<Long?>
-        get() = userPreferencesFlow.map { if (it.selectedGroupId == 0L) null else it.selectedGroupId }
+        get() = userPreferencesFlow
+            .map { data -> data.selectedGroupId.takeIf { 0L != it } }
             .distinctUntilChanged()
 
     override suspend fun updateCurrentLoggedUser(userId: Long?) {
-        userPreferencesStore.updateData { preferences ->
-            Log.i(TAG, "updateCurrentLoggedUser: save userId=$userId to DataStore.")
-            preferences
-                .toBuilder()
-                .setCurrentLoggedUserId(userId ?: 0)
-                .build()
+        Log.i(TAG, "updateCurrentLoggedUser: save userId=$userId to DataStore.")
+        userPreferencesStore.updateData { data ->
+            data.copy(currentLoggedUserId = userId)
         }
     }
 
     override suspend fun updateSelectedGroupId(groupId: Long?) {
-        userPreferencesStore.updateData { preferences ->
-            Log.i(TAG, "updateCurrentLoggedUser: save groupId=$groupId to DataStore.")
-            preferences
-                .toBuilder()
-                .setSelectedGroupId(groupId ?: 0)
-                .build()
+        Log.i(TAG, "updateCurrentLoggedUser: save groupId=$groupId to DataStore.")
+        userPreferencesStore.updateData { data ->
+            data.copy(selectedGroupId = groupId)
         }
     }
 }

@@ -2,12 +2,14 @@ package lol.terabrendon.houseshare2.data.remote.api
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonObject
-import com.google.gson.JsonSerializer
-import com.google.gson.JsonSyntaxException
-import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+import lol.terabrendon.houseshare2.domain.kserializer.URIAsStr
 import java.net.HttpCookie
 import java.net.URI
 
@@ -16,59 +18,68 @@ import java.net.URI
  * This is a direct dependency of [SharedPrefCookieStore]
  */
 class SharedCookieIndexStore(
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
 ) {
-    private val token = object : TypeToken<Map<URI, List<HttpCookie>>>() {}
-    private val gson = GsonBuilder()
-        .registerTypeAdapter(
-            HttpCookie::class.java,
-            JsonSerializer<HttpCookie> { cookie, type, context ->
-                val json = JsonObject()
-                json.addProperty("name", cookie.name)
-                json.addProperty("value", cookie.value)
-                json.addProperty("comment", cookie.comment)
-                json.addProperty("toDiscard", cookie.discard)
-                json.addProperty("commentURL", cookie.commentURL)
-                json.addProperty("domain", cookie.domain)
-                json.addProperty("maxAge", cookie.maxAge)
-                json.addProperty("path", cookie.path)
-                json.addProperty("portlist", cookie.portlist)
-                json.addProperty("httpOnly", cookie.isHttpOnly)
-                json.addProperty("version", cookie.version)
-                json.addProperty(
-                    "whenCreated",
-                    cookie::class.java.getDeclaredField("whenCreated").apply { isAccessible = true }
-                        .get(cookie)?.toString()
-                )
+    @Serializable
+    private data class CookieSerializable(
+        val name: String,
+        val value: String,
+        val comment: String?,
+        val discard: Boolean,
+        val commentURL: String?,
+        val domain: String?,
+        val maxAge: Long,
+        val path: String?,
+        val portlist: String?,
+        val isHttpOnly: Boolean,
+        val version: Int,
+    )
 
-                json
-            })
-        .registerTypeAdapter(
-            HttpCookie::class.java,
-            JsonDeserializer<HttpCookie> { json, type, context ->
-                val get =
-                    { s: String -> if (json.asJsonObject.has(s)) json.asJsonObject.get(s) else null }
+    @Serializable
+    private data class CookieStore(
+        val cookies: Map<URIAsStr, List<@Serializable(HttpCookieSerializer::class) HttpCookie>>,
+    )
 
-                val cookie = HttpCookie(get("name")?.asString, get("value")?.asString)
+    object HttpCookieSerializer : KSerializer<HttpCookie> {
+        override val descriptor: SerialDescriptor = CookieSerializable.serializer().descriptor
 
-                cookie.comment = get("comment")?.asString
-                get("toDiscard")?.let { cookie.discard = it.asBoolean }
-                cookie.commentURL = get("commentURL")?.asString
-                cookie.domain = get("domain")?.asString
-                get("maxAge")?.let { cookie.maxAge = it.asLong }
-                cookie.path = get("path")?.asString
-                cookie.portlist = get("portlist")?.asString
-                get("httpOnly")?.let { cookie.isHttpOnly = it.asBoolean }
-                get("version")?.let { cookie.version = it.asInt }
-                get("whenCreated")?.let {
-                    cookie::class.java.getDeclaredField("whenCreated").apply { isAccessible = true }
-                        .set(cookie, it.asLong)
-                }
+        override fun serialize(
+            encoder: Encoder,
+            value: HttpCookie,
+        ) {
+            val wrapper = CookieSerializable(
+                name = value.name,
+                value = value.value,
+                domain = value.domain,
+                path = value.path,
+                maxAge = value.maxAge,
+                comment = value.comment,
+                discard = value.discard,
+                commentURL = value.commentURL,
+                portlist = value.portlist,
+                isHttpOnly = value.isHttpOnly,
+                version = value.version,
+            )
+            encoder.encodeSerializableValue(CookieSerializable.serializer(), wrapper)
+        }
 
-                cookie
-            })
-        .create()
+        override fun deserialize(decoder: Decoder): HttpCookie {
+            val cookie = decoder.decodeSerializableValue(CookieSerializable.serializer())
+            val httpCookie = HttpCookie(cookie.name, cookie.value).apply {
+                domain = cookie.domain
+                path = cookie.path
+                maxAge = cookie.maxAge
+                comment = cookie.comment
+                discard = cookie.discard
+                commentURL = cookie.commentURL
+                portlist = cookie.portlist
+                isHttpOnly = cookie.isHttpOnly
+                version = cookie.version
+            }
 
+            return httpCookie
+        }
+    }
 
     fun get(): Map<URI, List<HttpCookie>> {
         val index = sharedPreferences.getString("cookie_index", null)
@@ -76,15 +87,15 @@ class SharedCookieIndexStore(
             return mutableMapOf()
 
         try {
-            val map = gson.fromJson(index, token)
-            return map
-        } catch (_: JsonSyntaxException) {
+            val map = Json.decodeFromString<CookieStore>(index)
+            return map.cookies
+        } catch (_: SerializationException) {
             return mutableMapOf()
         }
     }
 
     fun set(index: Map<URI, List<HttpCookie>>) {
-        val json = gson.toJson(index, token.type)
+        val json = Json.encodeToString(CookieStore(index))
 
         sharedPreferences.edit {
             putString("cookie_index", json)

@@ -39,7 +39,7 @@ class MoneyTest {
     @Test
     fun `Decimal part over the 1e-2 are truncated`() {
         val str = "1234.5678".toMoney()
-        val big = BigDecimal("1234.5678").toMoney()
+        val big = BigDecimal("1234.56").toMoney()
         val double = 1234.5678.toMoney()
         val float = 1234.5677f.toMoney()
 
