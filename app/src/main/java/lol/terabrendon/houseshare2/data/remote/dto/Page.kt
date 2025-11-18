@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.data.remote.api
+package lol.terabrendon.houseshare2.data.remote.dto
 
 data class Page<T>(
     val content: List<T>,

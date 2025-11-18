@@ -1,6 +1,7 @@
 package lol.terabrendon.houseshare2.data.remote.api
 
 import lol.terabrendon.houseshare2.data.remote.dto.ExpenseDto
+import lol.terabrendon.houseshare2.data.remote.dto.Page
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
