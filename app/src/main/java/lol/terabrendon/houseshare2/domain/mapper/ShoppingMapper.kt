@@ -6,9 +6,9 @@ import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
 import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
+import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.Money
-import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import java.time.LocalDateTime

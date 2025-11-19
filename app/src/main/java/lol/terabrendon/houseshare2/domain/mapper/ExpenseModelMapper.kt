@@ -3,11 +3,11 @@ package lol.terabrendon.houseshare2.domain.mapper
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import lol.terabrendon.houseshare2.domain.form.ExpenseFormState
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
-import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormState
 import java.time.LocalDateTime
 
 // TODO: remove from here

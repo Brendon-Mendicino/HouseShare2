@@ -1,35 +1,46 @@
 package lol.terabrendon.houseshare2.util
 
-import io.github.brendonmendicino.aformvalidator.annotation.ValidationError
-import io.github.brendonmendicino.aformvalidator.annotation.Validator
-import io.github.brendonmendicino.aformvalidator.annotation.ValidatorCond
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.Pattern
+import io.github.brendonmendicino.aformvalidator.annotation.error.ValidationError
+import io.github.brendonmendicino.aformvalidator.core.Metadata
+import io.github.brendonmendicino.aformvalidator.core.Validator
+import io.github.brendonmendicino.aformvalidator.core.ValidatorCond
+import kotlin.reflect.KClass
 
 // TODO: move this classes to the library!!
 
-class IsTrueValidator : ValidatorCond<Boolean?, ValidationError.Pattern> {
-    override val conditions: List<(Boolean?) -> ValidationError.Pattern?>
-        get() = listOf { if (it == true) null else ValidationError.Pattern("true") }
+class IsTrueValidator(
+    override val metadata: Metadata?,
+    override val annotation: IsTrue,
+) : ValidatorCond<Boolean?, IsTrue, ValidationError.PatternErr>(metadata, annotation) {
+    override fun isValid(value: Boolean?): ValidationError.PatternErr? {
+        return if (value == true) null
+        else ValidationError.PatternErr(metadata, Pattern())
+    }
 }
 
-@Validator<ValidationError>(
-    value = IsTrueValidator::class,
-    errorType = ValidationError::class,
-)
+@Validator(IsTrueValidator::class)
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.ANNOTATION_CLASS)
 @MustBeDocumented
-annotation class IsTrue
+annotation class IsTrue(
+    val metadata: KClass<out Metadata> = Nothing::class,
+)
 
-class IsFalseValidator : ValidatorCond<Boolean?, ValidationError.Pattern> {
-    override val conditions: List<(Boolean?) -> ValidationError.Pattern?>
-        get() = listOf { if (it == false) null else ValidationError.Pattern("true") }
+class IsFalseValidator(
+    override val metadata: Metadata?,
+    override val annotation: IsFalse,
+) : ValidatorCond<Boolean?, IsFalse, ValidationError.PatternErr>(metadata, annotation) {
+    override fun isValid(value: Boolean?): ValidationError.PatternErr? {
+        return if (value == false) null
+        else ValidationError.PatternErr(metadata, Pattern())
+    }
 }
 
-@Validator<ValidationError>(
-    value = IsFalseValidator::class,
-    errorType = ValidationError::class,
-)
+@Validator(IsFalseValidator::class)
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.ANNOTATION_CLASS)
 @MustBeDocumented
-annotation class IsFalse
+annotation class IsFalse(
+    val metadata: KClass<out Metadata> = Nothing::class,
+)

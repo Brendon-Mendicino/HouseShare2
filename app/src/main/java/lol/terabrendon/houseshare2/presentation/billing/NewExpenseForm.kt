@@ -53,6 +53,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.domain.form.ExpenseFormState
+import lol.terabrendon.houseshare2.domain.form.ExpenseFormStateValidator
+import lol.terabrendon.houseshare2.domain.form.UserPartValidator
+import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
 import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.UserModel

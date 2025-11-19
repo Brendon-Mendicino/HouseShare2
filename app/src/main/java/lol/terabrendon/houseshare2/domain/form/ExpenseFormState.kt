@@ -1,21 +1,22 @@
-package lol.terabrendon.houseshare2.presentation.billing
+package lol.terabrendon.houseshare2.domain.form
 
 import android.annotation.SuppressLint
-import io.github.brendonmendicino.aformvalidator.annotation.DependsOn
-import io.github.brendonmendicino.aformvalidator.annotation.FormState
-import io.github.brendonmendicino.aformvalidator.annotation.Min
-import io.github.brendonmendicino.aformvalidator.annotation.MinDouble
-import io.github.brendonmendicino.aformvalidator.annotation.NotBlank
-import io.github.brendonmendicino.aformvalidator.annotation.NotNull
-import io.github.brendonmendicino.aformvalidator.annotation.Pattern
-import io.github.brendonmendicino.aformvalidator.annotation.Size
-import io.github.brendonmendicino.aformvalidator.annotation.ToNumber
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.Min
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.MinDouble
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.NotBlank
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.NotNull
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.Pattern
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.Size
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.ToNumber
+import io.github.brendonmendicino.aformvalidator.core.DependsOn
+import io.github.brendonmendicino.aformvalidator.core.FormState
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
 import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.sum
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.domain.model.toMoneyOrNull
+import lol.terabrendon.houseshare2.presentation.billing.PaymentUnit
 import lol.terabrendon.houseshare2.util.IsTrue
 import java.math.BigDecimal
 
@@ -23,8 +24,8 @@ import java.math.BigDecimal
 @FormState
 data class ExpenseFormState(
     @NotBlank
-    @ToNumber(Double::class)
-    @Pattern("""^\s*\d+(\.(\d{1,2})?)?\s*$""")
+    @ToNumber(numberClass = Double::class)
+    @Pattern(regex = """^\s*\d+(\.(\d{1,2})?)?\s*$""")
     val totalAmount: String = "",
     @NotBlank
     @Size(max = 250)
@@ -39,7 +40,7 @@ data class ExpenseFormState(
     val userParts: List<UserPart> = emptyList(),
     val simpleDivisionEnabled: Boolean = true,
 ) {
-    @MinDouble(0.01)
+    @MinDouble(min = 0.01)
     @DependsOn(["totalAmount"])
     val totalAmountMoney: Money = totalAmount.toMoneyOrNull() ?: Money.ZERO
 
@@ -106,10 +107,10 @@ data class ExpenseFormState(
 @FormState
 data class UserPart(
     val paymentUnit: PaymentUnit = PaymentUnit.Additive,
-    @ToNumber(Double::class)
+    @ToNumber(numberClass = Double::class)
     val amount: String = "",
 ) {
-    @Min(0)
+    @Min(min = 0)
     @DependsOn(["amount"])
     val amountDouble: Double = amount.toDoubleOrNull() ?: 0.0
 

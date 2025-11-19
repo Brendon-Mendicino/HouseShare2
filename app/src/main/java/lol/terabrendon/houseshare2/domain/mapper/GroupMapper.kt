@@ -3,7 +3,7 @@ package lol.terabrendon.houseshare2.domain.mapper
 import lol.terabrendon.houseshare2.data.entity.Group
 import lol.terabrendon.houseshare2.data.entity.composite.GroupWithUsers
 import lol.terabrendon.houseshare2.data.remote.dto.GroupDto
-import lol.terabrendon.houseshare2.domain.model.GroupFormState
+import lol.terabrendon.houseshare2.domain.form.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.domain.model.GroupModel
 

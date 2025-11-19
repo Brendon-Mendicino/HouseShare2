@@ -3,52 +3,53 @@ package lol.terabrendon.houseshare2.presentation.util
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import io.github.brendonmendicino.aformvalidator.annotation.ValidationError
+import io.github.brendonmendicino.aformvalidator.annotation.error.ValidationError
 import lol.terabrendon.houseshare2.R
 
 @Composable
-fun ValidationError.errorText(label: String): String = errorText(label, LocalContext.current)
+fun ValidationError<*>.errorText(label: String): String = errorText(label, LocalContext.current)
 
-fun ValidationError.errorText(label: String, context: Context) = when (this) {
-    ValidationError.NotNull,
-    is ValidationError.NotBlank -> context.getString(R.string.should_not_be_blank, label)
+fun ValidationError<*>.errorText(label: String, context: Context) = when (this) {
+    is ValidationError.NotNullErr,
+    is ValidationError.NotBlankErr,
+        -> context.getString(R.string.should_not_be_blank, label)
 
-    is ValidationError.Pattern -> context.getString(
+    is ValidationError.PatternErr -> context.getString(
         R.string.does_not_match_the_correct_pattern,
         label
     )
 
-    is ValidationError.Size -> context.getString(
+    is ValidationError.SizeErr -> context.getString(
         R.string.size_should_be_between_and,
         label,
-        min.toString(),
-        max.toString()
+        this.annotation.min.toString(),
+        this.annotation.max.toString()
     )
 
-    is ValidationError.Email -> context.getString(R.string.is_not_a_valid_email, label)
-    is ValidationError.Max -> context.getString(
+    is ValidationError.EmailErr -> context.getString(R.string.is_not_a_valid_email, label)
+    is ValidationError.MaxErr -> context.getString(
         R.string.should_not_be_greater_than,
         label,
-        max.toString()
+        this.annotation.max.toString()
     )
 
-    is ValidationError.MaxDouble -> context.getString(
+    is ValidationError.MaxDoubleErr -> context.getString(
         R.string.should_not_be_greater_than,
         label,
-        max.toString()
+        this.annotation.max.toString()
     )
 
-    is ValidationError.Min -> context.getString(
+    is ValidationError.MinErr -> context.getString(
         R.string.should_not_be_less_than,
         label,
-        min.toString()
+        this.annotation.min.toString()
     )
 
-    is ValidationError.MinDouble -> context.getString(
+    is ValidationError.MinDoubleErr -> context.getString(
         R.string.should_not_be_less_than,
         label,
-        min.toString()
+        this.annotation.min.toString()
     )
 
-    is ValidationError.ToNumber -> context.getString(R.string.is_not_a_valid_number, label)
+    is ValidationError.ToNumberErr -> context.getString(R.string.is_not_a_valid_number, label)
 }

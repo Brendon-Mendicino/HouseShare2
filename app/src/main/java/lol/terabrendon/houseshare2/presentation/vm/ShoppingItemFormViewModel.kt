@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
+import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormState
+import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.toModel
-import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
-import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormEvent

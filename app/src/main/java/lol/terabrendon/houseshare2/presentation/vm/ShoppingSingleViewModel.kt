@@ -6,7 +6,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.brendonmendicino.aformvalidator.annotation.ValidationError
+import io.github.brendonmendicino.aformvalidator.annotation.error.ValidationError
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,11 +18,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
+import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormState
+import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.toForm
-import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.toMoneyOrNull
-import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingItemEvent
@@ -44,7 +44,7 @@ class ShoppingSingleViewModel @AssistedInject constructor(
     lateinit var getLoggedUserUseCase: GetLoggedUserUseCase
 
     sealed class UiEvent {
-        data class Error(val error: ValidationError) : UiEvent()
+        data class Error(val error: ValidationError<*>) : UiEvent()
     }
 
     private val uiChannel = Channel<UiEvent>()

@@ -50,10 +50,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.domain.model.GroupFormState
-import lol.terabrendon.houseshare2.domain.model.GroupFormStateValidator
+import lol.terabrendon.houseshare2.domain.form.GroupFormState
+import lol.terabrendon.houseshare2.domain.form.GroupFormStateValidator
+import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.model.UserModel
-import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation

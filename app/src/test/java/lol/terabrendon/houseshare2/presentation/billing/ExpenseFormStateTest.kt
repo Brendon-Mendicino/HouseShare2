@@ -1,6 +1,8 @@
 package lol.terabrendon.houseshare2.presentation.billing
 
 import com.google.common.truth.Truth.assertThat
+import lol.terabrendon.houseshare2.domain.form.ExpenseFormState
+import lol.terabrendon.houseshare2.domain.form.UserPart
 import lol.terabrendon.houseshare2.domain.model.sum
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import org.junit.Test

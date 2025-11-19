@@ -34,10 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
-import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormState
-import lol.terabrendon.houseshare2.domain.model.ShoppingItemFormStateValidator
+import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormState
+import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormStateValidator
+import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemPriority
-import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation

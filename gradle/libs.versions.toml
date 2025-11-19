@@ -21,7 +21,7 @@ desugar = "2.0.4"
 kotlinxSerialzation = "1.8.1"
 kotlinxCoroutines = "1.10.2"
 kotlinResult = "2.0.1"
-aformvalidator = "0.6.4"
+aformvalidator = "0.8.0"
 retrofit = "3.0.0"
 # IMPORTANT: do not change! this version is bound by retrofit!
 okHttp = "4.12.0"
@@ -84,6 +84,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 com-android-tools-desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar" }
 
 # Form validator
+aformvalidator-core = { group = "io.github.brendon-mendicino", name = "aformvalidator-core", version.ref = "aformvalidator" }
 aformvalidator-annotation = { group = "io.github.brendon-mendicino", name = "aformvalidator-annotation", version.ref = "aformvalidator" }
 aformvalidator-processor = { group = "io.github.brendon-mendicino", name = "aformvalidator-processor", version.ref = "aformvalidator" }
 
@@ -131,6 +132,6 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 [bundles]
 unittest = ["junit4", "truth", "mockito-core", "mockito-kotlin"]
 kotlin-result = ["kotlin-result", "kotlin-result-coroutines"]
-aformvalidator = ["aformvalidator-annotation", "aformvalidator-processor"]
+aformvalidator = ["aformvalidator-core", "aformvalidator-annotation", "aformvalidator-processor"]
 retrofit = ["retrofit", "retrofit-converter-gson", "logging-interceptor", "okhttp-urlconnection"]
 navigation3 = ["androidx-navigation3-runtime", "androidx-navigation3-ui", "androidx-lifecycle-viewmodel-navigation3", "androidx-material3-navigation3"]

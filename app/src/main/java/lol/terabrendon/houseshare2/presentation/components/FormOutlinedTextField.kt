@@ -27,8 +27,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import io.github.brendonmendicino.aformvalidator.annotation.ParamState
-import io.github.brendonmendicino.aformvalidator.annotation.ValidationError
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.NotBlank
+import io.github.brendonmendicino.aformvalidator.annotation.error.ValidationError
+import io.github.brendonmendicino.aformvalidator.core.ParamState
+import io.github.brendonmendicino.aformvalidator.core.ValidatorCond
 import lol.terabrendon.houseshare2.presentation.util.errorText
 
 /**
@@ -118,7 +120,7 @@ fun <T : Any?, E : Any> FormOutlinedTextField(
     suffix: @Composable (() -> Unit)? = null,
     errorConverter: @Composable (E) -> String = {
         when (it) {
-            is ValidationError -> it.errorText(labelText)
+            is ValidationError<*> -> it.errorText(labelText)
             else -> it.toString()
         }
     },
@@ -202,7 +204,10 @@ private fun Empty() {
 @Preview(showBackground = true)
 @Composable
 private fun Error() {
-    val p = ParamState("hello", listOf { "error text" }, true)
+    val p =
+        ParamState("hello", listOf(object : ValidatorCond<Any?, NotBlank, Any>(null, NotBlank()) {
+            override fun isValid(value: Any?): Any? = "error string"
+        }), true)
     FormOutlinedTextField(
         param = p,
         onValueChange = {},

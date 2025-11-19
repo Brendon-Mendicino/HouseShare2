@@ -18,10 +18,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.GroupRepository
 import lol.terabrendon.houseshare2.data.repository.UserRepository
+import lol.terabrendon.houseshare2.domain.form.GroupFormState
+import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.toModel
-import lol.terabrendon.houseshare2.domain.model.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.UserModel
-import lol.terabrendon.houseshare2.domain.model.toValidator
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupFormEvent
 import lol.terabrendon.houseshare2.presentation.groups.form.GroupFormUiEvent

@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.getOrElse
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.brendonmendicino.aformvalidator.annotation.ValidationError
+import io.github.brendonmendicino.aformvalidator.annotation.error.ValidationError
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,15 +19,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
+import lol.terabrendon.houseshare2.domain.form.ExpenseFormState
+import lol.terabrendon.houseshare2.domain.form.UserPart
+import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseModelMapper
 import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormEvent
-import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormState
-import lol.terabrendon.houseshare2.presentation.billing.UserPart
-import lol.terabrendon.houseshare2.presentation.billing.toValidator
 import lol.terabrendon.houseshare2.util.update
 import javax.inject.Inject
 
@@ -41,7 +41,7 @@ class NewExpenseFormViewModel @Inject constructor(
         data object Finish : UiEvent()
 
         // TODO: change label from String to R.strings
-        data class Error(val error: ValidationError, val label: String) : UiEvent()
+        data class Error(val error: ValidationError<*>, val label: String) : UiEvent()
     }
 
     companion object {
