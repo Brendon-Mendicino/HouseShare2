@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
 
         lifecycleScope.launch {
-            ActivityQueue.activities.collect {
+            ActivityQueue.intents.collect {
                 startActivity(it)
             }
         }

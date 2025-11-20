@@ -85,4 +85,5 @@
     <string name="no_group_selected">No group selected</string>
     <string name="please_go_to_the_group_tab_and_select_a_group">Please go to the group tab and select a group</string>
     <string name="selected_items">Selected items</string>
+    <string name="group_info">Group info</string>
 </resources>

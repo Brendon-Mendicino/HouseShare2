@@ -85,4 +85,5 @@
     <string name="no_group_selected">Nessun gruppo selezionato</string>
     <string name="please_go_to_the_group_tab_and_select_a_group">Vai nella pagina dei gruppi e selezionane uno</string>
     <string name="selected_items">Articoli selezionati</string>
+    <string name="group_info">Info del gruppo</string>
 </resources>

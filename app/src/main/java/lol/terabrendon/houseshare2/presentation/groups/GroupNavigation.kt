@@ -11,6 +11,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.util.TOP_LEVEL_TRANSITION
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
+import lol.terabrendon.houseshare2.presentation.vm.GroupInfoViewModel
 
 fun EntryProviderScope<MainNavigation>.groupNavigation(
     navigator: Navigator<MainNavigation>,
@@ -21,6 +22,15 @@ fun EntryProviderScope<MainNavigation>.groupNavigation(
         metadata = TOP_LEVEL_TRANSITION,
     ) {
         GroupsScreen(navigate = navigator::navigate)
+    }
+
+    entry<HomepageNavigation.GroupInfo> { key ->
+        val vm =
+            hiltViewModel<GroupInfoViewModel, GroupInfoViewModel.Factory>(creationCallback = { factory ->
+                factory.create(key)
+            })
+
+        GroupInfoScreen(viewModel = vm, navigator = navigator)
     }
 
     entry<HomepageNavigation.GroupUsersForm> {

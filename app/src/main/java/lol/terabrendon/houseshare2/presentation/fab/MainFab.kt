@@ -130,9 +130,11 @@ private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is MainNavigation.Login,
     is HomepageNavigation.Cleaning,
     is MainNavigation.Loading,
+    is HomepageNavigation.GroupInfo,
     is HomepageNavigation.Settings,
     is HomepageNavigation.UserProfile,
         -> Icons.Filled.Add
+
 }
 
 @StringRes
@@ -149,6 +151,7 @@ private fun MainNavigation.fabExpanded(): Boolean = when (this) {
         -> true
 
 
+    is HomepageNavigation.GroupInfo,
     is HomepageNavigation.ExpenseForm,
     is HomepageNavigation.GroupInfoForm,
     is HomepageNavigation.GroupUsersForm,
@@ -159,7 +162,6 @@ private fun MainNavigation.fabExpanded(): Boolean = when (this) {
     is MainNavigation.Login,
     is MainNavigation.Loading,
         -> false
-
 }
 
 private fun MainNavigation.fabVisible(): Boolean = when (this) {
@@ -176,6 +178,7 @@ private fun MainNavigation.fabVisible(): Boolean = when (this) {
     is MainNavigation.Loading,
     is HomepageNavigation.UserProfile,
     is HomepageNavigation.Settings,
+    is HomepageNavigation.GroupInfo,
     is HomepageNavigation.ExpenseForm,
     is HomepageNavigation.ShoppingForm,
     is HomepageNavigation.ShoppingItem,

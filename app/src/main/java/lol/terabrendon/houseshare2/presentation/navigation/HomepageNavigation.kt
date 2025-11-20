@@ -30,6 +30,9 @@ sealed class HomepageNavigation : MainNavigation() {
     data object Groups : HomepageNavigation()
 
     @Serializable
+    data class GroupInfo(val groupId: Long) : HomepageNavigation()
+
+    @Serializable
     data object GroupUsersForm : HomepageNavigation()
 
     @Serializable

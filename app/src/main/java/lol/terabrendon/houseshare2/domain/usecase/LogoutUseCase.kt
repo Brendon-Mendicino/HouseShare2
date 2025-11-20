@@ -35,7 +35,7 @@ class LogoutUseCase @Inject constructor(
                 .setQuery("post_logout_redirect_uri", "app://lol.terabrendon.houseshare2/logout")
 
             val intent = Intent(Intent.ACTION_VIEW, uri)
-            ActivityQueue.activities.emit(intent)
+            ActivityQueue.sendIntent(intent)
         } else {
             // TODO: change Err type
             retval = Err("")

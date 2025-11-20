@@ -68,7 +68,8 @@ fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel(), navigate: (MainNa
     GroupsScreenInner(
         groups = groups,
         selectedGroup = selectedGroup,
-        onEvent = viewModel::onEvent
+        onEvent = viewModel::onEvent,
+        onGroupClick = { navigate(HomepageNavigation.GroupInfo(it.groupId)) }
     )
 }
 
@@ -78,6 +79,7 @@ private fun GroupsScreenInner(
     groups: List<GroupInfoModel>,
     selectedGroup: GroupInfoModel?,
     onEvent: (GroupEvent) -> Unit,
+    onGroupClick: (group: GroupInfoModel) -> Unit,
 ) {
     Column(modifier = modifier) {
         LazyColumn(
@@ -93,7 +95,8 @@ private fun GroupsScreenInner(
                     modifier = Modifier.animateItem(),
                     group = group,
                     checked = group.groupId == selectedGroup?.groupId,
-                    onCheckedToggle = { onEvent(GroupEvent.GroupSelected(group)) }
+                    onCheckedToggle = { onEvent(GroupEvent.GroupSelected(group)) },
+                    onGroupClick = onGroupClick,
                 )
             }
 
@@ -110,9 +113,10 @@ private fun GroupListItem(
     group: GroupInfoModel,
     checked: Boolean,
     onCheckedToggle: () -> Unit,
+    onGroupClick: (group: GroupInfoModel) -> Unit,
 ) {
     Card(
-        onClick = {},
+        onClick = { onGroupClick(group) },
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
@@ -155,5 +159,6 @@ private fun GroupsScreenPreview() {
         groups = (0..4).map { GroupInfoModel.default().copy(groupId = it.toLong()) },
         selectedGroup = GroupInfoModel.default(),
         onEvent = {},
+        onGroupClick = {},
     )
 }

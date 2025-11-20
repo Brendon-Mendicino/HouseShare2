@@ -1,9 +1,14 @@
 package lol.terabrendon.houseshare2.presentation.util
 
 import android.content.Intent
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 
-// TODO: remove this, find a better solution, or if this is good enough move to different package
 object ActivityQueue {
-    val activities = MutableSharedFlow<Intent>()
+    private val intentChannel = Channel<Intent>()
+    val intents = intentChannel.receiveAsFlow()
+
+    suspend fun sendIntent(intent: Intent) {
+        intentChannel.send(intent)
+    }
 }

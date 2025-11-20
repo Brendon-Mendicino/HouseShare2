@@ -25,7 +25,7 @@ class StartLoginUseCase @Inject constructor(
         val uri = url.toUri()
 
         val intent = Intent(Intent.ACTION_VIEW, uri)
-        ActivityQueue.activities.emit(intent)
+        ActivityQueue.sendIntent(intent)
 
         return Ok(Unit)
     }
