@@ -12,6 +12,7 @@ import lol.terabrendon.houseshare2.data.remote.api.AuthApi
 import lol.terabrendon.houseshare2.data.remote.api.CsrfInterceptor
 import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
+import lol.terabrendon.houseshare2.data.remote.api.ResultCallAdapterFactory
 import lol.terabrendon.houseshare2.data.remote.api.SharedCookieIndexStore
 import lol.terabrendon.houseshare2.data.remote.api.SharedPrefCookieStore
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
@@ -35,7 +36,7 @@ object ApiModule {
     @Singleton
     fun provideCookieManager(
         @ApplicationContext
-        context: Context
+        context: Context,
     ): CookieJar =
         JavaNetCookieJar(
             CookieManager(
@@ -57,6 +58,7 @@ object ApiModule {
     @Singleton
     fun provideRetrofit(cookieManager: CookieJar): Retrofit = Retrofit.Builder()
         .baseUrl(BuildConfig.BASE_URL + "api/v1/")
+        .addCallAdapterFactory(ResultCallAdapterFactory.create())
         .addConverterFactory(
             GsonConverterFactory.create(
                 GsonBuilder()
@@ -100,6 +102,7 @@ object ApiModule {
     fun provideLogin(cookieManager: CookieJar): AuthApi {
         val retrofit = Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
+            .addCallAdapterFactory(ResultCallAdapterFactory.create())
             .client(
                 OkHttpClient.Builder()
                     .followRedirects(false)

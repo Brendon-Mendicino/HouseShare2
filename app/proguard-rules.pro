@@ -20,10 +20,12 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# -- Retrofit
 # DTO classes used by Retrofit2
 # Retrofit2 uses GSON to convert requests data
 -keep class lol.terabrendon.houseshare2.data.remote.dto.** { *; }
+-keep class com.github.michaelbull.result.Result { *; }
 
-# Room
+# -- Room
 -keep class * extends androidx.room.RoomDatabase
 -dontwarn androidx.room.paging.**
