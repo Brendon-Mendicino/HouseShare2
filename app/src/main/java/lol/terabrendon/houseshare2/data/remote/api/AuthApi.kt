@@ -1,18 +1,15 @@
 package lol.terabrendon.houseshare2.data.remote.api
 
-import com.github.michaelbull.result.Result
-import lol.terabrendon.houseshare2.domain.error.RemoteError
-import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface AuthApi {
     @GET("oauth2/authorization/house-share-app")
-    suspend fun login(): Result<Unit, RemoteError>
+    suspend fun login(): NetResult<Unit>
 
     @POST("logout")
-    suspend fun logout(): Response<Unit>
+    suspend fun logout(): NetResult<Unit>
 
     /**
      * - state
@@ -26,5 +23,5 @@ interface AuthApi {
         @Query("session_state") sessionState: String,
         @Query("iss") iss: String,
         @Query("code") code: String,
-    ): Response<Unit>
+    ): NetResult<Unit>
 }

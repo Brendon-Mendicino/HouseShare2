@@ -55,7 +55,7 @@ class DeepLinkActivity : ComponentActivity() {
                     startActivity(mainActivity)
                 }
                 .onFailure {
-                    Log.e(TAG, "onCreate: auth failed!", it)
+                    Log.e(TAG, "onCreate: auth failed! error=$it")
 
                     Toast.makeText(
                         this@DeepLinkActivity,
