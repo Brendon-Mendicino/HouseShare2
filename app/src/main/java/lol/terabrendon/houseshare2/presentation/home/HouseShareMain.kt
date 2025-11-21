@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -68,6 +69,7 @@ fun HouseShareMain(
 private fun HouseShareMainInner(
     navigator: Navigator<MainNavigation>,
 ) {
+    val context = LocalContext.current
     val slideSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -86,8 +88,8 @@ private fun HouseShareMainInner(
             snackbarHostState.currentSnackbarData?.dismiss()
 
             val result = snackbarHostState.showSnackbar(
-                message = event.message,
-                actionLabel = event.action?.name,
+                message = event.message.text(context),
+                actionLabel = event.action?.name?.text(context),
                 duration = event.duration,
             )
 

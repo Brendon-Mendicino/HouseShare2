@@ -32,7 +32,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormStateValidator
@@ -43,8 +42,6 @@ import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
-import lol.terabrendon.houseshare2.presentation.util.SnackbarController
-import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingItemFormViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
 
@@ -58,10 +55,6 @@ fun ShoppingItemFormScreen(
 
     ObserveAsEvent(viewModel.uiEvents) { event ->
         when (event) {
-            is ShoppingItemFormUiEvent.SubmitFailure -> scope.launch {
-                SnackbarController.sendEvent(SnackbarEvent(message = event.error))
-            }
-
             ShoppingItemFormUiEvent.SubmitSuccess -> onBack()
         }
     }

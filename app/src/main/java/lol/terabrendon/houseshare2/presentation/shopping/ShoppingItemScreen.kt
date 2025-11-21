@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
@@ -36,11 +35,7 @@ import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
-import lol.terabrendon.houseshare2.presentation.util.SnackbarController
-import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
-import lol.terabrendon.houseshare2.presentation.util.errorText
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingSingleViewModel
-import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import lol.terabrendon.houseshare2.util.inlineFormat
 
 @Composable
@@ -52,21 +47,6 @@ fun ShoppingItemScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
-    ObserveAsEvent(viewModel.uiEvent) { event ->
-        when (event) {
-            is ShoppingSingleViewModel.UiEvent.Error -> scope.launch {
-                SnackbarController.sendEvent(
-                    SnackbarEvent(
-                        message = event.error.errorText(
-                            "",
-                            context
-                        )
-                    )
-                )
-            }
-        }
-    }
 
     if (shoppingItem == null) {
         LoadingOverlayScreen()

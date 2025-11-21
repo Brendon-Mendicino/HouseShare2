@@ -1,10 +1,14 @@
 package lol.terabrendon.houseshare2.data.remote.util
 
+import android.util.Log
+import androidx.core.net.toUri
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import lol.terabrendon.houseshare2.domain.error.RemoteError
 import retrofit2.Response
+
+private const val TAG = "ConvertResponse"
 
 fun <T : Any> convertResponse(response: Response<T>): Result<T, RemoteError> {
     val code = response.code()
@@ -13,11 +17,21 @@ fun <T : Any> convertResponse(response: Response<T>): Result<T, RemoteError> {
     return if (response.isSuccessful && body != null) {
         Ok(body)
     } else {
+        Log.w(
+            TAG,
+            "convertResponse: error caught while performing an http request. response=$response"
+        )
+
         val error = when (code) {
-            302 -> RemoteError.Found(response,
-                response.headers()["Location"]
-                    ?: throw IllegalStateException("Response must contain Location header")
-            )
+            302 -> {
+                val location = response.headers()["Location"]
+                    ?: throw IllegalStateException("Response with code 302 must contain Location header!")
+
+                if (location.toUri().path == "/login")
+                    RemoteError.Unauthorized(response)
+                else
+                    RemoteError.Found(response, location)
+            }
 
             400 -> RemoteError.BadRequest(response)
             401 -> RemoteError.Unauthorized(response)

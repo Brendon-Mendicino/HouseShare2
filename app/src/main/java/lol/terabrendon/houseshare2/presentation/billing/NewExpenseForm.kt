@@ -38,12 +38,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -51,7 +49,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.form.ExpenseFormState
 import lol.terabrendon.houseshare2.domain.form.ExpenseFormStateValidator
@@ -66,9 +63,6 @@ import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
-import lol.terabrendon.houseshare2.presentation.util.SnackbarController
-import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
-import lol.terabrendon.houseshare2.presentation.util.errorText
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel
 import lol.terabrendon.houseshare2.presentation.vm.NewExpenseFormViewModel.UiEvent
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
@@ -80,8 +74,6 @@ fun NewExpenseForm(
     viewModel: NewExpenseFormViewModel = hiltViewModel(),
     onFinish: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val expenseFormState by viewModel.expenseFormState.collectAsStateWithLifecycle()
     val users by viewModel.users.collectAsStateWithLifecycle()
     val userSelected by viewModel.userSelected.collectAsStateWithLifecycle()
@@ -89,17 +81,6 @@ fun NewExpenseForm(
 
     ObserveAsEvent(viewModel.eventChannelFlow) { event ->
         when (event) {
-            is UiEvent.Error -> scope.launch {
-                SnackbarController.sendEvent(
-                    SnackbarEvent(
-                        message = event.error.errorText(
-                            event.label,
-                            context
-                        )
-                    )
-                )
-            }
-
             is UiEvent.Finish -> onFinish()
         }
     }

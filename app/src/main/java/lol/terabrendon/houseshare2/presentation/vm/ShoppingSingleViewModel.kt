@@ -6,14 +6,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.brendonmendicino.aformvalidator.annotation.error.ValidationError
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,6 +23,9 @@ import lol.terabrendon.houseshare2.domain.model.toMoneyOrNull
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingItemEvent
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
+import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
+import lol.terabrendon.houseshare2.presentation.util.toUiText
 import javax.inject.Inject
 
 @HiltViewModel(assistedFactory = ShoppingSingleViewModel.Factory::class)
@@ -42,13 +42,6 @@ class ShoppingSingleViewModel @AssistedInject constructor(
     // If the constructor has @AssistedInject I cannot this class directly
     @Inject
     lateinit var getLoggedUserUseCase: GetLoggedUserUseCase
-
-    sealed class UiEvent {
-        data class Error(val error: ValidationError<*>) : UiEvent()
-    }
-
-    private val uiChannel = Channel<UiEvent>()
-    val uiEvent = uiChannel.receiveAsFlow()
 
     data class State(
         val pending: Int = 0,
@@ -102,10 +95,14 @@ class ShoppingSingleViewModel @AssistedInject constructor(
     ) {
         val info = shoppingItem.value?.info ?: return
 
-        val validationError = info.toForm().copyForm().toValidator().error
+        val validationError = info.toForm().copyForm().toValidator().errors.firstOrNull()
 
         if (validationError != null) {
-            uiChannel.send(UiEvent.Error(validationError))
+            val (label, error) = validationError
+            val message = error.toUiText(label)
+
+            SnackbarController.sendEvent(SnackbarEvent(message = message))
+
             return
         }
 

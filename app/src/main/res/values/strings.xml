@@ -86,4 +86,20 @@
     <string name="please_go_to_the_group_tab_and_select_a_group">Please go to the group tab and select a group</string>
     <string name="selected_items">Selected items</string>
     <string name="group_info">Group info</string>
+    <string name="login_failed">Login failed</string>
+    <string name="the_device_is_out_of_memory">The device is out of memory</string>
+    <string name="an_unknown_error_happend_while_accessing_the_file_system">An unknown error happend while accessing the file system</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="gateway_timed_out">Gateway timed-out</string>
+    <string name="you_are_not_authorized_to_make_such_request">You are not authorized to make such request!</string>
+    <string name="the_uploaded_content_was_too_large">The uploaded content was too large</string>
+    <string name="the_request_took_too_long_to_elaborate">The request took too long to elaborate</string>
+    <string name="the_server_is_too_busy_to_answer_at_the_moment">The server is too busy to answer at the moment</string>
+    <string name="the_request_resource_does_not_exist">The request resource does not exist</string>
+    <string name="the_server_is_temporarily_unavailable">The server is temporarily unavailable</string>
+    <string name="gateway_got_invalid_repsonse_while_processing_the_request">Gateway got invalid repsonse while processing the request</string>
+    <string name="the_file_format_you_uploaded_is_not_processable_by_the_server">The file format you uploaded is not processable by the server</string>
+    <string name="the_server_experienced_an_unrecoverable_error_while_processing_the_request">The server experienced an unrecoverable error while processing the request</string>
+    <string name="the_server_could_handle_the_request">The server could handle the request</string>
+    <string name="an_unknown_network_error_happened">An unknown network error happened</string>
 </resources>

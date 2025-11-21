@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.getOrElse
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.brendonmendicino.aformvalidator.annotation.error.ValidationError
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,6 +27,9 @@ import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.billing.ExpenseFormEvent
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
+import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
+import lol.terabrendon.houseshare2.presentation.util.toUiText
 import lol.terabrendon.houseshare2.util.update
 import javax.inject.Inject
 
@@ -39,9 +41,6 @@ class NewExpenseFormViewModel @Inject constructor(
 ) : ViewModel() {
     sealed class UiEvent {
         data object Finish : UiEvent()
-
-        // TODO: change label from String to R.strings
-        data class Error(val error: ValidationError<*>, val label: String) : UiEvent()
     }
 
     companion object {
@@ -216,8 +215,8 @@ class NewExpenseFormViewModel @Inject constructor(
 
         val error = formState.errors.firstOrNull()
         if (error != null) {
-            // TODO: improve errors
-            eventChannel.send(UiEvent.Error(label = error.first, error = error.second))
+            val message = error.second.toUiText(error.first)
+            SnackbarController.sendEvent(SnackbarEvent(message = message))
             return
         }
 

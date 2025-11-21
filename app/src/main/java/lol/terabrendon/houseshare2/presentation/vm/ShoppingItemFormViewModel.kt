@@ -1,11 +1,9 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +19,9 @@ import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormEvent
 import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormUiEvent
-import lol.terabrendon.houseshare2.presentation.util.errorText
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
+import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
+import lol.terabrendon.houseshare2.presentation.util.toUiText
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,7 +29,6 @@ class ShoppingItemFormViewModel @Inject constructor(
     private val shoppingItemRepository: ShoppingItemRepository,
     private val getLoggedUserUseCase: GetLoggedUserUseCase,
     private val getSelectedGroupUseCase: GetSelectedGroupUseCase,
-    @ApplicationContext private val context: Context,
 ) : ViewModel() {
     companion object {
         private const val TAG: String = "ShoppingItemFormViewModel"
@@ -71,15 +70,9 @@ class ShoppingItemFormViewModel @Inject constructor(
         val formError = formState.errors.firstOrNull()
         if (formError != null) {
             val (property, error) = formError
+            val message = error.toUiText(property)
 
-            _uiEvents.send(
-                ShoppingItemFormUiEvent.SubmitFailure(
-                    error = error.errorText(
-                        property,
-                        context
-                    )
-                )
-            )
+            SnackbarController.sendEvent(SnackbarEvent(message = message))
 
             return
         }

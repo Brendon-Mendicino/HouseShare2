@@ -13,7 +13,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.form.GroupFormState
 import lol.terabrendon.houseshare2.domain.form.GroupFormStateValidator
@@ -23,8 +22,6 @@ import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
-import lol.terabrendon.houseshare2.presentation.util.SnackbarController
-import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
 
@@ -50,11 +47,6 @@ fun GroupInfoFormScreen(
 
     ObserveAsEvent(viewModel.uiEvent) { event ->
         when (event) {
-            is GroupFormUiEvent.SubmitFailure -> scope.launch {
-                // TODO: fix this!
-                SnackbarController.sendEvent(SnackbarEvent(message = event.error))
-            }
-
             GroupFormUiEvent.SubmitSuccess -> onSubmit()
         }
     }

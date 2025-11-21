@@ -2,11 +2,14 @@ package lol.terabrendon.houseshare2.domain.usecase
 
 import android.net.Uri
 import android.util.Log
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.mapBoth
+import com.github.michaelbull.result.unwrapError
 import lol.terabrendon.houseshare2.data.remote.api.AuthApi
 import lol.terabrendon.houseshare2.data.repository.AuthRepository
 import lol.terabrendon.houseshare2.domain.error.DataError
+import lol.terabrendon.houseshare2.domain.error.RemoteError
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import javax.inject.Inject
 
@@ -22,7 +25,7 @@ class FinishLoginUseCase @Inject constructor(
         const val TAG = "FinishLoginUseCase"
     }
 
-    suspend operator fun invoke(redirectUri: Uri): Result<UserModel, DataError> = coroutineBinding {
+    suspend operator fun invoke(redirectUri: Uri): Result<UserModel, DataError> {
         val query = { name: String ->
             redirectUri.getQueryParameter(name)
                 ?: throw IllegalStateException("The query parameter param=$name was not present in the redirectUri! redirectUri=$redirectUri")
@@ -30,15 +33,21 @@ class FinishLoginUseCase @Inject constructor(
 
         Log.i(TAG, "invoke: Finishing login")
 
-        authApi.authCodeFlow(
+        val res = authApi.authCodeFlow(
             state = query("state"),
             sessionState = query("session_state"),
             iss = query("iss"),
             code = query("code"),
-        ).bind()
+        )
+
+        val codeFlowSuccess = res.mapBoth(success = { true }, failure = { it is RemoteError.Found })
+
+        if (!codeFlowSuccess) {
+            return Err(res.unwrapError())
+        }
 
         Log.i(TAG, "invoke: successfully completed oauth2 code flow with server")
 
-        authRepository.finishLogin().bind()
+        return authRepository.finishLogin()
     }
 }

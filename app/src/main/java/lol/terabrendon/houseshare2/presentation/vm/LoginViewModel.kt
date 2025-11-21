@@ -10,12 +10,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.StartLoginUseCase
 import lol.terabrendon.houseshare2.presentation.login.LoginEvent
 import lol.terabrendon.houseshare2.presentation.login.LoginUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
+import lol.terabrendon.houseshare2.presentation.util.UiText
+import lol.terabrendon.houseshare2.presentation.util.toUiText
 import javax.inject.Inject
 
 @HiltViewModel
@@ -49,9 +52,14 @@ class LoginViewModel @Inject constructor(
         when (event) {
             LoginEvent.Login -> viewModelScope.launch {
                 userLoginUseCase()
-                    .onFailure {
-                        Log.e(TAG, "onEvent: failed to perform login!", it)
-                        SnackbarController.sendEvent(SnackbarEvent("Failed to login."))
+                    .onFailure { error ->
+                        Log.w(TAG, "onEvent: failed to perform login! response=$error")
+
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = UiText.Res(R.string.login_failed) + error.toUiText()
+                            )
+                        )
                         _uiEvent.send(LoginUiEvent.LoginFailed)
                     }
             }

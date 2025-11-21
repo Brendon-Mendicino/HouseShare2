@@ -3,11 +3,15 @@ package lol.terabrendon.houseshare2.data.local.util
 import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOutOfMemoryException
+import android.util.Log
 import androidx.room.RoomDatabase
 import androidx.room.withTransaction
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
+import kotlinx.coroutines.CancellationException
 import lol.terabrendon.houseshare2.domain.error.LocalError
+
+const val TAG = "QueryWrappers"
 
 fun mapLocalException(e: Throwable): LocalError = when (e) {
     is SQLiteConstraintException -> LocalError.Constraint(e)
@@ -26,6 +30,13 @@ suspend inline fun <T> localSafe(
     return try {
         Ok(block())
     } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+
+        Log.e(
+            TAG,
+            "localSafe: an error happened while accessing the database or the file system",
+            e
+        )
         Err(mapLocalException(e))
     }
 }
@@ -41,6 +52,13 @@ suspend fun <T> transactionSafe(
     return try {
         Ok(db.withTransaction { block() })
     } catch (e: Throwable) {
+        if (e is CancellationException) throw e
+
+        Log.e(
+            TAG,
+            "transactionSafe: an error happened while accessing the database or the file system",
+            e
+        )
         Err(mapLocalException(e))
     }
 }
