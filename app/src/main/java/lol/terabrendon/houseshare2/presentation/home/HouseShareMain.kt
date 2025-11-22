@@ -100,16 +100,20 @@ private fun HouseShareMainInner(
     }
 
     MainProviders(backStack) {
-        ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
-            MainDrawerSheet(
-                itemSelected = { topLevelRoute ->
-                    backStack.asReversed().firstOrNull { topLevelRoute.route == it } != null
-                },
-                onItemClick = { topLevelRoute ->
-                    navigator.navigate(topLevelRoute.route)
-                },
-            )
-        }) {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            gesturesEnabled = drawerState.isOpen,
+            drawerContent = {
+                MainDrawerSheet(
+                    itemSelected = { topLevelRoute ->
+                        backStack.asReversed().firstOrNull { topLevelRoute.route == it } != null
+                    },
+                    onItemClick = { topLevelRoute ->
+                        navigator.navigate(topLevelRoute.route)
+                    },
+                )
+            },
+        ) {
             Scaffold(
                 topBar = {
                     MainTopBar(

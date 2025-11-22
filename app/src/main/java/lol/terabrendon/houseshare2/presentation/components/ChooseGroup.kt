@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import lol.terabrendon.houseshare2.R
@@ -23,12 +24,16 @@ fun ChooseGroup(modifier: Modifier = Modifier) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 stringResource(R.string.no_group_selected),
-                style = MaterialTheme.typography.displaySmallEmphasized
+                style = MaterialTheme.typography.displaySmallEmphasized,
+                textAlign = TextAlign.Center,
             )
 
             Spacer(Modifier.height(16.dp))
 
-            Text(stringResource(R.string.please_go_to_the_group_tab_and_select_a_group))
+            Text(
+                stringResource(R.string.please_go_to_the_group_tab_and_select_a_group),
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
