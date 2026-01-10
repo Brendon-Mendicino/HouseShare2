@@ -6,21 +6,26 @@ import androidx.core.net.toUri
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.getErrorOr
+import lol.terabrendon.houseshare2.DeepLinkActivity
 import lol.terabrendon.houseshare2.data.remote.api.AuthApi
-import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.domain.error.DataError
 import lol.terabrendon.houseshare2.domain.error.RemoteError
-import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
 import lol.terabrendon.houseshare2.util.setQuery
 import javax.inject.Inject
 
-class LogoutUseCase @Inject constructor(
-    private val userDataRepository: UserDataRepository,
+/**
+ * This use-case starts the logout procedure. This function will make a call the OICD server
+ * asking to logout the current session.
+ *
+ * After the logout we will be redirected to the [DeepLinkActivity] where the request will be
+ * handled by [FinishLogoutUseCase].
+ */
+class StartLogoutUseCase @Inject constructor(
     private val authApi: AuthApi,
 ) {
     companion object {
-        private const val TAG = "LogoutUseCase"
+        private const val TAG = "StartLogoutUseCase"
     }
 
     suspend operator fun invoke(): Result<Unit, DataError> = coroutineBinding {
@@ -33,19 +38,17 @@ class LogoutUseCase @Inject constructor(
             else -> null
         }
 
-        if (uri != null) {
-            val logoutUri = uri
-                .setQuery("post_logout_redirect_uri", "app://lol.terabrendon.houseshare2/logout")
-
-            val intent = Intent(Intent.ACTION_VIEW, logoutUri)
-            ActivityQueue.sendIntent(intent)
-            Log.i(TAG, "invoke: logout successful!")
-        } else {
+        if (uri == null) {
             Log.w(TAG, "invoke: logout failed! response=$res")
+            return@coroutineBinding
         }
 
-        userDataRepository.updateCurrentLoggedUser(null)
-        userDataRepository.updateSelectedGroupId(null)
-        userDataRepository.updateBackStack(listOf(MainNavigation.Login))
+        val logoutUri = uri
+            .setQuery("post_logout_redirect_uri", "app://lol.terabrendon.houseshare2/logout")
+
+        val intent = Intent(Intent.ACTION_VIEW, logoutUri)
+        ActivityQueue.sendIntent(intent)
+
+        Log.i(TAG, "invoke: started logout procedure")
     }
 }

@@ -20,5 +20,5 @@ interface GroupApi {
         @Query("expires") expires: Long,
         @Query("nonce") nonce: String,
         @Query("signature") signature: String,
-    ): GroupDto
+    ): NetResult<GroupDto>
 }

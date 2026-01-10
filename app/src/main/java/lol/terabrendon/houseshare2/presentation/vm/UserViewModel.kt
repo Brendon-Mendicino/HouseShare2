@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
-import lol.terabrendon.houseshare2.domain.usecase.LogoutUseCase
+import lol.terabrendon.houseshare2.domain.usecase.StartLogoutUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
     loggedUserUseCase: GetLoggedUserUseCase,
-    private val logoutUseCase: LogoutUseCase,
+    private val startLogoutUseCase: StartLogoutUseCase,
 ) : ViewModel() {
     data class State(
         val logoutPending: Boolean = false,
@@ -37,7 +37,7 @@ class UserViewModel @Inject constructor(
     fun onLogout() {
         viewModelScope.launch {
             _state.update { it.copy(logoutPending = true) }
-            logoutUseCase()
+            startLogoutUseCase()
             _state.update { it.copy(logoutPending = false) }
         }
     }

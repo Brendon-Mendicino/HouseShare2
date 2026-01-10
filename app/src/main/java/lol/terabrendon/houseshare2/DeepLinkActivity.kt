@@ -14,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.domain.usecase.AcceptInviteUseCase
 import lol.terabrendon.houseshare2.domain.usecase.FinishLoginUseCase
+import lol.terabrendon.houseshare2.domain.usecase.FinishLogoutUseCase
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.matcher
@@ -30,31 +31,18 @@ class DeepLinkActivity : ComponentActivity() {
     lateinit var finishLoginUseCase: FinishLoginUseCase
 
     @Inject
+    lateinit var finishLogoutUseCase: FinishLogoutUseCase
+
+    @Inject
     lateinit var acceptInviteUseCase: AcceptInviteUseCase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "onCreate: Handling DeepLink for login.")
 
-        val mainActivity = Intent(this, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        }
-
         val uri = intent?.data ?: throw IllegalStateException("No URI present on activity launch!")
 
-        matcher(
-            uri.path ?: "",
-            "^/logout$" to { logout(mainActivity) },
-            "^/login$" to { lifecycleScope.launch { login(uri, mainActivity) } },
-            """^\/api\/v\d+\/groups\/(?<groupId>[^\/]+)\/invite\/join$""" to {
-                Log.i(TAG, "onCreate: matching invite groupId=${it.groups[1]?.value}")
-                lifecycleScope.launch { groupInvite(uri, mainActivity) }
-            }
-        ) {
-            val msg = "onCreate: invalid uri path being mathched! uri.path=${uri.path}"
-            Log.e(TAG, msg)
-            throw IllegalStateException(msg)
-        }
+        lifecycleScope.launch { handleLinks(uri) }
 
         setContent {
             HouseShare2Theme {
@@ -63,9 +51,32 @@ class DeepLinkActivity : ComponentActivity() {
         }
     }
 
-    fun logout(mainActivity: Intent) {
-        startActivity(mainActivity)
+    suspend fun handleLinks(uri: Uri) {
+        val mainActivity = Intent(this, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        }
+
+        matcher(
+            uri.path ?: "",
+            "^/logout$" to { logout(mainActivity) },
+            "^/login/oauth2$" to { login(uri, mainActivity) },
+            """^\/api\/v\d+\/groups\/(?<groupId>[^\/]+)\/invite\/join$""" to {
+                val groupId = it.groups[1]?.value?.toLongOrNull()!!
+                Log.i(TAG, "onCreate: matching invite groupId=$groupId")
+                groupInvite(groupId, uri, mainActivity)
+            }
+        ) {
+            val msg = "onCreate: invalid uri path being matched! uri.path=${uri.path}"
+            Log.e(TAG, msg)
+            throw IllegalStateException(msg)
+        }
+
         finish()
+    }
+
+    suspend fun logout(mainActivity: Intent) {
+        finishLogoutUseCase()
+        startActivity(mainActivity)
     }
 
     suspend fun login(uri: Uri, mainActivity: Intent) {
@@ -84,11 +95,23 @@ class DeepLinkActivity : ComponentActivity() {
                     Toast.LENGTH_LONG
                 ).show()
             }
-
-        finish()
     }
 
-    suspend fun groupInvite(uri: Uri, mainActivity: Intent) {
-        acceptInviteUseCase()
+    suspend fun groupInvite(groupId: Long, uri: Uri, mainActivity: Intent) {
+        acceptInviteUseCase(groupId, uri)
+            .onSuccess {
+                Log.i(TAG, "groupInvite: successfully accepted group invite! groupId=$groupId")
+            }
+            .onFailure {
+                Log.w(TAG, "groupInvite: group invite failed! error=$it")
+
+                Toast.makeText(
+                    this@DeepLinkActivity,
+                    getString(R.string.invite_link_was_not_valid),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
+        startActivity(mainActivity)
     }
 }
