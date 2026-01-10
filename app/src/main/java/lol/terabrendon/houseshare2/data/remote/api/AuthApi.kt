@@ -17,7 +17,7 @@ interface AuthApi {
      * - iss
      * - code
      */
-    @GET("login/oauth2/code/house-share-client")
+    @GET("login/oauth2/code/house-share-app")
     suspend fun authCodeFlow(
         @Query("state") state: String,
         @Query("session_state") sessionState: String,
