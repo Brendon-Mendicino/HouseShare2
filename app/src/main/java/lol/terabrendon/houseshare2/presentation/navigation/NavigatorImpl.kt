@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
@@ -29,6 +30,7 @@ class NavigatorImpl(
 
         private val LOADING = listOf(MainNavigation.Loading)
         private val LOGIN = listOf(MainNavigation.Login)
+        private val DEFAULT_HOMEPAGE = listOf(HomepageNavigation.Groups)
     }
 
     private val isLoading = MutableStateFlow(true)
@@ -48,14 +50,15 @@ class NavigatorImpl(
                         failure = { false }
                     )
 
-                    emit(res)
                     isLoading.value = false
+                    emit(res)
 
                     // Check again in 5 minutes if the user is still logged-in
                     delay(5.minutes)
                 }
             }
         }
+        .distinctUntilChanged()
         .onEach { isLoggedIn ->
             if (isLoggedIn)
                 Log.i(TAG, "isLoggedIn: user is logged-in")
@@ -64,6 +67,19 @@ class NavigatorImpl(
         }
         .stateIn(coroutineScope, SharingStarted.Eagerly, false)
 
+    init {
+        coroutineScope.launch {
+            // Listen on login changes, if we are logged in and we are still
+            // on the LOGIN page change it to the default one in the homepage.
+            isLoggedIn.collect { isLogged ->
+                val backStack = userDataRepository.savedBackStack.first()
+                if (isLogged && (backStack == LOGIN || backStack == LOADING)) {
+                    userDataRepository.updateBackStack(DEFAULT_HOMEPAGE)
+                }
+            }
+        }
+    }
+
     private val _backStack = userDataRepository
         .savedBackStack
         .onEach { Log.i(TAG, "_backStack: $it") }
@@ -71,17 +87,12 @@ class NavigatorImpl(
 
     override val backStack: Flow<List<MainNavigation>>
         get() = combine(_backStack, isLoading, isLoggedIn) { backStack, isLoading, isLoggedIn ->
-            if (isLoading)
-                LOADING
-            else if (!isLoggedIn)
-                LOGIN
-            else if (backStack == LOGIN || backStack == LOADING) {
-                userDataRepository.updateBackStack(listOf(HomepageNavigation.Groups))
-                LOGIN
-            } else
-                backStack
-        }
-            .distinctUntilChanged()
+            when {
+                isLoading -> LOADING
+                !isLoggedIn -> LOGIN
+                else -> backStack
+            }
+        }.distinctUntilChanged()
             .onEach { check(it.isNotEmpty()) { "BackStack size must always by greater than 0!" } }
 
     private fun handleNavigationWithGraph(dest: MainNavigation): List<MainNavigation> {

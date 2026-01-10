@@ -3,6 +3,7 @@ package lol.terabrendon.houseshare2.data.repository
 import android.util.Log
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.local.util.localSafe
@@ -26,8 +27,8 @@ class AuthRepositoryImpl @Inject constructor(
         val user = userApi.getLoggedUser().bind()
 
         localSafe {
-            userDao.upsert(user.toEntity())
             userDataRepository.updateCurrentLoggedUser(user.id)
+            userDao.upsert(user.toEntity())
         }.bind()
 
         user.toModel()
@@ -35,7 +36,10 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun finishLogin(): Result<UserModel, DataError> = refreshUser()
         .onSuccess { user ->
-            Log.i(TAG, "finishLogin: got logged user from server. $user")
+            Log.i(TAG, "finishLogin: got logged user from server. user=$user")
+        }
+        .onFailure {
+            Log.e(TAG, "finishLogin: failed to finish login! error=$it")
         }
 
     // TODO: for now the loggedUser and finishLogin are identical but may change in the future
