@@ -1,6 +1,7 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package lol.terabrendon.houseshare2.presentation.shopping
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -15,13 +16,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
@@ -29,6 +27,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -157,7 +158,8 @@ fun ShoppingScreenInner(
     LazyColumn(
         modifier = modifier
             .padding(8.dp)
-            .animateContentSize()
+            .animateContentSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
             SortingRow(
@@ -196,12 +198,7 @@ fun ShoppingScreenInner(
 
                     HorizontalDivider(modifier = Modifier.weight(1f))
 
-                    AnimatedContent(showCheckItems) { show ->
-                        if (show)
-                            Icon(Icons.Filled.ArrowDropDown, null, modifier = modifier.size(24.dp))
-                        else
-                            Icon(Icons.Filled.ArrowDropUp, null, modifier = modifier.size(24.dp))
-                    }
+                    ExposedDropdownMenuDefaults.TrailingIcon(!showCheckItems)
                 }
             }
         }
@@ -274,40 +271,29 @@ private fun ShoppingListItem(
 
     Box(
         modifier.combinedClickable(
-            onLongClick = {
-                onChecked()
-            },
+            onLongClick = { onChecked() },
             onClick = { onItemClick(shoppingItem) },
         )
     ) {
         Row(
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = shoppingItem.info.priority.toImageVector(),
-                contentDescription = null,
-                modifier = Modifier.align(
-                    Alignment.CenterVertically
-                )
-            )
-            Spacer(modifier = Modifier.requiredWidth(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text("${info.name} • ${info.amount}")
-                Text(
-                    stringResource(R.string.created_by, user.username),
-                    fontStyle = FontStyle.Italic
-                )
-            }
-
-            Spacer(modifier = Modifier.requiredWidth(16.dp))
-
             Checkbox(
                 checked = selected,
                 onCheckedChange = { onChecked() },
             )
+
+            Spacer(modifier = Modifier.requiredWidth(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text("${info.name} • ${info.amount}")
+//                Text(
+//                    stringResource(R.string.created_by, user.username),
+//                    fontStyle = FontStyle.Italic
+//                )
+            }
+
+            Spacer(modifier = Modifier.requiredWidth(16.dp))
         }
     }
 }
@@ -324,46 +310,42 @@ private fun CheckedShoppingListItem(
     CompositionLocalProvider(
         LocalContentColor provides MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     ) {
-        Row(
+        Box(
             modifier = modifier
-                .clickable { onItemClick(shoppingItem) }
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxWidth(),
+                .combinedClickable(
+                    onLongClick = {},
+                    onClick = { onItemClick(shoppingItem) },
+                ),
         ) {
-            Icon(
-                imageVector = shoppingItem.info.priority.toImageVector(),
-                contentDescription = null,
-                modifier = Modifier.align(
-                    Alignment.CenterVertically
-                )
-            )
-            Spacer(modifier = Modifier.requiredWidth(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(checked = true, onCheckedChange = {}, enabled = false)
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    info.name,
-                    style = TextStyle(textDecoration = TextDecoration.LineThrough),
-                )
+                Spacer(modifier = Modifier.requiredWidth(16.dp))
 
-                Row {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        info.name,
+                        style = TextStyle(textDecoration = TextDecoration.LineThrough),
+                    )
+
                     Text(
                         stringResource(R.string.bought_by, checkoff.checkoffUser.username),
                         fontStyle = FontStyle.Italic,
-                        modifier = Modifier.weight(1f)
                     )
 
-                    Spacer(Modifier.requiredWidth(12.dp))
-
-                    Text(checkoff.checkoffTime.inlineFormat())
+                    // TODO: rivedere non mi piace il posizionamento
+                    Text(
+                        text = checkoff.checkoffTime.inlineFormat(),
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.End,
+                    )
                 }
+
+                Spacer(modifier = Modifier.requiredWidth(16.dp))
             }
-
-            Spacer(modifier = Modifier.requiredWidth(16.dp))
-
-//            Checkbox(
-//                checked = selected,
-//                onCheckedChange = { onChecked() },
-//            )
         }
     }
 }
@@ -419,7 +401,12 @@ private fun ShoppingScreenPreview() {
         }
 
     val checked = List(4) { ShoppingItemModel.default() }
-        .map { it.copy(checkoffState = CheckoffStateModel.default()) }
+        .map {
+            it.copy(
+                checkoffState = CheckoffStateModel.default()
+                    .copy(checkoffTime = LocalDateTime.of(2020, 1, 1, 1, 1))
+            )
+        }
         .mapIndexed { id, item ->
             item.copy(info = item.info.copy(id = id.toLong() + items.size, name = "Checked"))
         }

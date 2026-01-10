@@ -8,7 +8,7 @@ sealed class ShoppingScreenEvent {
     data class SortingChanged(val itemSorting: ShoppingItemRepository.Sorting) :
         ShoppingScreenEvent()
 
-    object ItemsDeleted : ShoppingScreenEvent()
+    data object ItemsDeleted : ShoppingScreenEvent()
 
-    object ItemsCheckoff : ShoppingScreenEvent()
+    data object ItemsCheckoff : ShoppingScreenEvent()
 }

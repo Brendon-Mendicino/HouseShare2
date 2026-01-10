@@ -9,6 +9,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
@@ -62,9 +67,13 @@ fun MainFab(
     }
     val fadeSpec: FiniteAnimationSpec<Float> = MaterialTheme.motionScheme.slowEffectsSpec()
     val slideSpec: FiniteAnimationSpec<IntOffset> = MaterialTheme.motionScheme.slowSpatialSpec()
+    val fabModifier = Modifier.windowInsetsPadding(
+        WindowInsets.ime.only(WindowInsetsSides.Bottom)
+    )
 
     AnimatedContent(
         fabConfig to lastEntry,
+        modifier = modifier,
         contentKey = { it.second },
         transitionSpec = {
             slideInHorizontally(
@@ -82,6 +91,7 @@ fun MainFab(
         when (fabConfig) {
             is FabConfig.Toolbar ->
                 HorizontalFloatingToolbar(
+                    modifier = fabModifier,
                     expanded = fabConfig.expanded ?: false,
                     colors = vibrantColors,
                     floatingActionButton = {
@@ -101,7 +111,7 @@ fun MainFab(
 
             is FabConfig.Fab ->
                 MediumExtendedFloatingActionButton(
-                    modifier = modifier,
+                    modifier = fabModifier,
                     text = { Text(fabConfig.text ?: defaultText) },
                     expanded = fabConfig.expanded ?: defaultFabExpanded,
                     icon = {
