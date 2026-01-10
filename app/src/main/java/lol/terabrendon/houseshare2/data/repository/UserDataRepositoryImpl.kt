@@ -42,7 +42,6 @@ class UserDataRepositoryImpl @Inject constructor(
     override val currentLoggedUserId: Flow<Long?>
         get() = userPreferencesFlow
             .map { data -> data.currentLoggedUserId.takeIf { 0L != it } }
-            .distinctUntilChanged()
 
     override val selectedGroupId: Flow<Long?>
         get() = userPreferencesFlow

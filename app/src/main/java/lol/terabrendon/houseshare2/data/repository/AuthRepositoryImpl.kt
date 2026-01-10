@@ -34,13 +34,21 @@ class AuthRepositoryImpl @Inject constructor(
         user.toModel()
     }
 
-    override suspend fun finishLogin(): Result<UserModel, DataError> = refreshUser()
-        .onSuccess { user ->
-            Log.i(TAG, "finishLogin: got logged user from server. user=$user")
-        }
-        .onFailure {
-            Log.e(TAG, "finishLogin: failed to finish login! error=$it")
-        }
+    override suspend fun finishLogin(): Result<UserModel, DataError> {
+        // Reset the current user. Sometimes when the session expires
+        // the current user stays logged in, many functions will collect
+        // the flow using .distinctUntilChanged(). This prevents
+        // those function from not receiving the updated id.
+        userDataRepository.updateCurrentLoggedUser(null)
+
+        return refreshUser()
+            .onSuccess { user ->
+                Log.i(TAG, "finishLogin: got logged user from server. user=$user")
+            }
+            .onFailure {
+                Log.e(TAG, "finishLogin: failed to finish login! error=$it")
+            }
+    }
 
     // TODO: for now the loggedUser and finishLogin are identical but may change in the future
     override suspend fun loggedUser(): Result<UserModel, DataError> = refreshUser()
