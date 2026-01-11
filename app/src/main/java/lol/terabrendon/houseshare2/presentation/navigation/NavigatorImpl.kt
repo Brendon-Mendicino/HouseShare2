@@ -39,9 +39,14 @@ class NavigatorImpl(
     // Listen to any change in the current logged-in user
     // If the user changed reinitiate the login check
     private val isLoggedIn = userDataRepository.currentLoggedUserId
+        .onEach {
+            // If no user is currently logged, we are waiting for
+            // a server response.
+            if (it == null) {
+                isLoading.value = true
+            }
+        }
         .flatMapLatest {
-            isLoading.value = true
-
             flow {
                 while (true) {
                     Log.i(TAG, "isLoggedIn: check if user is login state")
@@ -94,6 +99,7 @@ class NavigatorImpl(
             }
         }.distinctUntilChanged()
             .onEach { check(it.isNotEmpty()) { "BackStack size must always by greater than 0!" } }
+            .onEach { Log.i(TAG, "backStack: $it") }
 
     private fun handleNavigationWithGraph(dest: MainNavigation): List<MainNavigation> {
         return if (dest in MainNavigation.topLevelRoutes) {
