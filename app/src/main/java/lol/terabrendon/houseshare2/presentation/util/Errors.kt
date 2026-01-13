@@ -22,11 +22,11 @@ fun DataError.toUiText(): UiText = when (this) {
 fun LocalError.toUiText(): UiText = when (this) {
     is LocalError.Constraint -> TODO()
     is LocalError.OutOfMemory -> UiText.Res(R.string.the_device_is_out_of_memory)
-    is LocalError.Unknown -> UiText.Res(R.string.an_unknown_error_happend_while_accessing_the_file_system)
+    is LocalError.Unknown -> UiText.Res(R.string.an_unknown_error_happened_while_accessing_the_file_system)
 }
 
 fun RemoteError.toUiText(): UiText = when (this) {
-    is RemoteError.BadRequest -> UiText.Res(R.string.the_server_could_handle_the_request)
+    is RemoteError.BadRequest -> UiText.Res(R.string.the_server_could_not_handle_the_request)
     is RemoteError.BadGateway -> UiText.Res(R.string.gateway_got_invalid_repsonse_while_processing_the_request)
     is RemoteError.ContentTooLarge -> UiText.Res(R.string.the_uploaded_content_was_too_large)
     is RemoteError.Unauthorized,

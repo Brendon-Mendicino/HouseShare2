@@ -3,6 +3,8 @@ package lol.terabrendon.houseshare2.domain.usecase
 import android.util.Log
 import androidx.room.RoomDatabase
 import androidx.room.withTransaction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import javax.inject.Inject
@@ -15,10 +17,10 @@ class FinishLogoutUseCase @Inject constructor(
         private const val TAG = "FinishLogoutUseCase"
     }
 
-    suspend operator fun invoke() {
-        db.withTransaction {
-            db.clearAllTables()
+    suspend operator fun invoke() = withContext(Dispatchers.IO) {
+        db.clearAllTables()
 
+        db.withTransaction {
             userDataRepository.updateCurrentLoggedUser(null)
             userDataRepository.updateSelectedGroupId(null)
             userDataRepository.updateBackStack(listOf(MainNavigation.Login))

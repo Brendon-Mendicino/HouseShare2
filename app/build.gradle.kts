@@ -43,7 +43,9 @@ android {
         }
         release {
             // Just for testing...
-            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:9090/\"")
+            buildConfigField("String", "BASE_URL", "\"https://houseshare.hollowinsidepizza.xyz/\"")
+
+            isDebuggable = false
 
             isMinifyEnabled = true
 

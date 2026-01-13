@@ -86,4 +86,21 @@
     <string name="please_go_to_the_group_tab_and_select_a_group">Vai nella pagina dei gruppi e selezionane uno</string>
     <string name="selected_items">Articoli selezionati</string>
     <string name="group_info">Info del gruppo</string>
+    <string name="login_failed">Accesso non riuscito</string>
+    <string name="the_device_is_out_of_memory">La memoria del dispositivo è esaurita</string>
+    <string name="an_unknown_error_happened_while_accessing_the_file_system">Si è verificato un errore sconosciuto durante l\'accesso al file system</string>
+    <string name="no_internet_connection">Nessuna connessione Internet</string>
+    <string name="gateway_timed_out">Timeout del gateway</string>
+    <string name="you_are_not_authorized_to_make_such_request">Non sei autorizzato a fare tale richiesta!</string>
+    <string name="the_uploaded_content_was_too_large">Il contenuto caricato era troppo grande</string>
+    <string name="the_request_took_too_long_to_elaborate">La richiesta ha richiesto troppo tempo per essere elaborata</string>
+    <string name="the_server_is_too_busy_to_answer_at_the_moment">Il server è troppo in sovracarico per rispondere in questo momento</string>
+    <string name="the_request_resource_does_not_exist">La risorsa richiesta non esiste</string>
+    <string name="the_server_is_temporarily_unavailable">Il server è temporaneamente non disponibile</string>
+    <string name="gateway_got_invalid_repsonse_while_processing_the_request">Il gateway ha ricevuto una risposta non valida durante l\'elaborazione della richiesta</string>
+    <string name="the_file_format_you_uploaded_is_not_processable_by_the_server">Il formato del file caricato non è elaborabile dal server</string>
+    <string name="the_server_experienced_an_unrecoverable_error_while_processing_the_request">Il server ha riscontrato un errore irrecuperabile durante l\'elaborazione della richiesta</string>
+    <string name="the_server_could_not_handle_the_request">Il server potrebbe gestire la richiesta</string>
+    <string name="an_unknown_network_error_happened">Si è verificato un errore di rete sconosciuto</string>
+    <string name="invite_link_was_not_valid">Il link di invito non era valido.</string>
 </resources>
