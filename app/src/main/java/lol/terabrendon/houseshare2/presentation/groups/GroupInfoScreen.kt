@@ -195,7 +195,7 @@ fun UserListItem(modifier: Modifier = Modifier, user: UserModel, isCurrentUser: 
                 )
             },
             supportingContent = {
-                // Useful for context (e.g., "Joined 2 days ago" or email)
+                // TODO: Useful for context (e.g., "Joined 2 days ago" or email)
                 // If you don't have this data yet, you can remove this parameter
                 Text("Member", style = MaterialTheme.typography.labelMedium)
             }

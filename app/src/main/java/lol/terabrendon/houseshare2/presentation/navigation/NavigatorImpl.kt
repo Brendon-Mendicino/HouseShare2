@@ -18,12 +18,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.AuthRepository
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
+import lol.terabrendon.houseshare2.data.util.NetworkMonitor
+import lol.terabrendon.houseshare2.domain.error.RemoteError
 import kotlin.time.Duration.Companion.minutes
 
 class NavigatorImpl(
     private val userDataRepository: UserDataRepository,
     private val coroutineScope: CoroutineScope,
     private val authRepository: AuthRepository,
+    private val networkMonitor: NetworkMonitor,
 ) : Navigator<MainNavigation> {
     companion object {
         private const val TAG = "NavigatorImpl"
@@ -38,7 +41,8 @@ class NavigatorImpl(
     @OptIn(ExperimentalCoroutinesApi::class)
     // Listen to any change in the current logged-in user
     // If the user changed reinitiate the login check
-    private val isLoggedIn = userDataRepository.currentLoggedUserId
+    private val isLoggedIn = userDataRepository
+        .currentLoggedUserId
         .onEach {
             // If no user is currently logged, we are waiting for
             // a server response.
@@ -46,16 +50,23 @@ class NavigatorImpl(
                 isLoading.value = true
             }
         }
-        .flatMapLatest {
+        .combine(networkMonitor.isOnline) { a, b -> a to b }
+        .flatMapLatest { (userId, isOnline) ->
             flow {
+                // If a user is present in the DB but we are offline our status must be
+                // loggedIn = true
+                if (userId != null && isOnline) {
+                    emit(true)
+                    return@flow
+                }
+
                 while (true) {
                     Log.i(TAG, "isLoggedIn: check if user is login state")
                     val res = authRepository.loggedUser().mapBoth(
                         success = { true },
-                        failure = { false }
+                        failure = { err -> err is RemoteError.NoConnection },
                     )
 
-                    isLoading.value = false
                     emit(res)
 
                     // Check again in 5 minutes if the user is still logged-in
@@ -63,6 +74,7 @@ class NavigatorImpl(
                 }
             }
         }
+        .onEach { isLoading.value = false }
         .distinctUntilChanged()
         .onEach { isLoggedIn ->
             if (isLoggedIn)

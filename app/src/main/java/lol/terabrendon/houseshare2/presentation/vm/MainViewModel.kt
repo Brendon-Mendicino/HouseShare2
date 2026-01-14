@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import lol.terabrendon.houseshare2.data.repository.AuthRepository
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
+import lol.terabrendon.houseshare2.data.util.NetworkMonitor
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.navigation.NavigatorImpl
@@ -15,6 +16,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     userDataRepository: UserDataRepository,
     authRepository: AuthRepository,
+    networkMonitor: NetworkMonitor,
 ) : ViewModel() {
     companion object {
         private const val TAG = "MainViewModel"
@@ -25,5 +27,5 @@ class MainViewModel @Inject constructor(
     }
 
     val navigator: Navigator<MainNavigation> =
-        NavigatorImpl(userDataRepository, viewModelScope, authRepository)
+        NavigatorImpl(userDataRepository, viewModelScope, authRepository, networkMonitor)
 }
