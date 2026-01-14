@@ -47,11 +47,16 @@ inline fun <reified T : MainNavigation> RegisterFabConfig(
     val backStack = LocalBackStack.current
     val enabled = enabled && backStack?.lastOrNull() is T
 
-    DisposableEffect(config, enabled) {
-        if (!enabled)
-            return@DisposableEffect onDispose { }
+    // Add the current route to the configuration in case the caller did not insert it
+    // This is likely the case, being a very repetitive action, this can be done
+    // by the register.
+    val config =
+        if (config.route == null && backStack != null) config.withRoute(backStack.last()) else config
 
-        Log.i(TAG_FAB, "RegisterFabConfig: setting-up fabManager")
+    DisposableEffect(config, enabled) {
+        if (!enabled) return@DisposableEffect onDispose { }
+
+        Log.d(TAG_FAB, "RegisterFabConfig: setting-up fabManager")
         // This is needed because of the android:enableOnBackInvokedCallback="true"
         val key = fabManager.putState(config)
 

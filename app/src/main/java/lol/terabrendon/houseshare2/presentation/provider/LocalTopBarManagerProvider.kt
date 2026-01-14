@@ -33,12 +33,12 @@ inline fun <reified T : MainNavigation> RegisterTopBarConfig(
         if (!enabled)
             return@DisposableEffect onDispose { }
 
-        Log.i(TAG_TOP, "RegisterTopBarConfig: setting-up topBarManager")
+        Log.d(TAG_TOP, "RegisterTopBarConfig: setting-up topBarManager")
         val key = topBarManager.putState(config)
 
         onDispose {
             topBarManager.removeState(key)
-            Log.i(TAG_TOP, "RegisterTopBarConfig: disposing topBarManager")
+            Log.d(TAG_TOP, "RegisterTopBarConfig: disposing topBarManager")
         }
     }
 }

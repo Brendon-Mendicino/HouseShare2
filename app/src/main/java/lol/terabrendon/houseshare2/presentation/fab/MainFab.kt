@@ -3,11 +3,10 @@ package lol.terabrendon.houseshare2.presentation.fab
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -34,95 +33,109 @@ import androidx.compose.material3.MediumExtendedFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.FabManager
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabManager
+import kotlin.time.Duration.Companion.milliseconds
+
 
 @SuppressLint("UnusedTargetStateInContentKeyLambda")
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, FlowPreview::class)
 @Composable
 fun MainFab(
     modifier: Modifier = Modifier,
     lastEntry: MainNavigation,
 ) {
-    val fabConfig by LocalFabManager.current.fabConfig
-    val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
-
-    val defaultFabExpanded = lastEntry.fabExpanded()
-    val defaultText = stringResource(lastEntry.fabText())
-    val defaultIcon = @Composable { t: String? ->
-        Icon(
-            imageVector = lastEntry.fabIcon(),
-            contentDescription = t,
-        )
+    val baseFabFlow = LocalFabManager.current.fabConfig
+    val debouncedFlow = remember(baseFabFlow) {
+        baseFabFlow.debounce(50.milliseconds)
     }
-    val fadeSpec: FiniteAnimationSpec<Float> = MaterialTheme.motionScheme.slowEffectsSpec()
-    val slideSpec: FiniteAnimationSpec<IntOffset> = MaterialTheme.motionScheme.slowSpatialSpec()
-    val fabModifier = Modifier.windowInsetsPadding(
-        WindowInsets.ime.only(WindowInsetsSides.Bottom)
-    )
+    val fabConfig by debouncedFlow.collectAsStateWithLifecycle(null)
+
+    val haptic = LocalHapticFeedback.current
+    LaunchedEffect(fabConfig?.route) {
+        if (fabConfig != null) {
+            // Perform a small tap/tick when the FAB appears or changes
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        }
+    }
+
+    val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
+    val motion = MaterialTheme.motionScheme
+
+    // Logic for default fallback values
+    val defaultText = stringResource(lastEntry.fabText())
+    val defaultIcon = @Composable {
+        Icon(imageVector = lastEntry.fabIcon(), contentDescription = null)
+    }
 
     AnimatedContent(
-        fabConfig to lastEntry,
-        modifier = modifier,
-        contentKey = { it.second },
+        fabConfig,
+        modifier = modifier.windowInsetsPadding(WindowInsets.ime.only(WindowInsetsSides.Bottom)),
+        contentKey = { conf -> conf?.route ?: "none" },
         transitionSpec = {
-            slideInHorizontally(
-                slideSpec,
-                initialOffsetX = { it }
-            ) + fadeIn(fadeSpec) togetherWith slideOutHorizontally(
-                slideSpec,
-                targetOffsetX = { it },
-            ) + fadeOut(fadeSpec)
+            // Material 3 recommendation: Scale + Fade for FABs
+            (fadeIn(motion.defaultSpatialSpec()) + scaleIn(initialScale = 0.8f))
+                .togetherWith(fadeOut(motion.defaultSpatialSpec()) + scaleOut(targetScale = 0.8f))
+        },
+        label = "FabTransform"
+    ) { fabConfig ->
+        if (fabConfig == null || !(fabConfig.visible ?: lastEntry.fabVisible())) {
+            return@AnimatedContent
         }
-    ) { (fabConfig, _) ->
-        // TODO: fix the visibility
-        val visible = fabConfig?.visible ?: lastEntry.fabVisible()
+
+        // This fires every time the toolbar opens or closes.
+        LaunchedEffect(fabConfig.expanded) {
+            haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+        }
 
         when (fabConfig) {
-            is FabConfig.Toolbar ->
+            is FabConfig.Toolbar -> {
                 HorizontalFloatingToolbar(
-                    modifier = fabModifier,
                     expanded = fabConfig.expanded ?: false,
                     colors = vibrantColors,
                     floatingActionButton = {
                         FloatingToolbarDefaults.VibrantFloatingActionButton(
-                            onClick = fabConfig.fab.onClick ?: {},
+                            onClick = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                fabConfig.fab.onClick?.invoke()
+                            },
                         ) {
-                            fabConfig.fab.icon?.invoke() ?: defaultIcon(
-                                fabConfig.fab.text ?: defaultText
-                            )
+                            fabConfig.fab.icon?.invoke() ?: defaultIcon()
                         }
-
                     },
                     content = {
                         fabConfig.content?.invoke(this, fabConfig.expanded ?: false)
                     },
                 )
+            }
 
-            is FabConfig.Fab ->
+            is FabConfig.Fab -> {
                 MediumExtendedFloatingActionButton(
-                    modifier = fabModifier,
                     text = { Text(fabConfig.text ?: defaultText) },
-                    expanded = fabConfig.expanded ?: defaultFabExpanded,
-                    icon = {
-                        fabConfig.icon?.invoke() ?: defaultIcon(
-                            fabConfig.text ?: defaultText
-                        )
+                    expanded = fabConfig.expanded ?: lastEntry.fabExpanded(),
+                    icon = { fabConfig.icon?.invoke() ?: defaultIcon() },
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        fabConfig.onClick?.invoke()
                     },
-                    onClick = fabConfig.onClick ?: {},
                 )
-
-            null -> {}
+            }
         }
     }
 }

@@ -60,6 +60,7 @@ class NavigatorImpl(
                     return@flow
                 }
 
+                // Otherwise stay in a pending state checking from the remote server.
                 while (true) {
                     Log.i(TAG, "isLoggedIn: check if user is login state")
                     val res = authRepository.loggedUser().mapBoth(

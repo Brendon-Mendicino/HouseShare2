@@ -13,6 +13,12 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Check if the current internet connection state of the device.
+ *
+ * [isOnline] provides a simple API for our code to understand simple
+ * changes in the connectivity state.
+ */
 class ConnectivityNetworkMonitor @Inject constructor(
     @ApplicationContext
     private val context: Context,

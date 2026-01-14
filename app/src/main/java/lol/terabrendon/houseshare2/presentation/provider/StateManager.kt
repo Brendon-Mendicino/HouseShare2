@@ -1,7 +1,9 @@
 package lol.terabrendon.houseshare2.presentation.provider
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.util.UUID
 
 abstract class StateManager<T : Any> {
@@ -12,15 +14,15 @@ abstract class StateManager<T : Any> {
 
     protected val lock = Any()
 
-    // Why this garbage?
-    // 1. LinkedHashMap is only usable on API >= 35
-    // 2. I'm not bothered to implement a linked list for fast retrieval
-    protected val nodes = mutableListOf<Node<T>>()
-    protected val stateMap = mutableMapOf<Key, Node<T>>()
+    /**
+     * LinkedHashMap maintains insertion order.
+     * The last item added is always the "top" of the stack.
+     */
+    protected val stateMap = LinkedHashMap<Key, Node<T>>()
 
     protected var stateKey: Key? = null
-    protected val _state = mutableStateOf<T?>(null)
-    protected val state: State<T?> get() = _state
+    protected val _state = MutableStateFlow<T?>(null)
+    protected val state: StateFlow<T?> get() = _state.asStateFlow()
 
     protected fun newKey(): Key {
         while (true) {
@@ -34,13 +36,11 @@ abstract class StateManager<T : Any> {
     fun putState(newState: T): Key {
         return synchronized(lock) {
             val key = newKey()
+            val node = Node(newState, key)
 
+            stateMap[key] = node
             stateKey = key
             _state.value = newState
-
-            val node = Node(newState, key)
-            nodes.add(node)
-            stateMap.put(key, node)
 
             key
         }
@@ -48,13 +48,14 @@ abstract class StateManager<T : Any> {
 
     fun update(key: Key, transform: (T) -> T) {
         synchronized(lock) {
-            val node = stateMap[key]
-            if (node != null) {
-                node.data = transform(node.data)
-            }
+            val node = stateMap[key] ?: return
 
+            // Update the data in the map.
+            node.data = transform(node.data)
+
+            // If this is the active state update the flow.
             if (stateKey == key) {
-                _state.value = transform(_state.value!!)
+                _state.update { transform(it!!) }
             }
         }
     }
@@ -62,12 +63,13 @@ abstract class StateManager<T : Any> {
     fun removeState(key: Key) {
         synchronized(lock) {
             val node = stateMap.remove(key)
-            check(nodes.remove(node)) { "Node must present!" }
+            check(node != null) { "Node must present!" }
 
+            // If we removed the active state, revert to the previous one in the map.
             if (key == stateKey) {
-                val last = nodes.lastOrNull()
+                val last = stateMap.entries.lastOrNull()
                 stateKey = last?.key
-                _state.value = last?.data
+                _state.value = last?.value?.data
             }
         }
     }
