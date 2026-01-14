@@ -103,4 +103,6 @@
     <string name="the_server_could_not_handle_the_request">The server could not handle the request</string>
     <string name="an_unknown_network_error_happened">An unknown network error happened</string>
     <string name="invite_link_was_not_valid">Invite link was not valid.</string>
+    <string name="no_groups_yet">No Groups Yet</string>
+    <string name="create_a_group_to_start_sharing_expenses_and_shopping_lists">Create a group to start sharing expenses and shopping lists.</string>
 </resources>

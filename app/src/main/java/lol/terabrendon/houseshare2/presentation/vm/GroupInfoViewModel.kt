@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.BuildConfig
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
 import lol.terabrendon.houseshare2.data.repository.GroupRepository
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.presentation.groups.GroupInfoEvent
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
@@ -29,6 +30,7 @@ class GroupInfoViewModel @AssistedInject constructor(
     private val route: HomepageNavigation.GroupInfo,
     private val groupRepository: GroupRepository,
     private val groupApi: GroupApi,
+    private val getLoggedUserUseCase: GetLoggedUserUseCase,
 ) : ViewModel() {
     companion object {
         private const val TAG = "GroupInfoViewModel"
@@ -50,6 +52,9 @@ class GroupInfoViewModel @AssistedInject constructor(
         .findById(route.groupId)
         .onEach { if (it == null) uiChannel.send(UiEvent.NoGroupFound) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
+
+    val currentUser =
+        getLoggedUserUseCase().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 
     fun onEvent(event: GroupInfoEvent): Unit = viewModelScope.launch {
         val group = groupInfo.value ?: return@launch
