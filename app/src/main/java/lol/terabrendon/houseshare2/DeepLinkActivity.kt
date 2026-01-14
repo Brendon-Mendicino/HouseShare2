@@ -58,8 +58,8 @@ class DeepLinkActivity : ComponentActivity() {
 
         matcher(
             uri.path ?: "",
-            "^/logout$" to { logout(mainActivity) },
-            "^/login/oauth2$" to { login(uri, mainActivity) },
+            """^\/logout$""" to { logout(mainActivity) },
+            """^\/login\/oauth2$""" to { login(uri, mainActivity) },
             """^\/api\/v\d+\/groups\/(?<groupId>[^\/]+)\/invite\/join$""" to {
                 val groupId = it.groups[1]?.value?.toLongOrNull()!!
                 Log.i(TAG, "onCreate: matching invite groupId=$groupId")

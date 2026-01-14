@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+import java.io.FileInputStream
+
 plugins {
     id("idea")
     alias(libs.plugins.androidApplication)
@@ -16,6 +19,13 @@ idea {
     }
 }
 
+val keystoreProperties = Properties()
+val keystoreFile = rootProject.file("keystore.properties")
+
+if (keystoreFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystoreFile))
+}
+
 android {
     namespace = "lol.terabrendon.houseshare2"
     compileSdk = 36
@@ -25,11 +35,22 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+
+    signingConfigs {
+        create("upload") {
+            if (keystoreFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
@@ -40,6 +61,7 @@ android {
 //            buildConfigField("String", "BASE_URL", "\"http://192.168.1.150:9090/\"")
             // Remote server
             buildConfigField("String", "BASE_URL", "\"https://houseshare.hollowinsidepizza.xyz/\"")
+            signingConfig = signingConfigs.getByName("debug")
         }
         release {
             // Just for testing...
@@ -57,7 +79,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("upload")
         }
     }
     compileOptions {
