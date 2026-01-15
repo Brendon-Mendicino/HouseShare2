@@ -51,17 +51,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="http" />
-                <data android:host="houseshare.hollowinsidepizza.xyz" />
-            </intent-filter>
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:scheme="https" />
                 <data android:host="houseshare.hollowinsidepizza.xyz" />
+
+                <data android:path="/logout" />
+                <data android:path="/login/oauth2" />
+                <!--                <data android:pathAdvancedPattern="/api/v[0-9]+/groups/[^/]+/invite/join" />-->
+                <data android:pathPattern="/api/v.*/groups/.*/invite/join" />
             </intent-filter>
         </activity>
 

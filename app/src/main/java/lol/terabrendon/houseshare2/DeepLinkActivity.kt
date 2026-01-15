@@ -68,6 +68,7 @@ class DeepLinkActivity : ComponentActivity() {
         ) {
             val msg = "onCreate: invalid uri path being matched! uri.path=${uri.path}"
             Log.e(TAG, msg)
+//            openInBrowser(uri)
             throw IllegalStateException(msg)
         }
 
@@ -113,5 +114,25 @@ class DeepLinkActivity : ComponentActivity() {
             }
 
         startActivity(mainActivity)
+    }
+
+    private fun openInBrowser(uri: Uri) {
+        val browserIntent = Intent(Intent.ACTION_VIEW, uri).apply {
+            // IMPORTANT: Category BROWSABLE and DEFAULT
+            addCategory(Intent.CATEGORY_BROWSABLE)
+            // This flag ensures the browser starts in a new task
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            // OPTIONAL: If you want to force the browser to NOT see your app
+            // as an option again (preventing loops):
+            // setPackage("com.android.chrome") // Or use a selector
+        }
+
+        try {
+            startActivity(browserIntent)
+        } catch (e: Exception) {
+            Log.e(TAG, "No browser found to handle link: $uri", e)
+            Toast.makeText(this, "No browser found", Toast.LENGTH_SHORT).show()
+        }
     }
 }
