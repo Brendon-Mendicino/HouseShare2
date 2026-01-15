@@ -63,7 +63,7 @@ abstract class StateManager<T : Any> {
     fun removeState(key: Key) {
         synchronized(lock) {
             val node = stateMap.remove(key)
-            check(node != null) { "Node must present!" }
+            check(node != null) { "Node must present! key=$key not found." }
 
             // If we removed the active state, revert to the previous one in the map.
             if (key == stateKey) {

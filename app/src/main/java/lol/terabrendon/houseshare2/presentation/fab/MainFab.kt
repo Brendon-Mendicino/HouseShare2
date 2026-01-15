@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.fab
 
-import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -32,48 +31,55 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumExtendedFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
-import lol.terabrendon.houseshare2.presentation.provider.FabManager
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabManager
 import kotlin.time.Duration.Companion.milliseconds
 
 
-@SuppressLint("UnusedTargetStateInContentKeyLambda")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, FlowPreview::class)
 @Composable
 fun MainFab(
     modifier: Modifier = Modifier,
     lastEntry: MainNavigation,
 ) {
+    // Debounce the stateFlow
     val baseFabFlow = LocalFabManager.current.fabConfig
-    val debouncedFlow = remember(baseFabFlow) {
-        baseFabFlow.debounce(50.milliseconds)
-    }
-    val fabConfig by debouncedFlow.collectAsStateWithLifecycle(null)
+    var fabConfig by rememberSaveable { mutableStateOf<FabConfig?>(null) }
 
-    val haptic = LocalHapticFeedback.current
-    LaunchedEffect(fabConfig?.route) {
-        if (fabConfig != null) {
-            // Perform a small tap/tick when the FAB appears or changes
-            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    LaunchedEffect(baseFabFlow) {
+        baseFabFlow.debounce(50.milliseconds).collectLatest {
+            fabConfig = it
         }
     }
+
+    MainFabInner(modifier, lastEntry, fabConfig)
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, FlowPreview::class)
+@Composable
+private fun MainFabInner(
+    modifier: Modifier = Modifier,
+    lastEntry: MainNavigation,
+    fabConfig: FabConfig?,
+) {
+    val haptic = LocalHapticFeedback.current
 
     val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
     val motion = MaterialTheme.motionScheme
@@ -211,105 +217,73 @@ private fun MainNavigation.fabVisible(): Boolean = when (this) {
 @Preview
 @Composable
 private fun ExpFabPreview() {
-    val m = FabManager().apply {
-        putState(
-            FabConfig.Fab(
-                visible = true,
-                expanded = true,
-                text = "Drown",
-                icon = {
-                    Icon(Icons.Filled.Pool, null)
-                }
-            )
-        )
-    }
+    val config = FabConfig.Fab(
+        visible = true,
+        expanded = true,
+        text = "Drown",
+        icon = {
+            Icon(Icons.Filled.Pool, null)
+        }
+    )
 
-    CompositionLocalProvider(
-        LocalFabManager provides m
-    ) {
-        MainFab(lastEntry = MainNavigation.Loading)
-    }
+    MainFabInner(lastEntry = MainNavigation.Loading, fabConfig = config)
 }
 
 @Preview
 @Composable
 private fun FabPreview() {
-    val m = FabManager().apply {
-        putState(
-            FabConfig.Fab(
-                visible = true,
-                expanded = false,
-                icon = { Icon(Icons.Filled.Factory, null) }
-            )
-        )
-    }
+    val config = FabConfig.Fab(
+        visible = true,
+        expanded = false,
+        icon = { Icon(Icons.Filled.Factory, null) }
+    )
 
-    CompositionLocalProvider(
-        LocalFabManager provides m
-    ) {
-        MainFab(lastEntry = MainNavigation.Loading)
-    }
+    MainFabInner(lastEntry = MainNavigation.Loading, fabConfig = config)
 }
 
 @Preview
 @Composable
 private fun ExpToolbarPreview() {
-    val m = FabManager().apply {
-        putState(
-            FabConfig.Toolbar(
-                visible = true,
-                expanded = true,
-                content = {
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Filled.Receipt, null)
-                    }
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Filled.Check, null)
-                    }
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Filled.BikeScooter, null)
-                    }
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Filled.Man, null)
-                    }
-                },
-                fab = FabConfig.Fab(
-                    visible = true,
-                    expanded = false,
-                    icon = { Icon(Icons.Filled.Factory, null) }
-                )
-            )
+    val config = FabConfig.Toolbar(
+        visible = true,
+        expanded = true,
+        content = {
+            IconButton(onClick = {}) {
+                Icon(Icons.Filled.Receipt, null)
+            }
+            IconButton(onClick = {}) {
+                Icon(Icons.Filled.Check, null)
+            }
+            IconButton(onClick = {}) {
+                Icon(Icons.Filled.BikeScooter, null)
+            }
+            IconButton(onClick = {}) {
+                Icon(Icons.Filled.Man, null)
+            }
+        },
+        fab = FabConfig.Fab(
+            visible = true,
+            expanded = false,
+            icon = { Icon(Icons.Filled.Factory, null) }
         )
-    }
+    )
 
-    CompositionLocalProvider(
-        LocalFabManager provides m
-    ) {
-        MainFab(lastEntry = MainNavigation.Loading)
-    }
+    MainFabInner(lastEntry = MainNavigation.Loading, fabConfig = config)
 }
 
 @Preview
 @Composable
 private fun ToolbarPreview() {
-    val m = FabManager().apply {
-        putState(
-            FabConfig.Toolbar(
-                visible = true,
-                expanded = false,
-                content = {},
-                fab = FabConfig.Fab(
-                    visible = true,
-                    expanded = false,
-                    icon = { Icon(Icons.Filled.Factory, null) }
-                )
-            )
+    val config = FabConfig.Toolbar(
+        visible = true,
+        expanded = false,
+        content = {},
+        fab = FabConfig.Fab(
+            visible = true,
+            expanded = false,
+            icon = { Icon(Icons.Filled.Factory, null) }
         )
-    }
+    )
 
-    CompositionLocalProvider(
-        LocalFabManager provides m
-    ) {
-        MainFab(lastEntry = MainNavigation.Loading)
-    }
+    MainFabInner(lastEntry = MainNavigation.Loading, fabConfig = config)
 }
