@@ -34,7 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,7 +61,7 @@ fun MainFab(
 ) {
     // Debounce the stateFlow
     val baseFabFlow = LocalFabManager.current.fabConfig
-    var fabConfig by rememberSaveable { mutableStateOf<FabConfig?>(null) }
+    var fabConfig by remember { mutableStateOf<FabConfig?>(null) }
 
     LaunchedEffect(baseFabFlow) {
         baseFabFlow.debounce(50.milliseconds).collectLatest {
@@ -90,6 +90,11 @@ private fun MainFabInner(
         Icon(imageVector = lastEntry.fabIcon(), contentDescription = null)
     }
 
+    // This fires every time the toolbar opens or closes.
+    LaunchedEffect(fabConfig?.expanded ?: false) {
+        haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
+    }
+
     AnimatedContent(
         fabConfig,
         modifier = modifier.windowInsetsPadding(WindowInsets.ime.only(WindowInsetsSides.Bottom)),
@@ -103,11 +108,6 @@ private fun MainFabInner(
     ) { fabConfig ->
         if (fabConfig == null || !(fabConfig.visible ?: lastEntry.fabVisible())) {
             return@AnimatedContent
-        }
-
-        // This fires every time the toolbar opens or closes.
-        LaunchedEffect(fabConfig.expanded) {
-            haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)
         }
 
         when (fabConfig) {

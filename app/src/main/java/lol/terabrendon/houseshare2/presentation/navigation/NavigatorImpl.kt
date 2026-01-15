@@ -63,9 +63,10 @@ class NavigatorImpl(
                 // Otherwise stay in a pending state checking from the remote server.
                 while (true) {
                     Log.i(TAG, "isLoggedIn: check if user is login state")
+                    // TODO: print other kind of errors
                     val res = authRepository.loggedUser().mapBoth(
                         success = { true },
-                        failure = { err -> err is RemoteError.NoConnection },
+                        failure = { err -> err !is RemoteError.Unauthorized },
                     )
 
                     emit(res)
