@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.home
 
-import android.util.Log
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -50,8 +49,7 @@ import lol.terabrendon.houseshare2.presentation.user.userNavigation
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
-
-private const val TAG = "HouseShareMain"
+import timber.log.Timber
 
 @Composable
 fun HouseShareMain(
@@ -82,7 +80,7 @@ private fun HouseShareMainInner(
     }
 
     ObserveAsEvent(SnackbarController.events, snackbarHostState) { event ->
-        Log.i(TAG, "HouseShareMainInner: snackbar event received")
+        Timber.i("HouseShareMainInner: snackbar event received")
 
         scope.launch {
             snackbarHostState.currentSnackbarData?.dismiss()

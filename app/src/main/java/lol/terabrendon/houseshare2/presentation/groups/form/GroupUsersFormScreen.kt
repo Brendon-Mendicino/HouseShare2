@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.groups.form
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
@@ -60,8 +59,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
-
-private const val TAG: String = "GroupUsersFormScreen"
+import timber.log.Timber
 
 @Composable
 fun GroupUsersFormScreen(
@@ -69,7 +67,7 @@ fun GroupUsersFormScreen(
     onBack: () -> Unit,
     onNext: () -> Unit,
 ) {
-    Log.d(TAG, "GroupUsersFormScreen: entering screen")
+    Timber.d("GroupUsersFormScreen: entering screen")
 
     val formState by viewModel.groupFormState.collectAsState()
     val users by viewModel.users.collectAsState()

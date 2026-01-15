@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.data.repository
 
-import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -20,6 +19,7 @@ import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
+import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -32,17 +32,13 @@ class UserRepositoryImpl @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val groupDao: GroupDao,
 ) : UserRepository {
-    companion object {
-        private const val TAG = "UserRepository"
-    }
-
     // TODO: consider something else?
     private val refreshGroups = AtomicBoolean(false)
     private val refreshUsers = AtomicBoolean(false)
 
     private fun refreshUserGroups(userId: Long) {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "refreshUserGroups: refreshing groups for userId=${userId}")
+            Timber.i("refreshUserGroups: refreshing groups for userId=${userId}")
 
             val groups = userApi.getGroups(userId)
             val usersToRequest =
@@ -113,7 +109,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun refreshUsers() {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "refreshUsers: refreshing all visible users")
+            Timber.i("refreshUsers: refreshing all visible users")
 
             val loggedUserId = userDataRepository.currentLoggedUserId.filterNotNull().first()
 
@@ -131,7 +127,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun refreshGroupUsers(groupId: Long) {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "refreshGroupUsers: refreshing users of groupId=$groupId")
+            Timber.i("refreshGroupUsers: refreshing users of groupId=$groupId")
 
             val users = userApi.getGroupUsers(groupId)
 
@@ -141,7 +137,7 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun refreshGroupUser(groupId: Long, userId: Long) {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "refreshGroupUser: refreshing userId=$userId of groupId=$groupId")
+            Timber.i("refreshGroupUser: refreshing userId=$userId of groupId=$groupId")
 
             val userDto = userApi.getGroupUser(groupId, userId)
 

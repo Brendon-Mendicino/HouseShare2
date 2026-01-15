@@ -1,13 +1,11 @@
 package lol.terabrendon.houseshare2.presentation.billing
 
-import android.util.Log
 import androidx.navigation3.runtime.EntryProviderScope
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.util.TOP_LEVEL_TRANSITION
-
-const val TAG = "BillingNavigation"
+import timber.log.Timber
 
 fun EntryProviderScope<MainNavigation>.billingNavigation(navigator: Navigator<MainNavigation>) {
     entry<HomepageNavigation.Billing>(
@@ -19,7 +17,7 @@ fun EntryProviderScope<MainNavigation>.billingNavigation(navigator: Navigator<Ma
     entry<HomepageNavigation.ExpenseForm> { entry ->
         NewExpenseForm(
             onFinish = {
-                Log.i(TAG, "HouseShareMainInner: NewExpense form onFinish called.")
+                Timber.i("HouseShareMainInner: NewExpense form onFinish called.")
                 navigator.pop()
             },
         )

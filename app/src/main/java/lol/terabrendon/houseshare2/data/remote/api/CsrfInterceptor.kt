@@ -1,9 +1,9 @@
 package lol.terabrendon.houseshare2.data.remote.api
 
-import android.util.Log
 import okhttp3.Cookie
 import okhttp3.Interceptor
 import okhttp3.Response
+import timber.log.Timber
 
 /**
  * HTTP interceptors for csrf tokens. Automatically handles getting
@@ -11,10 +11,6 @@ import okhttp3.Response
  * requests.
  */
 class CsrfInterceptor : Interceptor {
-    companion object {
-        private const val TAG = "CsrfInterceptor"
-    }
-
     override fun intercept(chain: Interceptor.Chain): Response {
         val oldRequest = chain.request()
         val builder = oldRequest.newBuilder()
@@ -49,7 +45,7 @@ class CsrfInterceptor : Interceptor {
             .firstOrNull { cookie -> cookie.name == "XSRF-TOKEN" && cookie.value.isNotEmpty() }
 
         if (csrfCookie != null) {
-            Log.i(TAG, "intercept: new csrf intercepted.")
+            Timber.i("intercept: new csrf intercepted.")
         }
 
         return response

@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.data.repository
 
-import android.util.Log
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.onFailure
@@ -12,6 +11,7 @@ import lol.terabrendon.houseshare2.domain.error.DataError
 import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
+import timber.log.Timber
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -19,10 +19,6 @@ class AuthRepositoryImpl @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val userApi: UserApi,
 ) : AuthRepository {
-    companion object {
-        private const val TAG = "AuthRepositoryImpl"
-    }
-
     private suspend fun refreshUser(): Result<UserModel, DataError> = coroutineBinding {
         val user = userApi.getLoggedUser().bind()
 
@@ -43,16 +39,16 @@ class AuthRepositoryImpl @Inject constructor(
 
         return refreshUser()
             .onSuccess { user ->
-                Log.i(TAG, "finishLogin: got logged user from server. user=$user")
+                Timber.i("finishLogin: got logged user from server. user=%s", user)
             }
             .onFailure {
-                Log.e(TAG, "finishLogin: failed to finish login! error=$it")
+                Timber.e("finishLogin: failed to finish login! error=%s", it)
             }
     }
 
     // TODO: for now the loggedUser and finishLogin are identical but may change in the future
     override suspend fun loggedUser(): Result<UserModel, DataError> = refreshUser()
         .onSuccess { user ->
-            Log.i(TAG, "loggedUser: got logged user from server. $user")
+            Timber.i("loggedUser: got logged user from server. user=%s", user)
         }
 }

@@ -33,6 +33,7 @@ truth = "1.4.5"
 testCore = "1.7.0"
 mockito = "5.20.0"
 mockitoKotlin = "6.1.0"
+timber = "5.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -118,6 +119,8 @@ truth = { module = "com.google.truth:truth", version.ref = "truth" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 
+# Timber
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

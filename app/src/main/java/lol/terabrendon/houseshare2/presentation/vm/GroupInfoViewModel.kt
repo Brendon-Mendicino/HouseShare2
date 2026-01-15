@@ -2,7 +2,6 @@ package lol.terabrendon.houseshare2.presentation.vm
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,19 +22,16 @@ import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.presentation.groups.GroupInfoEvent
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
+import timber.log.Timber
 
 @HiltViewModel(assistedFactory = GroupInfoViewModel.Factory::class)
 class GroupInfoViewModel @AssistedInject constructor(
     @Assisted
     private val route: HomepageNavigation.GroupInfo,
-    private val groupRepository: GroupRepository,
+    groupRepository: GroupRepository,
     private val groupApi: GroupApi,
-    private val getLoggedUserUseCase: GetLoggedUserUseCase,
+    getLoggedUserUseCase: GetLoggedUserUseCase,
 ) : ViewModel() {
-    companion object {
-        private const val TAG = "GroupInfoViewModel"
-    }
-
     @AssistedFactory
     interface Factory {
         fun create(route: HomepageNavigation.GroupInfo): GroupInfoViewModel
@@ -83,7 +79,7 @@ class GroupInfoViewModel @AssistedInject constructor(
                     flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 }, null)
 
-                Log.i(TAG, "onEvent: sending group invite url")
+                Timber.i("onEvent: sending group invite url")
                 ActivityQueue.sendIntent(share)
             }
         }

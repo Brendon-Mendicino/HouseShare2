@@ -48,7 +48,7 @@ object AppModule {
                 applicationContext, HouseShareDatabase::class.java, "house_share_db"
             )
 //            .setQueryCallback({ sqlQuery, bindArgs ->
-//                Log.i("HouseShareDatabase", "query: $sqlQuery | args: $bindArgs")
+//                Timber.i("query: $sqlQuery | args: $bindArgs")
 //            }, Executors.newSingleThreadExecutor())
             .build()
 

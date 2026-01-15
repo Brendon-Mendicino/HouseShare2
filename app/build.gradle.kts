@@ -171,6 +171,9 @@ dependencies {
     // Navigation3
     implementation(libs.bundles.navigation3)
 
+    // Timber
+    implementation(libs.timber)
+
     // Desugar
     coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)
 

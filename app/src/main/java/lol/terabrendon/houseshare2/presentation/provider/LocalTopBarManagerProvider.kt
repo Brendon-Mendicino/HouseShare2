@@ -1,13 +1,11 @@
 package lol.terabrendon.houseshare2.presentation.provider
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
-
-const val TAG_TOP: String = "LocalTopBarManagerProvider"
+import timber.log.Timber
 
 @Composable
 fun LocalTopBarManagerProvider(content: @Composable () -> Unit) {
@@ -33,12 +31,12 @@ inline fun <reified T : MainNavigation> RegisterTopBarConfig(
         if (!enabled)
             return@DisposableEffect onDispose { }
 
-        Log.d(TAG_TOP, "RegisterTopBarConfig: setting-up topBarManager")
+        Timber.d("RegisterTopBarConfig: setting-up topBarManager")
         val key = topBarManager.putState(config)
 
         onDispose {
             topBarManager.removeState(key)
-            Log.d(TAG_TOP, "RegisterTopBarConfig: disposing topBarManager")
+            Timber.d("RegisterTopBarConfig: disposing topBarManager")
         }
     }
 }

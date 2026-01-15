@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.data.repository
 
-import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +15,7 @@ import lol.terabrendon.houseshare2.domain.mapper.toDto
 import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
+import timber.log.Timber
 import javax.inject.Inject
 
 class ExpenseRepositoryImpl @Inject constructor(
@@ -27,10 +27,6 @@ class ExpenseRepositoryImpl @Inject constructor(
     private val userRepository: UserRepository,
     private val userDao: UserDao,
 ) : ExpenseRepository {
-    companion object {
-        private const val TAG = "ExpenseRepositoryImpl"
-    }
-
     override fun findAll(): Flow<List<ExpenseModel>> = expenseDao.findAll().map { expenses ->
         expenses.map { it.toModel() }
     }
@@ -40,7 +36,7 @@ class ExpenseRepositoryImpl @Inject constructor(
         .map { expenses -> expenses.map { it.toModel() } }
 
     override suspend fun insert(expense: ExpenseModel) = externalScope.launch(ioDispatcher) {
-        Log.i(TAG, "insert: starting expense insertion")
+        Timber.i("insert: starting expense insertion")
 
         val dto = expenseApi.save(expense.groupId, expense.toDto())
 
@@ -51,7 +47,7 @@ class ExpenseRepositoryImpl @Inject constructor(
     }.join()
 
     override suspend fun refreshByGroupId(groupId: Long) = externalScope.launch(ioDispatcher) {
-        Log.i(TAG, "refreshByGroupId: refreshing expenses of group.id=$groupId")
+        Timber.i("refreshByGroupId: refreshing expenses of group.id=%d", groupId)
 
         val local = expenseDao.findByGroupId(groupId).first()
 

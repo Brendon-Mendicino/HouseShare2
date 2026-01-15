@@ -1,14 +1,12 @@
 package lol.terabrendon.houseshare2.data.remote.util
 
-import android.util.Log
 import androidx.core.net.toUri
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import lol.terabrendon.houseshare2.domain.error.RemoteError
 import retrofit2.Response
-
-private const val TAG = "ConvertResponse"
+import timber.log.Timber
 
 fun <T : Any> convertResponse(response: Response<T>): Result<T, RemoteError> {
     val code = response.code()
@@ -17,9 +15,9 @@ fun <T : Any> convertResponse(response: Response<T>): Result<T, RemoteError> {
     return if (response.isSuccessful && body != null) {
         Ok(body)
     } else {
-        Log.w(
-            TAG,
-            "convertResponse: error caught while performing an http request. response=$response"
+        Timber.w(
+            "convertResponse: error caught while performing an http request. response=%s",
+            response
         )
 
         val error = when (code) {

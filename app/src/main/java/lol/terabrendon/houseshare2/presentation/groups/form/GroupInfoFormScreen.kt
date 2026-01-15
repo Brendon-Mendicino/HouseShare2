@@ -1,13 +1,11 @@
 package lol.terabrendon.houseshare2.presentation.groups.form
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,8 +22,7 @@ import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
-
-private const val TAG: String = "GroupInfoFormScreen"
+import timber.log.Timber
 
 @Composable
 fun GroupInfoFormScreen(
@@ -34,12 +31,11 @@ fun GroupInfoFormScreen(
     onSubmit: () -> Unit,
 ) {
     val formState by viewModel.groupFormState.collectAsState()
-    val scope = rememberCoroutineScope()
 
     RegisterFabConfig<HomepageNavigation.GroupInfoForm>(
         config = FabConfig.Fab(
             onClick = {
-                Log.d(TAG, "GroupInfoFormScreen: fab has been clicked")
+                Timber.d("GroupInfoFormScreen: fab has been clicked")
                 viewModel.onEvent(GroupFormEvent.Submit)
             },
         )
@@ -62,7 +58,7 @@ fun GroupInfoFormScreen(
 @Composable
 private fun GroupInfoFormScreenInner(
     groupFormState: GroupFormStateValidator,
-    onEvent: (GroupFormEvent) -> Unit = {}
+    onEvent: (GroupFormEvent) -> Unit = {},
 ) {
 
     Column(modifier = Modifier.padding(8.dp)) {

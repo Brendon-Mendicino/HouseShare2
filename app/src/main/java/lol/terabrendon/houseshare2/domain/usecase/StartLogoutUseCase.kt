@@ -1,7 +1,6 @@
 package lol.terabrendon.houseshare2.domain.usecase
 
 import android.content.Intent
-import android.util.Log
 import androidx.core.net.toUri
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.coroutines.coroutineBinding
@@ -12,6 +11,7 @@ import lol.terabrendon.houseshare2.domain.error.DataError
 import lol.terabrendon.houseshare2.domain.error.RemoteError
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
 import lol.terabrendon.houseshare2.util.setQuery
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -24,13 +24,9 @@ import javax.inject.Inject
 class StartLogoutUseCase @Inject constructor(
     private val authApi: AuthApi,
 ) {
-    companion object {
-        private const val TAG = "StartLogoutUseCase"
-    }
-
     suspend operator fun invoke(): Result<Unit, DataError> = coroutineBinding {
         val res = authApi.logout()
-        Log.i(TAG, "invoke: logout response: $res")
+        Timber.i("invoke: logout response: %s", res)
 
         val redirect = res.getErrorOr(null)
         val uri = when (redirect) {
@@ -39,7 +35,7 @@ class StartLogoutUseCase @Inject constructor(
         }
 
         if (uri == null) {
-            Log.w(TAG, "invoke: logout failed! response=$res")
+            Timber.w("invoke: logout failed! response=%s", res)
             return@coroutineBinding
         }
 
@@ -49,6 +45,6 @@ class StartLogoutUseCase @Inject constructor(
         val intent = Intent(Intent.ACTION_VIEW, logoutUri)
         ActivityQueue.sendIntent(intent)
 
-        Log.i(TAG, "invoke: started logout procedure")
+        Timber.i("invoke: started logout procedure")
     }
 }

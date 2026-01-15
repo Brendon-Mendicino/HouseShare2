@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.onFailure
@@ -19,6 +18,7 @@ import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.UiText
 import lol.terabrendon.houseshare2.presentation.util.toUiText
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,10 +26,6 @@ class LoginViewModel @Inject constructor(
     private val getLoggedUser: GetLoggedUserUseCase,
     private val userLoginUseCase: StartLoginUseCase,
 ) : ViewModel() {
-    companion object {
-        private const val TAG = "LoginViewModel"
-    }
-
     private var _uiEvent = Channel<LoginUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -39,7 +35,7 @@ class LoginViewModel @Inject constructor(
             getLoggedUser()
                 .filterNotNull()
                 .collect {
-                    Log.i(TAG, "init: user has logged in.")
+                    Timber.i("init: user has logged in.")
 
                     _uiEvent.send(LoginUiEvent.LoginSuccessful)
 
@@ -53,7 +49,7 @@ class LoginViewModel @Inject constructor(
             LoginEvent.Login -> viewModelScope.launch {
                 userLoginUseCase()
                     .onFailure { error ->
-                        Log.w(TAG, "onEvent: failed to perform login! response=$error")
+                        Timber.w("onEvent: failed to perform login! response=%s", error)
 
                         SnackbarController.sendEvent(
                             SnackbarEvent(

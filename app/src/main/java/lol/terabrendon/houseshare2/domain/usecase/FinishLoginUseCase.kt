@@ -1,7 +1,6 @@
 package lol.terabrendon.houseshare2.domain.usecase
 
 import android.net.Uri
-import android.util.Log
 import androidx.room.RoomDatabase
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
@@ -14,6 +13,7 @@ import lol.terabrendon.houseshare2.data.repository.AuthRepository
 import lol.terabrendon.houseshare2.domain.error.DataError
 import lol.terabrendon.houseshare2.domain.error.RemoteError
 import lol.terabrendon.houseshare2.domain.model.UserModel
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -25,10 +25,6 @@ class FinishLoginUseCase @Inject constructor(
     private val authRepository: AuthRepository,
     private val db: RoomDatabase,
 ) {
-    companion object {
-        const val TAG = "FinishLoginUseCase"
-    }
-
     suspend operator fun invoke(redirectUri: Uri): Result<UserModel, DataError> = withContext(
         Dispatchers.IO
     ) {
@@ -37,7 +33,7 @@ class FinishLoginUseCase @Inject constructor(
                 ?: throw IllegalStateException("The query parameter param=$name was not present in the redirectUri! redirectUri=$redirectUri")
         }
 
-        Log.i(TAG, "invoke: Finishing login")
+        Timber.i("invoke: Finishing login")
 
         val res = authApi.authCodeFlow(
             state = query("state"),
@@ -52,11 +48,11 @@ class FinishLoginUseCase @Inject constructor(
             return@withContext Err(res.unwrapError())
         }
 
-        Log.i(TAG, "invoke: successfully completed oauth2 code flow with server")
+        Timber.i("invoke: successfully completed oauth2 code flow with server")
 
-        Log.i(TAG, "invoke: starting DB clear")
+        Timber.i("invoke: starting DB clear")
         db.clearAllTables()
-        Log.i(TAG, "invoke: finished DB clear")
+        Timber.i("invoke: finished DB clear")
 
         authRepository.finishLogin()
     }

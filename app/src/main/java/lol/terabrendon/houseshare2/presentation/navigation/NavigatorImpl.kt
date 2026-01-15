@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.navigation
 
-import android.util.Log
 import com.github.michaelbull.result.mapBoth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,17 +19,16 @@ import lol.terabrendon.houseshare2.data.repository.AuthRepository
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.data.util.NetworkMonitor
 import lol.terabrendon.houseshare2.domain.error.RemoteError
+import timber.log.Timber
 import kotlin.time.Duration.Companion.minutes
 
 class NavigatorImpl(
     private val userDataRepository: UserDataRepository,
     private val coroutineScope: CoroutineScope,
     private val authRepository: AuthRepository,
-    private val networkMonitor: NetworkMonitor,
+    networkMonitor: NetworkMonitor,
 ) : Navigator<MainNavigation> {
     companion object {
-        private const val TAG = "NavigatorImpl"
-
         private val LOADING = listOf(MainNavigation.Loading)
         private val LOGIN = listOf(MainNavigation.Login)
         private val DEFAULT_HOMEPAGE = listOf(HomepageNavigation.Groups)
@@ -62,7 +60,7 @@ class NavigatorImpl(
 
                 // Otherwise stay in a pending state checking from the remote server.
                 while (true) {
-                    Log.i(TAG, "isLoggedIn: check if user is login state")
+                    Timber.i("isLoggedIn: check if user is login state")
                     // TODO: print other kind of errors
                     val res = authRepository.loggedUser().mapBoth(
                         success = { true },
@@ -80,9 +78,9 @@ class NavigatorImpl(
         .distinctUntilChanged()
         .onEach { isLoggedIn ->
             if (isLoggedIn)
-                Log.i(TAG, "isLoggedIn: user is logged-in")
+                Timber.i("isLoggedIn: user is logged-in")
             else
-                Log.i(TAG, "isLoggedIn: user is logged-out")
+                Timber.i("isLoggedIn: user is logged-out")
         }
         .stateIn(coroutineScope, SharingStarted.Eagerly, false)
 
@@ -101,7 +99,7 @@ class NavigatorImpl(
 
     private val _backStack = userDataRepository
         .savedBackStack
-        .onEach { Log.i(TAG, "_backStack: $it") }
+        .onEach { Timber.i("_backStack: %s", it) }
         .stateIn(coroutineScope, SharingStarted.Eagerly, listOf(MainNavigation.Loading))
 
     override val backStack: Flow<List<MainNavigation>>
@@ -113,7 +111,7 @@ class NavigatorImpl(
             }
         }.distinctUntilChanged()
             .onEach { check(it.isNotEmpty()) { "BackStack size must always by greater than 0!" } }
-            .onEach { Log.i(TAG, "backStack: $it") }
+            .onEach { Timber.i("backStack: %s", it) }
 
     private fun handleNavigationWithGraph(dest: MainNavigation): List<MainNavigation> {
         return if (dest in MainNavigation.topLevelRoutes) {

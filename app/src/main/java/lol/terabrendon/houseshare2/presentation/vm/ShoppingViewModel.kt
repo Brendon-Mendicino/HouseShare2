@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,18 +19,15 @@ import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreenEvent
 import lol.terabrendon.houseshare2.util.mapState
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class ShoppingViewModel @Inject constructor(
     private val shoppingItemRepository: ShoppingItemRepository,
     private val getLoggedUserUseCase: GetLoggedUserUseCase,
-    private val getSelectedGroupUseCase: GetSelectedGroupUseCase,
+    getSelectedGroupUseCase: GetSelectedGroupUseCase,
 ) : ViewModel() {
-    companion object {
-        private const val TAG = "ShoppingViewModel"
-    }
-
     val currentGroup = getSelectedGroupUseCase().stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
@@ -76,7 +72,7 @@ class ShoppingViewModel @Inject constructor(
     fun onEvent(event: ShoppingScreenEvent) {
         when (event) {
             is ShoppingScreenEvent.ItemChecked -> {
-                Log.i(TAG, "onEvent: ShoppingItem@${event.item.id} was toggled")
+                Timber.i("onEvent: ShoppingItem@%d was toggled", event.item.id)
 
                 _selectedItems.update {
                     if (event.item.id !in it)
@@ -94,7 +90,7 @@ class ShoppingViewModel @Inject constructor(
                     .filter { item -> item.info.id in selectedItems.value }
                     .map { it.info }
 
-                Log.i(TAG, "onEvent: deleting ${items.size} ShoppingItems from the repository.")
+                Timber.i("onEvent: deleting %d ShoppingItems from the repository.", items.size)
 
                 shoppingItemRepository.deleteAll(items)
 
@@ -110,7 +106,7 @@ class ShoppingViewModel @Inject constructor(
                 val loggedUser = getLoggedUserUseCase().first()!!
                 val groupId = currentGroup.value!!.info.groupId
 
-                Log.i(TAG, "onEvent: check of ${items.size} ShoppingItems from the repository.")
+                Timber.i("onEvent: check of %d ShoppingItems from the repository.", items.size)
 
                 shoppingItemRepository.checkoffItems(groupId, items, loggedUser.id)
 

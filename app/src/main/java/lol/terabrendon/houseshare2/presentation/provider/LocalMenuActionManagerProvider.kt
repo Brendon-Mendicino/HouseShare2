@@ -1,13 +1,11 @@
 package lol.terabrendon.houseshare2.presentation.provider
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-
-private const val TAG: String = "LocalMenuActionManagerProvider"
+import timber.log.Timber
 
 @Composable
 fun LocalMenuActionManagerProvider(content: @Composable () -> Unit) {
@@ -23,10 +21,10 @@ fun RegisterMenuAction(key: String, content: @Composable () -> Unit) {
     val menuAction = LocalMenuActionManager.current
 
     LaunchedEffect(Unit) {
-        Log.i(TAG, "RegisterFabAction: setting-up fabActionManager")
+        Timber.i("RegisterFabAction: setting-up fabActionManager")
         if (menuAction.actions.contains(key)) {
             val msg = "RegisterMenuAction: the same key=$key was registered more than once!"
-            Log.e(TAG, msg)
+            Timber.e(msg)
             throw IllegalStateException(msg)
         }
         menuAction.actions[key] = content
@@ -34,7 +32,7 @@ fun RegisterMenuAction(key: String, content: @Composable () -> Unit) {
 
     DisposableEffect(Unit) {
         onDispose {
-            Log.d(TAG, "RegisterFabAction: re-setting fabActionManager")
+            Timber.d("RegisterFabAction: re-setting fabActionManager")
             menuAction.actions.remove(key)
         }
     }

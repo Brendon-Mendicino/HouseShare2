@@ -1,13 +1,11 @@
 package lol.terabrendon.houseshare2.presentation.provider
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
-
-const val TAG_FAB: String = "LocalFabActionManagerProvider"
+import timber.log.Timber
 
 /**
  * Provides the [LocalFabManager] to all the children inside [content].
@@ -56,13 +54,13 @@ inline fun <reified T : MainNavigation> RegisterFabConfig(
     DisposableEffect(config, enabled) {
         if (!enabled) return@DisposableEffect onDispose { }
 
-        Log.d(TAG_FAB, "RegisterFabConfig: setting-up fabManager")
+        Timber.d("RegisterFabConfig: setting-up fabManager")
         // This is needed because of the android:enableOnBackInvokedCallback="true"
         val key = fabManager.putState(config)
 
         onDispose {
             fabManager.removeState(key)
-            Log.d(TAG_FAB, "RegisterFabConfig: re-setting fabManager")
+            Timber.d("RegisterFabConfig: re-setting fabManager")
         }
     }
 }

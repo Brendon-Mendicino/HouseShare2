@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +21,7 @@ import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormUi
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.toUiText
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,10 +30,6 @@ class ShoppingItemFormViewModel @Inject constructor(
     private val getLoggedUserUseCase: GetLoggedUserUseCase,
     private val getSelectedGroupUseCase: GetSelectedGroupUseCase,
 ) : ViewModel() {
-    companion object {
-        private const val TAG: String = "ShoppingItemFormViewModel"
-    }
-
     private val _uiEvents = Channel<ShoppingItemFormUiEvent>()
     val uiEvents = _uiEvents.receiveAsFlow()
 
@@ -82,9 +78,9 @@ class ShoppingItemFormViewModel @Inject constructor(
             .copy(ownerId = loggedUser.id, groupId = selectedGroup.info.groupId)
             .toModel()
 
-        Log.i(
-            TAG,
-            "onSubmit: Inserting a new ShoppingItem(name=\"${shoppingItem.name}\") to the repository."
+        Timber.i(
+            "onSubmit: Inserting a new ShoppingItem(name=\"%s\") to the repository.",
+            shoppingItem.name
         )
 
         shoppingItemRepository.insert(shoppingItem)

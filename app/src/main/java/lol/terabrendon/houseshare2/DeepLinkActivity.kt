@@ -3,7 +3,6 @@ package lol.terabrendon.houseshare2
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,15 +17,12 @@ import lol.terabrendon.houseshare2.domain.usecase.FinishLogoutUseCase
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.matcher
+import timber.log.Timber
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class DeepLinkActivity : ComponentActivity() {
-    companion object {
-        const val TAG = "DeepLinkActivity"
-    }
-
     @Inject
     lateinit var finishLoginUseCase: FinishLoginUseCase
 
@@ -38,7 +34,7 @@ class DeepLinkActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(TAG, "onCreate: Handling DeepLink for login.")
+        Timber.i("onCreate: Handling DeepLink for login.")
 
         val uri = intent?.data ?: throw IllegalStateException("No URI present on activity launch!")
 
@@ -62,12 +58,12 @@ class DeepLinkActivity : ComponentActivity() {
             """^\/login\/oauth2$""" to { login(uri, mainActivity) },
             """^\/api\/v\d+\/groups\/(?<groupId>[^\/]+)\/invite\/join$""" to {
                 val groupId = it.groups[1]?.value?.toLongOrNull()!!
-                Log.i(TAG, "onCreate: matching invite groupId=$groupId")
+                Timber.i("onCreate: matching invite groupId=%d", groupId)
                 groupInvite(groupId, uri, mainActivity)
             }
         ) {
             val msg = "onCreate: invalid uri path being matched! uri.path=${uri.path}"
-            Log.e(TAG, msg)
+            Timber.e(msg)
 //            openInBrowser(uri)
             throw IllegalStateException(msg)
         }
@@ -83,12 +79,12 @@ class DeepLinkActivity : ComponentActivity() {
     suspend fun login(uri: Uri, mainActivity: Intent) {
         finishLoginUseCase(uri)
             .onSuccess {
-                Log.i(TAG, "onCreate: successfully authenticated! username=${it.username}")
+                Timber.i("onCreate: successfully authenticated! username=%s", it.username)
 
                 startActivity(mainActivity)
             }
             .onFailure {
-                Log.e(TAG, "onCreate: auth failed! error=$it")
+                Timber.e("onCreate: auth failed! error=%s", it)
 
                 Toast.makeText(
                     this@DeepLinkActivity,
@@ -101,10 +97,10 @@ class DeepLinkActivity : ComponentActivity() {
     suspend fun groupInvite(groupId: Long, uri: Uri, mainActivity: Intent) {
         acceptInviteUseCase(groupId, uri)
             .onSuccess {
-                Log.i(TAG, "groupInvite: successfully accepted group invite! groupId=$groupId")
+                Timber.i("groupInvite: successfully accepted group invite! groupId=%d", groupId)
             }
             .onFailure {
-                Log.w(TAG, "groupInvite: group invite failed! error=$it")
+                Timber.w("groupInvite: group invite failed! error=%s", it)
 
                 Toast.makeText(
                     this@DeepLinkActivity,
@@ -131,7 +127,7 @@ class DeepLinkActivity : ComponentActivity() {
         try {
             startActivity(browserIntent)
         } catch (e: Exception) {
-            Log.e(TAG, "No browser found to handle link: $uri", e)
+            Timber.e(e, "No browser found to handle link: %s", uri)
             Toast.makeText(this, "No browser found", Toast.LENGTH_SHORT).show()
         }
     }

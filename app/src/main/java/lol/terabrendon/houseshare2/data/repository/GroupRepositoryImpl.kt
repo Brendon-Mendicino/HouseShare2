@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.data.repository
 
-import android.util.Log
 import com.github.michaelbull.result.andThen
 import com.github.michaelbull.result.onSuccess
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +16,7 @@ import lol.terabrendon.houseshare2.domain.mapper.toDto
 import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.GroupModel
+import timber.log.Timber
 import javax.inject.Inject
 
 class GroupRepositoryImpl @Inject constructor(
@@ -24,10 +24,6 @@ class GroupRepositoryImpl @Inject constructor(
     private val groupApi: GroupApi,
     private val externalScope: CoroutineScope,
 ) : GroupRepository {
-    companion object {
-        private const val TAG = "GroupRepository"
-    }
-
     override fun findById(groupId: Long): Flow<GroupModel?> =
         groupDao.findById(groupId).distinctUntilChanged().map { group -> group?.toModel() }
 
@@ -39,7 +35,7 @@ class GroupRepositoryImpl @Inject constructor(
 
         val newGroupId = groupDao.createGroup(groupEntity.copy(id = groupDto.id), userIds)
 
-        Log.i(TAG, "insert: added new Group@${newGroupId}")
+        Timber.i("insert: added new Group@%d", newGroupId)
     }.join()
 
     override suspend fun acceptInvite(
@@ -54,7 +50,7 @@ class GroupRepositoryImpl @Inject constructor(
             nonce = nonce,
             signature = signature,
         ).onSuccess {
-            Log.i(TAG, "acceptInvite: accepted invite to groupId=$groupId")
+            Timber.i("acceptInvite: accepted invite to groupId=%d", groupId)
         }
 
         dto.andThen { dto ->

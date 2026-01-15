@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.getOrElse
@@ -31,6 +30,7 @@ import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.toUiText
 import lol.terabrendon.houseshare2.util.update
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,10 +41,6 @@ class NewExpenseFormViewModel @Inject constructor(
 ) : ViewModel() {
     sealed class UiEvent {
         data object Finish : UiEvent()
-    }
-
-    companion object {
-        private const val TAG = "NewExpenseFormViewModel"
     }
 
     private val expenseModelMapper: ExpenseModelMapper = ExpenseModelMapper()
@@ -68,7 +64,7 @@ class NewExpenseFormViewModel @Inject constructor(
         .filterNotNull()
         .map { it.users }
         .onEach {
-            Log.i(TAG, "onEach: Getting updated list of users from the database.")
+            Timber.i("onEach: Getting updated list of users from the database.")
         }
         .stateIn(
             viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList()
@@ -176,7 +172,7 @@ class NewExpenseFormViewModel @Inject constructor(
             }
 
             is ExpenseFormEvent.UnitChanged -> {
-                Log.i(TAG, "Updating paymentUnits with index ${event.index}")
+                Timber.i("Updating paymentUnits with index %d", event.index)
                 _expenseFormState.update {
                     it.update {
                         userParts =
@@ -186,7 +182,7 @@ class NewExpenseFormViewModel @Inject constructor(
             }
 
             is ExpenseFormEvent.UserPartChanged -> {
-                Log.i(TAG, "Updating paymentValueUnits with index ${event.index}")
+                Timber.i("Updating paymentValueUnits with index %d", event.index)
                 _expenseFormState.update {
                     it.update {
                         userParts =
@@ -209,7 +205,7 @@ class NewExpenseFormViewModel @Inject constructor(
             ?: run {
                 val msg =
                     "There is not selectedGroup! Choose a group first and then proceed with the form!"
-                Log.e(TAG, "onConfirm: $msg")
+                Timber.e("onConfirm: $msg")
                 throw IllegalStateException(msg)
             }
 
@@ -234,11 +230,11 @@ class NewExpenseFormViewModel @Inject constructor(
             )
             .getOrElse {
                 val msg = "expense model mapping failed! Error msg: $it"
-                Log.e(TAG, "onConfirm: $msg")
+                Timber.e("onConfirm: $msg")
                 throw IllegalStateException(msg)
             }
 
-        Log.i(TAG, "Inserting a new expense with title \"${expense.title}\" to the repository")
+        Timber.i("Inserting a new expense with title \"${expense.title}\" to the repository")
 
         expenseRepository.insert(expense)
 

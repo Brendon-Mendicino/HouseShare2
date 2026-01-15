@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +27,7 @@ import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.toUiText
 import lol.terabrendon.houseshare2.util.CombinedStateFlow
 import lol.terabrendon.houseshare2.util.mapState
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,10 +36,6 @@ class GroupFormViewModel @Inject constructor(
     getLoggedUserUseCase: GetLoggedUserUseCase,
     userRepository: UserRepository,
 ) : ViewModel() {
-    companion object {
-        const val TAG: String = "GroupFormViewModel"
-    }
-
     private var _uiEvent = Channel<GroupFormUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -60,9 +56,10 @@ class GroupFormViewModel @Inject constructor(
             if (stateUsersSize == users.size)
                 return@CombinedStateFlow state
 
-            Log.i(
-                TAG,
-                "CombinedStateFlow: updating _groupFormState.users because their sizes differ from the one the user! users.size=${users.size}, state.users.size=${state.users.value.size}"
+            Timber.i(
+                "CombinedStateFlow: updating _groupFormState.users because their sizes differ from the one the user! users.size=%d, state.users.size=%d",
+                users.size,
+                state.users.value.size
             )
 
             state.copy(users = state.users.copy(users.values.toList()))
@@ -79,7 +76,7 @@ class GroupFormViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     fun onEvent(event: GroupFormEvent) {
-        Log.d(TAG, "onEvent: event=$event")
+        Timber.d("onEvent: event=%s", event)
 
         when (event) {
             is GroupFormEvent.NameChanged -> {
@@ -97,7 +94,7 @@ class GroupFormViewModel @Inject constructor(
             is GroupFormEvent.UserListClicked -> {
                 _selectedUsers.update {
                     val userAlreadySelected = event.user.id in it
-                    Log.d(TAG, "onEvent: userAlreadySelected=$userAlreadySelected")
+                    Timber.d("onEvent: userAlreadySelected=%s", userAlreadySelected)
 
                     if (userAlreadySelected)
                         it - event.user.id
@@ -132,9 +129,9 @@ class GroupFormViewModel @Inject constructor(
         }
         val newGroup = formData.toModel()
 
-        Log.i(
-            TAG,
-            "onSubmit: Inserting a new group with name \"${newGroup.info.name}\" to the repository"
+        Timber.i(
+            "onSubmit: Inserting a new group with name \"%s\" to the repository",
+            newGroup.info.name
         )
 
         groupRepository.insert(newGroup)

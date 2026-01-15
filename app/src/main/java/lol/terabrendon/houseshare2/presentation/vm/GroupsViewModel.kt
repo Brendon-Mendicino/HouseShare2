@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +17,7 @@ import lol.terabrendon.houseshare2.data.repository.UserRepository
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.groups.GroupEvent
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,10 +27,6 @@ class GroupsViewModel @Inject constructor(
     private val sharedPreferencesRepository: UserDataRepository,
     getSelectedGroup: GetSelectedGroupUseCase,
 ) : ViewModel() {
-    companion object {
-        private const val TAG: String = "GroupsViewModel"
-    }
-
     sealed class UiEvent {
         data class GroupSelected(val groupId: Long?) : UiEvent()
     }
@@ -61,7 +57,7 @@ class GroupsViewModel @Inject constructor(
                 val selectedGroupId = if (groupAlreadySelected) null
                 else event.group.groupId
 
-                Log.i(TAG, "onEvent: updating selectedGroupId=$selectedGroupId")
+                Timber.i("onEvent: updating selectedGroupId=%s", selectedGroupId)
                 sharedPreferencesRepository.updateSelectedGroupId(selectedGroupId)
                 eventChannel.send(UiEvent.GroupSelected(selectedGroupId))
             }

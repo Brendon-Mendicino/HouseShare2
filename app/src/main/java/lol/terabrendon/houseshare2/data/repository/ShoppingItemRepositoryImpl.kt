@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.data.repository
 
-import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +18,7 @@ import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 import lol.terabrendon.houseshare2.util.mapInner
+import timber.log.Timber
 import java.time.OffsetDateTime
 import javax.inject.Inject
 
@@ -29,10 +29,6 @@ class ShoppingItemRepositoryImpl @Inject constructor(
     @IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
 ) : ShoppingItemRepository {
-    companion object {
-        private const val TAG = "ShoppingItemRepositoryImpl"
-    }
-
     override fun getAll(): Flow<List<ShoppingItemInfoModel>> = shoppingItemDao
         .findAll()
         .map { it.map { item -> item.toModel() } }
@@ -58,7 +54,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
 
     override suspend fun refreshByGroupId(groupId: Long) {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "refreshByGroupId: refreshing shopping items of group.id=${groupId}")
+            Timber.i("refreshByGroupId: refreshing shopping items of group.id=%d", groupId)
 
             val local = shoppingItemDao.findAllByGroupId(groupId).first()
 
@@ -78,7 +74,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
 
     override suspend fun insert(newItem: ShoppingItemInfoModel) {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "insert: inserting new shopping item to the db.")
+            Timber.i("insert: inserting new shopping item to the db.")
 
             val dto = shoppingApi.save(newItem.groupId, newItem.toDto())
 
@@ -88,7 +84,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
 
     override suspend fun update(item: ShoppingItemInfoModel) {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "update: updating shopping item")
+            Timber.i("update: updating shopping item")
 
             val dto = shoppingApi.update(item.groupId, item.id, item.toDto())
 
@@ -98,7 +94,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
 
     override suspend fun deleteAll(items: List<ShoppingItemInfoModel>) {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "deleteAll: deleting ${items.size} shopping items from the db.")
+            Timber.i("deleteAll: deleting %d shopping items from the db.", items.size)
 
             items.map { launch { shoppingApi.delete(it.groupId, it.id) } }.joinAll()
 
@@ -112,7 +108,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
         userId: Long,
     ) {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "checkoffItems: userId=$userId itemIds=$shoppingItemIds")
+            Timber.i("checkoffItems: userId=%d itemIds=%s", userId, shoppingItemIds)
             val timestamp = OffsetDateTime.now()
 
             shoppingItemIds
@@ -135,7 +131,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
         shoppingItemIds: List<Long>,
     ) {
         externalScope.launch(ioDispatcher) {
-            Log.i(TAG, "uncheckItems: itemIds=$shoppingItemIds")
+            Timber.i("uncheckItems: itemIds=%s", shoppingItemIds)
 
             shoppingItemIds.map { shoppingId ->
                 launch {
