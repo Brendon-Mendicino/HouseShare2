@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retryWhen
 import lol.terabrendon.houseshare2.data.local.preferences.UserData
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import timber.log.Timber
 import java.io.IOException
@@ -28,13 +29,6 @@ class UserDataRepositoryImpl @Inject constructor(
         .map { it.backStack }
         .map { it.ifEmpty { listOf(MainNavigation.Loading) } }
 
-    override suspend fun updateBackStack(backStack: List<MainNavigation>) {
-        Timber.i("updateMainDestination: saving backStack to DataStore. backStack=%s", backStack)
-        userPreferencesStore.updateData { data ->
-            data.copy(backStack = backStack)
-        }
-    }
-
     override val currentLoggedUserId: Flow<Long?>
         get() = userPreferencesFlow
             .map { data -> data.currentLoggedUserId.takeIf { 0L != it } }
@@ -44,17 +38,26 @@ class UserDataRepositoryImpl @Inject constructor(
             .map { data -> data.selectedGroupId.takeIf { 0L != it } }
             .distinctUntilChanged()
 
-    override suspend fun updateCurrentLoggedUser(userId: Long?) {
-        Timber.i("updateCurrentLoggedUser: save userId=%s to DataStore.", userId)
-        userPreferencesStore.updateData { data ->
-            data.copy(currentLoggedUserId = userId)
-        }
-    }
+    override val termsAndConditions: Flow<Boolean>
+        get() = userPreferencesFlow
+            .map { data -> data.termsAndConditions }
+            .distinctUntilChanged()
 
-    override suspend fun updateSelectedGroupId(groupId: Long?) {
-        Timber.i("updateCurrentLoggedUser: save groupId=%s to DataStore.", groupId)
+    override val sendAnalytics: Flow<Boolean>
+        get() = userPreferencesFlow
+            .map { data -> data.sendAnalytics }
+            .distinctUntilChanged()
+
+    override suspend fun update(update: Update) {
+        Timber.i("updating UserData: update=%s", update)
         userPreferencesStore.updateData { data ->
-            data.copy(selectedGroupId = groupId)
+            when (update) {
+                is Update.BackStack -> data.copy(backStack = update.backStack)
+                is Update.SelectedGroupId -> data.copy(selectedGroupId = update.groupId)
+                is Update.LoggedUserId -> data.copy(currentLoggedUserId = update.userId)
+                is Update.SendAnalytics -> data.copy(sendAnalytics = update.accept)
+                is Update.TermsConditions -> data.copy(termsAndConditions = update.accept)
+            }
         }
     }
 }

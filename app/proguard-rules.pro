@@ -14,11 +14,15 @@
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
+# This is needed for logging stacktraces with Firebase.
 -keepattributes SourceFile,LineNumberTable
 
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep all the classes annotated with @Serializable
+-keep @kotlinx.serialization.Serializable class **
 
 # -- Retrofit
 # DTO classes used by Retrofit2

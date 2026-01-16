@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.AuthRepository
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.BackStack
 import lol.terabrendon.houseshare2.data.util.NetworkMonitor
 import lol.terabrendon.houseshare2.domain.error.RemoteError
 import timber.log.Timber
@@ -91,7 +92,7 @@ class NavigatorImpl(
             isLoggedIn.collect { isLogged ->
                 val backStack = userDataRepository.savedBackStack.first()
                 if (isLogged && (backStack == LOGIN || backStack == LOADING)) {
-                    userDataRepository.updateBackStack(DEFAULT_HOMEPAGE)
+                    userDataRepository.update(BackStack(DEFAULT_HOMEPAGE))
                 }
             }
         }
@@ -123,18 +124,14 @@ class NavigatorImpl(
 
     override fun navigate(dest: MainNavigation) {
         coroutineScope.launch {
-            userDataRepository.updateBackStack(
-                handleNavigationWithGraph(dest)
-            )
+            userDataRepository.update(BackStack(handleNavigationWithGraph(dest)))
         }
     }
 
     override fun replace(dest: MainNavigation) {
         coroutineScope.launch {
             val backStack = _backStack.value
-            userDataRepository.updateBackStack(
-                backStack.slice(0..backStack.size - 2) + dest
-            )
+            userDataRepository.update(BackStack(backStack.slice(0..backStack.size - 2) + dest))
         }
     }
 
@@ -143,9 +140,7 @@ class NavigatorImpl(
 
         coroutineScope.launch {
             val backStack = _backStack.value
-            userDataRepository.updateBackStack(
-                backStack.slice(0..backStack.size - 1 - elements)
-            )
+            userDataRepository.update(BackStack(backStack.slice(0..backStack.size - 1 - elements)))
         }
     }
 }

@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.SelectedGroupId
 import lol.terabrendon.houseshare2.data.repository.UserRepository
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
@@ -58,7 +59,7 @@ class GroupsViewModel @Inject constructor(
                 else event.group.groupId
 
                 Timber.i("onEvent: updating selectedGroupId=%s", selectedGroupId)
-                sharedPreferencesRepository.updateSelectedGroupId(selectedGroupId)
+                sharedPreferencesRepository.update(SelectedGroupId(selectedGroupId))
                 eventChannel.send(UiEvent.GroupSelected(selectedGroupId))
             }
         }

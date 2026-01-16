@@ -4,30 +4,33 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,14 +44,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.form.GroupFormState
 import lol.terabrendon.houseshare2.domain.form.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.toValidator
@@ -112,7 +114,8 @@ private fun GroupUsersFormScreenInner(
         item {
             // This Box listens tab gesture outside of the current selected chip,
             // if there is a tap the current selected chip will be unselected
-            Box(
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 modifier = Modifier
                     .fillMaxSize()
                     .pointerInput(chipBounds) {
@@ -169,52 +172,40 @@ private fun GroupUsersFormScreenInner(
 }
 
 @Composable
-private fun UserListItem(user: UserModel, selected: Boolean, onClick: (UserModel) -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                onClick(user)
-            },
-    ) {
-        Row(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+private fun UserListItem(
+    modifier: Modifier = Modifier,
+    user: UserModel,
+    selected: Boolean,
+    onClick: (UserModel) -> Unit,
+) {
+    ListItem(
+        modifier = modifier.clickable { onClick(user) },
+        headlineContent = { Text(user.username) },
+        leadingContent = {
+            // Better selection indicator: swap avatar for checkmark or overlay
             Box {
                 AvatarIcon(user = user)
-                // Without the full import for
-                // some strange reason the compiler was picking up the
-                // RowScope.AnimatedVisibility composable
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = selected, modifier = Modifier.align(
-                        Alignment.BottomEnd
-                    )
+                AnimatedVisibility(
+                    visible = selected,
+                    enter = scaleIn() + fadeIn(),
+                    exit = scaleOut() + fadeOut()
                 ) {
-                    Box {
-                        Icon(
-                            modifier = Modifier
-                                .size(18.dp)
-                                .align(Alignment.Center),
-                            imageVector = Icons.Filled.Circle,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.background,
-                        )
-                        Icon(
-                            modifier = Modifier
-                                .size(16.dp)
-                                .align(Alignment.Center),
-                            imageVector = Icons.Filled.CheckCircle,
-                            contentDescription = stringResource(R.string.selected_user),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    }
+                    Icon(
+                        Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .align(Alignment.BottomEnd)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
+                    )
                 }
             }
-
-            Spacer(Modifier.requiredWidth(16.dp))
-
-            Text(text = user.username)
-        }
-
-    }
+        },
+        colors = ListItemDefaults.colors(
+            containerColor = if (selected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent
+        )
+    )
 }
 
 @Composable

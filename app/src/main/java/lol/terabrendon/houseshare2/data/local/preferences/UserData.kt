@@ -8,4 +8,6 @@ data class UserData(
     val backStack: List<MainNavigation> = emptyList(),
     val currentLoggedUserId: Long? = null,
     val selectedGroupId: Long? = null,
+    val termsAndConditions: Boolean = false,
+    val sendAnalytics: Boolean = false,
 )

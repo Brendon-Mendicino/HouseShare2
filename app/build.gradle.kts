@@ -1,3 +1,4 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.jetbrains.kotlin.konan.properties.Properties
 import java.io.FileInputStream
 
@@ -10,6 +11,8 @@ plugins {
     alias(libs.plugins.daggerHilt)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.room)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.google.crashlytics)
 }
 
 idea {
@@ -79,6 +82,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // This ensures Crashlytics gets the mapping file automatically
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
+            }
+
             signingConfig = signingConfigs.getByName("upload")
         }
     }
@@ -173,6 +182,10 @@ dependencies {
 
     // Timber
     implementation(libs.timber)
+
+    // Firebase
+    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.bundles.firebase)
 
     // Desugar
     coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)

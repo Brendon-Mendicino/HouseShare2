@@ -7,6 +7,7 @@ import com.github.michaelbull.result.onSuccess
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.local.util.localSafe
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.LoggedUserId
 import lol.terabrendon.houseshare2.domain.error.DataError
 import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.mapper.toModel
@@ -23,7 +24,7 @@ class AuthRepositoryImpl @Inject constructor(
         val user = userApi.getLoggedUser().bind()
 
         localSafe {
-            userDataRepository.updateCurrentLoggedUser(user.id)
+            userDataRepository.update(LoggedUserId(user.id))
             userDao.upsert(user.toEntity())
         }.bind()
 
@@ -35,7 +36,7 @@ class AuthRepositoryImpl @Inject constructor(
         // the current user stays logged in, many functions will collect
         // the flow using .distinctUntilChanged(). This prevents
         // those function from not receiving the updated id.
-        userDataRepository.updateCurrentLoggedUser(null)
+        userDataRepository.update(LoggedUserId(null))
 
         return refreshUser()
             .onSuccess { user ->

@@ -7,29 +7,25 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository
+import lol.terabrendon.houseshare2.util.Logger
 import retrofit2.HttpException
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltAndroidApp
 class HouseShareApplication : Application() {
+    @Inject
+    lateinit var userDataRepository: UserDataRepository
+
     override fun onCreate() {
         super.onCreate()
 
-        // TODO: setup a log-setup class
-        if (BuildConfig.DEBUG) {
-            Timber.plant(object : Timber.DebugTree() {
-                override fun createStackElementTag(element: StackTraceElement) =
-                    with(element) { "($fileName:$lineNumber)#$methodName()" }
-
-                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-                    super.log(
-                        priority = priority,
-                        tag = tag,
-                        message = "%-50s | %s".format(tag, message),
-                        t = t
-                    )
-                }
-            })
+        applicationScope.launch {
+            val sendAnalytics = userDataRepository.sendAnalytics.first()
+            Logger.setup(sendAnalytics)
         }
     }
 
