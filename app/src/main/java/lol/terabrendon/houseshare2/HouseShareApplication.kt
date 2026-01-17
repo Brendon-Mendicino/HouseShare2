@@ -23,6 +23,9 @@ class HouseShareApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // TODO: enable when having KOTLIN_2.3.0
+//        Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
+
         applicationScope.launch {
             val sendAnalytics = userDataRepository.sendAnalytics.first()
             Logger.setup(sendAnalytics)
