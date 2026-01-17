@@ -17,7 +17,7 @@ class StartLoginUseCase @Inject constructor(
         val res = authApi.login()
 
         // TODO: Handle if the request is not a redirect
-        val redirect = (res.unwrapError() as? RemoteError.Found)?.location?.toUri()
+        val redirect = (res.unwrapError() as? RemoteError.Redirect)?.location?.toUri()
             ?: return res
 
         val intent = Intent(Intent.ACTION_VIEW, redirect)

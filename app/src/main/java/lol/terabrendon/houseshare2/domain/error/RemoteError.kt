@@ -1,10 +1,12 @@
+@file:Suppress("unused")
+
 package lol.terabrendon.houseshare2.domain.error
 
 import retrofit2.Response
 
 sealed interface RemoteError : DataError {
     // 3XX
-    data class Found(val response: Response<*>, val location: String) : RemoteError
+    data class Redirect(val response: Response<*>, val location: String) : RemoteError
 
     // 4XX
     data class BadRequest(val response: Response<*>) : RemoteError
@@ -26,8 +28,26 @@ sealed interface RemoteError : DataError {
     data class Unknown(val response: Response<*>) : RemoteError
     data object NoConnection : RemoteError
 
+    fun maybeResponse() = when (this) {
+        is BadGateway -> this.response
+        is BadRequest -> this.response
+        is ContentTooLarge -> this.response
+        is Forbidden -> this.response
+        is GatewayTimeout -> this.response
+        is InternalServerError -> this.response
+        is NotFound -> this.response
+        is Redirect -> this.response
+        is RequestTimeout -> this.response
+        is ServiceUnavailable -> this.response
+        is TooManyRequests -> this.response
+        is Unauthorized -> this.response
+        is Unknown -> this.response
+        is UnsupportedMediaType -> this.response
+        is NoConnection -> null
+    }
+
     val is3xx: Boolean
-        get() = this is Found
+        get() = this is Redirect
 
     val is4xx: Boolean
         get() = when (this) {

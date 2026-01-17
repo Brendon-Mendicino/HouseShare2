@@ -42,7 +42,8 @@ class FinishLoginUseCase @Inject constructor(
             code = query("code"),
         )
 
-        val codeFlowSuccess = res.mapBoth(success = { true }, failure = { it is RemoteError.Found })
+        val codeFlowSuccess =
+            res.mapBoth(success = { true }, failure = { it is RemoteError.Redirect })
 
         if (!codeFlowSuccess) {
             return@withContext Err(res.unwrapError())

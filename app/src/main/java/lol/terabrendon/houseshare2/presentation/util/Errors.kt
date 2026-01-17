@@ -33,7 +33,7 @@ fun RemoteError.toUiText(): UiText = when (this) {
     is RemoteError.Forbidden,
         -> UiText.Res(R.string.you_are_not_authorized_to_make_such_request)
 
-    is RemoteError.Found -> TODO()
+    is RemoteError.Redirect -> TODO()
     is RemoteError.GatewayTimeout -> UiText.Res(R.string.gateway_timed_out)
     is RemoteError.NoConnection -> UiText.Res(R.string.no_internet_connection)
     is RemoteError.NotFound -> UiText.Res(R.string.the_request_resource_does_not_exist)

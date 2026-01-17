@@ -30,7 +30,7 @@ class StartLogoutUseCase @Inject constructor(
 
         val redirect = res.getErrorOr(null)
         val uri = when (redirect) {
-            is RemoteError.Found -> redirect.location.toUri()
+            is RemoteError.Redirect -> redirect.location.toUri()
             else -> null
         }
 

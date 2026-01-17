@@ -21,14 +21,15 @@ fun <T : Any> convertResponse(response: Response<T>): Result<T, RemoteError> {
         )
 
         val error = when (code) {
-            302 -> {
+            in 300..399 -> {
                 val location = response.headers()["Location"]
-                    ?: throw IllegalStateException("Response with code 302 must contain Location header!")
+                    ?: throw IllegalStateException("Response with code 3XX must contain Location header! response=${response}")
 
+                // TODO: should i keep this???
                 if (location.toUri().path == "/login")
                     RemoteError.Unauthorized(response)
                 else
-                    RemoteError.Found(response, location)
+                    RemoteError.Redirect(response, location)
             }
 
             400 -> RemoteError.BadRequest(response)
