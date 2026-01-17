@@ -24,6 +24,9 @@ sealed class MainNavigation : NavKey {
     @Serializable
     data object Login : MainNavigation()
 
+    @Serializable
+    data object Legal : MainNavigation()
+
     companion object {
 
         @JvmStatic
@@ -40,6 +43,7 @@ sealed class MainNavigation : NavKey {
     fun asResource() = when (this) {
         is Loading -> R.string.loading
         is Login -> R.string.login
+        is Legal -> R.string.app_name
         is Cleaning -> R.string.cleaning
         is Shopping -> R.string.shopping_list
         is ShoppingItem -> R.string.shopping_item
@@ -48,7 +52,8 @@ sealed class MainNavigation : NavKey {
         is ExpenseForm -> R.string.new_expense
         is Groups -> R.string.groups
         is GroupUsersForm,
-        is GroupInfoForm -> R.string.new_group
+        is GroupInfoForm,
+            -> R.string.new_group
 
         is UserProfile -> R.string.profile
         is Settings -> R.string.settings

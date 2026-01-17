@@ -6,8 +6,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 
 data class SnackbarEvent(
     val message: UiText,
+    val withDismissAction: Boolean = false,
     val action: SnackbarAction? = null,
-    val duration: SnackbarDuration = if (action == null) SnackbarDuration.Short else SnackbarDuration.Indefinite,
+    val duration: SnackbarDuration = if (action == null && !withDismissAction) SnackbarDuration.Short else SnackbarDuration.Indefinite,
 )
 
 data class SnackbarAction(

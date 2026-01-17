@@ -34,7 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,7 +61,7 @@ fun MainFab(
 ) {
     // Debounce the stateFlow
     val baseFabFlow = LocalFabManager.current.fabConfig
-    var fabConfig by remember { mutableStateOf<FabConfig?>(null) }
+    var fabConfig by retain { mutableStateOf<FabConfig?>(null) }
 
     LaunchedEffect(baseFabFlow) {
         baseFabFlow.debounce(50.milliseconds).collectLatest {
@@ -154,16 +154,16 @@ private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is HomepageNavigation.GroupInfoForm -> Icons.Filled.Check
     is HomepageNavigation.ExpenseForm -> Icons.Filled.Check
 
+    is MainNavigation.Loading,
+    is MainNavigation.Login,
+    is MainNavigation.Legal,
     is HomepageNavigation.ShoppingForm,
     is HomepageNavigation.ShoppingItem,
-    is MainNavigation.Login,
     is HomepageNavigation.Cleaning,
-    is MainNavigation.Loading,
     is HomepageNavigation.GroupInfo,
     is HomepageNavigation.Settings,
     is HomepageNavigation.UserProfile,
         -> Icons.Filled.Add
-
 }
 
 @StringRes
@@ -190,6 +190,7 @@ private fun MainNavigation.fabExpanded(): Boolean = when (this) {
     is HomepageNavigation.Settings,
     is MainNavigation.Login,
     is MainNavigation.Loading,
+    is MainNavigation.Legal,
         -> false
 }
 
@@ -205,6 +206,7 @@ private fun MainNavigation.fabVisible(): Boolean = when (this) {
 
     is MainNavigation.Login,
     is MainNavigation.Loading,
+    is MainNavigation.Legal,
     is HomepageNavigation.UserProfile,
     is HomepageNavigation.Settings,
     is HomepageNavigation.GroupInfo,

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HouseShare2</string>
+    <string name="app_name" translatable="false">HouseSplit</string>
     <string name="cleaning">Cleaning</string>
     <string name="shopping_list">Shopping list</string>
     <string name="house_activities">House activities</string>
@@ -105,4 +105,13 @@
     <string name="invite_link_was_not_valid">Invite link was not valid.</string>
     <string name="no_groups_yet">No Groups Yet</string>
     <string name="create_a_group_to_start_sharing_expenses_and_shopping_lists">Create a group to start sharing expenses and shopping lists.</string>
+    <string name="help_us_improve">Help us improve</string>
+    <string name="send_analytics">Allow sending anonymous crash and error information. This helps us fix bugs faster. You can change this choice at any time in settings.</string>
+    <string name="terms_and_privacy">Terms and Privacy</string>
+    <string name="please_review_and_accept_the_terms">Please review and accept the Terms of Service. You can also choose whether to share anonymous crash data to help improve the app.</string>
+    <string name="terms_conditions"><![CDATA[Terms & Conditions]]></string>
+    <string name="read_our_terms_on_the_website">Read our terms on the website</string>
+    <string name="privacy_policies">Privacy policies</string>
+    <string name="read_our_privacy_policy_on_the_website">Read our privacy policy on the website</string>
+    <string name="you_must_read_the_terms_first">You must read the terms first before accepting them! Who read these things anyways? 🤔</string>
 </resources>

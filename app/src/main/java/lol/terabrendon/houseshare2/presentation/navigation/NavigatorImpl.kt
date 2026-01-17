@@ -32,10 +32,15 @@ class NavigatorImpl(
     companion object {
         private val LOADING = listOf(MainNavigation.Loading)
         private val LOGIN = listOf(MainNavigation.Login)
+        private val LEGAL = listOf(MainNavigation.Legal)
         private val DEFAULT_HOMEPAGE = listOf(HomepageNavigation.Groups)
     }
 
     private val isLoading = MutableStateFlow(true)
+
+    private val termsAccepted = userDataRepository
+        .termsAndConditions
+        .stateIn(coroutineScope, SharingStarted.Eagerly, true)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     // Listen to any change in the current logged-in user
@@ -104,8 +109,14 @@ class NavigatorImpl(
         .stateIn(coroutineScope, SharingStarted.Eagerly, listOf(MainNavigation.Loading))
 
     override val backStack: Flow<List<MainNavigation>>
-        get() = combine(_backStack, isLoading, isLoggedIn) { backStack, isLoading, isLoggedIn ->
+        get() = combine(
+            _backStack,
+            isLoading,
+            isLoggedIn,
+            termsAccepted
+        ) { backStack, isLoading, isLoggedIn, termsAccepted ->
             when {
+                !termsAccepted -> LEGAL
                 isLoading -> LOADING
                 !isLoggedIn -> LOGIN
                 else -> backStack
