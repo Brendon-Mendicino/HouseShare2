@@ -114,4 +114,5 @@
     <string name="privacy_policies">Privacy policies</string>
     <string name="read_our_privacy_policy_on_the_website">Read our privacy policy on the website</string>
     <string name="you_must_read_the_terms_first">You must read the terms first before accepting them! Who read these things anyways? 🤔</string>
+    <string name="asset_statements" translatable="false">[{ \"include\": \"https://houseshare.hollowinsidepizza.xyz/.well-known/assetlinks.json\" }]</string>
 </resources>
