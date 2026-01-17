@@ -33,6 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
+import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
 import lol.terabrendon.houseshare2.presentation.vm.LegalViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.Config
@@ -40,6 +43,8 @@ import lol.terabrendon.houseshare2.util.Config
 @Composable
 fun LegalConsentScreen(modifier: Modifier = Modifier, viewModel: LegalViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    RegisterTopBarConfig<MainNavigation.Legal>(config = TopBarConfig(navigationIcon = {}))
 
     LegalConsentInner(modifier = modifier, state = state, onEvent = viewModel::onEvent)
 }
