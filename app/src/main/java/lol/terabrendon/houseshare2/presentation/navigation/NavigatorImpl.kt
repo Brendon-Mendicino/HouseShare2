@@ -42,6 +42,7 @@ class NavigatorImpl(
         .termsAndConditions
         .stateIn(coroutineScope, SharingStarted.Eagerly, true)
 
+    // TODO: eventually i should move this to a LoginManager os something like this
     @OptIn(ExperimentalCoroutinesApi::class)
     // Listen to any change in the current logged-in user
     // If the user changed reinitiate the login check
@@ -59,24 +60,35 @@ class NavigatorImpl(
             flow {
                 // If a user is present in the DB but we are offline our status must be
                 // loggedIn = true
-                if (userId != null && isOnline) {
+                if (userId != null && !isOnline) {
                     emit(true)
                     return@flow
                 }
 
                 // Otherwise stay in a pending state checking from the remote server.
                 while (true) {
-                    Timber.i("isLoggedIn: check if user is login state")
-                    // TODO: print other kind of errors
+                    Timber.i("isLoggedIn: check if user is logged from the server")
                     val res = authRepository.loggedUser().mapBoth(
                         success = { true },
-                        failure = { err -> err !is RemoteError.Unauthorized },
+                        failure = { err ->
+                            // Unauthorize is expected if we are not logged in
+                            if (err !is RemoteError.Unauthorized) {
+                                Timber.w("got error during login: %s", err)
+                            } else {
+                                Timber.i("server loging status: logged-out")
+                            }
+
+                            when (err) {
+                                is RemoteError -> !err.is4xx
+                                else -> true
+                            }
+                        },
                     )
 
                     emit(res)
 
-                    // Check again in 5 minutes if the user is still logged-in
-                    delay(5.minutes)
+                    // Check again in X minutes if the user is still logged-in
+                    delay(2.minutes)
                 }
             }
         }

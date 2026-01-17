@@ -39,6 +39,16 @@ class StartLogoutUseCase @Inject constructor(
             return@coroutineBinding
         }
 
+        if (uri.path == "/") {
+            Timber.w("we are already logged out! Start an intent with the app logout uri, in this way ${DeepLinkActivity::class.simpleName} will the logout on its own.")
+
+            val intent =
+                Intent(Intent.ACTION_VIEW, "app://lol.terabrendon.houseshare2/logout".toUri())
+            ActivityQueue.sendIntent(intent)
+
+            return@coroutineBinding
+        }
+
         val logoutUri = uri
             .setQuery("post_logout_redirect_uri", "app://lol.terabrendon.houseshare2/logout")
 
