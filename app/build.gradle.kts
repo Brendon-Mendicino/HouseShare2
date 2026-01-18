@@ -194,6 +194,9 @@ dependencies {
     implementation(platform(libs.google.firebase.bom))
     implementation(libs.bundles.firebase)
 
+    // Ads
+    implementation(libs.google.play.services.ads)
+
     // Desugar
     coreLibraryDesugaring(libs.com.android.tools.desugar.jdk.libs)
 

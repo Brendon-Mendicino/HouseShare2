@@ -31,6 +31,7 @@ testCore = "1.7.0"
 mockito = "5.20.0"
 mockitoKotlin = "6.1.0"
 timber = "5.0.1"
+googleAds = "24.9.0"
 googleServices = "4.4.4"
 googleCrashlytics = "3.0.6"
 googleFirebaseBom = "34.8.0"
@@ -127,6 +128,9 @@ google-firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref
 
 google-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+
+# Play services
+google-play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "googleAds" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
