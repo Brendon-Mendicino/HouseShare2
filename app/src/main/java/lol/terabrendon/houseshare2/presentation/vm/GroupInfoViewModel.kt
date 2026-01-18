@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.michaelbull.result.getOrElse
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -22,6 +23,9 @@ import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.presentation.groups.GroupInfoEvent
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
+import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
+import lol.terabrendon.houseshare2.presentation.util.toUiText
 import timber.log.Timber
 
 @HiltViewModel(assistedFactory = GroupInfoViewModel.Factory::class)
@@ -57,14 +61,19 @@ class GroupInfoViewModel @AssistedInject constructor(
 
         when (event) {
             is GroupInfoEvent.ShareGroup -> {
-                val invite = groupApi.inviteUrl(group.info.groupId).inviteUri.toUri()
+                val res = groupApi.inviteUrl(group.info.groupId)
+                val invite = res.getOrElse { err ->
+                    SnackbarController.sendEvent(SnackbarEvent(message = err.toUiText()))
+                    return@launch
+                }
+                val inviteUri = invite.inviteUri.toUri()
                 val base = BuildConfig.BASE_URL.toUri()
 
                 val uri = Uri.Builder()
                     .scheme(base.scheme!!)
                     .encodedAuthority(base.encodedAuthority!!)
-                    .encodedPath(invite.encodedPath!!)
-                    .encodedQuery(invite.encodedQuery!!)
+                    .encodedPath(inviteUri.encodedPath!!)
+                    .encodedQuery(inviteUri.encodedQuery!!)
                     .build()
 
                 val share = Intent.createChooser(Intent().apply {

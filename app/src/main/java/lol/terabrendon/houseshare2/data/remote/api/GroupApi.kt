@@ -12,7 +12,7 @@ interface GroupApi {
     suspend fun save(@Body group: GroupDto): GroupDto
 
     @POST("groups/{groupId}/invite")
-    suspend fun inviteUrl(@Path("groupId") groupId: Long): InviteUrlDto
+    suspend fun inviteUrl(@Path("groupId") groupId: Long): NetResult<InviteUrlDto>
 
     @POST("groups/{groupId}/invite/join")
     suspend fun joinFromInviteUrl(
