@@ -47,6 +47,7 @@ object AppModule {
             .databaseBuilder(
                 applicationContext, HouseShareDatabase::class.java, "house_share_db"
             )
+//            .fallbackToDestructiveMigration(true)
 //            .setQueryCallback({ sqlQuery, bindArgs ->
 //                Timber.i("query: $sqlQuery | args: $bindArgs")
 //            }, Executors.newSingleThreadExecutor())

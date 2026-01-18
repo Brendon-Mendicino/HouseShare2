@@ -48,7 +48,8 @@ class GroupsViewModel @Inject constructor(
         }
         .stateIn(
             viewModelScope,
-            SharingStarted.WhileSubscribed(5000L), emptyList(),
+            SharingStarted.WhileSubscribed(5000L),
+            emptyList(),
         )
 
     fun onEvent(event: GroupEvent) {
