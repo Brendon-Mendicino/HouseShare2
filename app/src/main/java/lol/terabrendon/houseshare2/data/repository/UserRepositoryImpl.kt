@@ -27,7 +27,7 @@ class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
     private val userApi: UserApi,
     private val externalScope: CoroutineScope,
-    @IoDispatcher
+    @param:IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
     private val userDataRepository: UserDataRepository,
     private val groupDao: GroupDao,
@@ -95,7 +95,6 @@ class UserRepositoryImpl @Inject constructor(
 
         return userDao
             .findGroupsByUserId(userId)
-            .distinctUntilChanged()
             .map { groups ->
                 groups?.groups?.map {
                     GroupInfoModel(

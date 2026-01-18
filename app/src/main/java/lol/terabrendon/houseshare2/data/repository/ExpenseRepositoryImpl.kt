@@ -22,7 +22,7 @@ class ExpenseRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
     private val expenseApi: ExpenseApi,
     private val externalScope: CoroutineScope,
-    @IoDispatcher
+    @param:IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
     private val userRepository: UserRepository,
     private val userDao: UserDao,

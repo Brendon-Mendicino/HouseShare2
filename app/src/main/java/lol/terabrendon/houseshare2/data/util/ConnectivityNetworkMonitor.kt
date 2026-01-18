@@ -20,7 +20,7 @@ import javax.inject.Inject
  * changes in the connectivity state.
  */
 class ConnectivityNetworkMonitor @Inject constructor(
-    @ApplicationContext
+    @param:ApplicationContext
     private val context: Context,
 ) : NetworkMonitor {
     private val connectivityManager =

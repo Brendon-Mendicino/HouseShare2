@@ -29,11 +29,9 @@ fun RemoteError.toUiText(): UiText = when (this) {
     is RemoteError.BadRequest -> UiText.Res(R.string.the_server_could_not_handle_the_request)
     is RemoteError.BadGateway -> UiText.Res(R.string.gateway_got_invalid_repsonse_while_processing_the_request)
     is RemoteError.ContentTooLarge -> UiText.Res(R.string.the_uploaded_content_was_too_large)
-    is RemoteError.Unauthorized,
-    is RemoteError.Forbidden,
-        -> UiText.Res(R.string.you_are_not_authorized_to_make_such_request)
-
-    is RemoteError.Redirect -> TODO()
+    is RemoteError.Unauthorized -> UiText.Res(R.string.session_expired_please_sign_in_again)
+    is RemoteError.Forbidden -> UiText.Res(R.string.you_are_not_authorized_to_make_such_request)
+    is RemoteError.Redirect -> UiText.Res(R.string.the_resource_has_changed_location)
     is RemoteError.GatewayTimeout -> UiText.Res(R.string.gateway_timed_out)
     is RemoteError.NoConnection -> UiText.Res(R.string.no_internet_connection)
     is RemoteError.NotFound -> UiText.Res(R.string.the_request_resource_does_not_exist)

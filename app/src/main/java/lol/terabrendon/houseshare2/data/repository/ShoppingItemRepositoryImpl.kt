@@ -26,7 +26,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
     private val shoppingApi: ShoppingApi,
     private val shoppingItemDao: ShoppingItemDao,
     private val externalScope: CoroutineScope,
-    @IoDispatcher
+    @param:IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
 ) : ShoppingItemRepository {
     override fun getAll(): Flow<List<ShoppingItemInfoModel>> = shoppingItemDao

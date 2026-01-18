@@ -122,7 +122,11 @@ room {
 
 kotlin {
     compilerOptions {
-        languageVersion = KotlinVersion.KOTLIN_2_0
+        languageVersion = KotlinVersion.KOTLIN_2_3
+
+        // See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+        // See https://kotlinlang.org/docs/annotations.html#defaults-when-no-use-site-targets-are-specified for the official documentation.
+        freeCompilerArgs.add("-Xannotation-default-target=first-only")
     }
     sourceSets.all {
 //        languageSettings.enableLanguageFeature("ExplicitBackingFields")
