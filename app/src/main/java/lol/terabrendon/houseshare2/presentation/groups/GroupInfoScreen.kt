@@ -29,11 +29,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.GroupModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
@@ -84,7 +86,7 @@ private fun GroupInfoInner(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1. Group Header Section
+        // Group Header Section
         item {
             GroupHeaderCard(
                 groupName = group.info.name,
@@ -93,10 +95,10 @@ private fun GroupInfoInner(
             )
         }
 
-        // 2. Members Section Title
+        // Members Section Title
         item {
             Text(
-                text = "Members",
+                text = stringResource(R.string.members),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 8.dp, top = 8.dp)
@@ -139,7 +141,7 @@ fun GroupHeaderCard(
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     Text(
-                        text = "$memberCount active members",
+                        text = stringResource(R.string.active_members, memberCount),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
                     )
@@ -157,7 +159,7 @@ fun GroupHeaderCard(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("Invite Members")
+                Text(stringResource(R.string.invite_members))
             }
         }
     }

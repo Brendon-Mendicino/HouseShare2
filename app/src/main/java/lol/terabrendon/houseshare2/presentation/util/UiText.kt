@@ -29,7 +29,7 @@ sealed class UiText {
             *(args.map { if (it is UiText) it.text(context) else it }.toTypedArray())
         )
 
-        is Multi -> uiTexts.joinToString(separator = separator) { text(context) }
+        is Multi -> uiTexts.joinToString(separator = separator) { it.text(context) }
     }
 
     operator fun plus(rhs: UiText): UiText = Multi(this, rhs, separator = "")

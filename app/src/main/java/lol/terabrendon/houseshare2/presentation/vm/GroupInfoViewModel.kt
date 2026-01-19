@@ -1,7 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
 import android.content.Intent
-import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -69,24 +68,22 @@ class GroupInfoViewModel @AssistedInject constructor(
                 val inviteUri = invite.inviteUri.toUri()
                 val base = BuildConfig.BASE_URL.toUri()
 
-                val uri = Uri.Builder()
-                    .scheme(base.scheme!!)
-                    .encodedAuthority(base.encodedAuthority!!)
-                    .encodedPath(inviteUri.encodedPath!!)
-                    .encodedQuery(inviteUri.encodedQuery!!)
+                val uri = base.buildUpon()
+                    .appendEncodedPath(inviteUri.encodedPath?.removePrefix("/"))
+                    .encodedQuery(inviteUri.encodedQuery)
                     .build()
 
-                val share = Intent.createChooser(Intent().apply {
+                val intent = Intent().apply {
                     action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, uri.toString())
 
+                    putExtra(Intent.EXTRA_TEXT, uri.toString())
                     putExtra(Intent.EXTRA_TITLE, "Group invitation link")
 
-                    // (Optional) Here you're passing a content URI to an image to be displayed
-//                    data = contentUri
                     type = "text/uri-list"
                     flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                }, null)
+                }
+
+                val share = Intent.createChooser(intent, null)
 
                 Timber.i("onEvent: sending group invite url")
                 ActivityQueue.sendIntent(share)

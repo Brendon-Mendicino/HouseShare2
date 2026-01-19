@@ -118,4 +118,7 @@
     <string name="the_resource_has_changed_location">The resource has changed location!</string>
     <string name="session_expired_please_sign_in_again">Session expired. Please sign in again.</string>
     <string name="network_error">Network error</string>
+    <string name="invite_members">Invite Members</string>
+    <string name="active_members">%1$d active members</string>
+    <string name="members">Members</string>
 </resources>
