@@ -25,23 +25,32 @@ fun LocalError.toUiText(): UiText = when (this) {
     is LocalError.Unknown -> UiText.Res(R.string.an_unknown_error_happened_while_accessing_the_file_system)
 }
 
-fun RemoteError.toUiText(): UiText = when (this) {
-    is RemoteError.BadRequest -> UiText.Res(R.string.the_server_could_not_handle_the_request)
-    is RemoteError.BadGateway -> UiText.Res(R.string.gateway_got_invalid_repsonse_while_processing_the_request)
-    is RemoteError.ContentTooLarge -> UiText.Res(R.string.the_uploaded_content_was_too_large)
-    is RemoteError.Unauthorized -> UiText.Res(R.string.session_expired_please_sign_in_again)
-    is RemoteError.Forbidden -> UiText.Res(R.string.you_are_not_authorized_to_make_such_request)
-    is RemoteError.Redirect -> UiText.Res(R.string.the_resource_has_changed_location)
-    is RemoteError.GatewayTimeout -> UiText.Res(R.string.gateway_timed_out)
-    is RemoteError.NoConnection -> UiText.Res(R.string.no_internet_connection)
-    is RemoteError.NotFound -> UiText.Res(R.string.the_request_resource_does_not_exist)
-    is RemoteError.RequestTimeout -> UiText.Res(R.string.the_request_took_too_long_to_elaborate)
-    is RemoteError.ServiceUnavailable -> UiText.Res(R.string.the_server_is_temporarily_unavailable)
-    is RemoteError.TooManyRequests -> UiText.Res(R.string.the_server_is_too_busy_to_answer_at_the_moment)
-    is RemoteError.UnsupportedMediaType -> UiText.Res(R.string.the_file_format_you_uploaded_is_not_processable_by_the_server)
-    is RemoteError.InternalServerError -> UiText.Res(R.string.the_server_experienced_an_unrecoverable_error_while_processing_the_request)
+fun RemoteError.toUiText(): UiText {
+    val msg = when (this) {
+        is RemoteError.BadRequest -> UiText.Res(R.string.the_server_could_not_handle_the_request)
+        is RemoteError.BadGateway -> UiText.Res(R.string.gateway_got_invalid_repsonse_while_processing_the_request)
+        is RemoteError.ContentTooLarge -> UiText.Res(R.string.the_uploaded_content_was_too_large)
+        is RemoteError.Unauthorized -> UiText.Res(R.string.session_expired_please_sign_in_again)
+        is RemoteError.Forbidden -> UiText.Res(R.string.you_are_not_authorized_to_make_such_request)
+        is RemoteError.Redirect -> UiText.Res(R.string.the_resource_has_changed_location)
+        is RemoteError.GatewayTimeout -> UiText.Res(R.string.gateway_timed_out)
+        is RemoteError.NoConnection -> UiText.Res(R.string.no_internet_connection)
+        is RemoteError.NotFound -> UiText.Res(R.string.the_request_resource_does_not_exist)
+        is RemoteError.RequestTimeout -> UiText.Res(R.string.the_request_took_too_long_to_elaborate)
+        is RemoteError.ServiceUnavailable -> UiText.Res(R.string.the_server_is_temporarily_unavailable)
+        is RemoteError.TooManyRequests -> UiText.Res(R.string.the_server_is_too_busy_to_answer_at_the_moment)
+        is RemoteError.UnsupportedMediaType -> UiText.Res(R.string.the_file_format_you_uploaded_is_not_processable_by_the_server)
+        is RemoteError.InternalServerError -> UiText.Res(R.string.the_server_experienced_an_unrecoverable_error_while_processing_the_request)
 
-    is RemoteError.Unknown -> UiText.Res(R.string.an_unknown_network_error_happened)
+        is RemoteError.Unknown -> UiText.Res(R.string.an_unknown_network_error_happened)
+    }
+
+    return UiText.Multi(
+        msg,
+        "\n".toUiText(),
+        UiText.Res(R.string.network_error),
+        ": ${message()}".toUiText()
+    )
 }
 
 fun FormError.toUiText(): UiText = when (this) {
@@ -119,3 +128,5 @@ fun ValidationError<*>.toUiText(label: Any?): UiText {
         is ValidationError.ToNumberErr -> UiText.Res(R.string.is_not_a_valid_number, arrayOf(label))
     }
 }
+
+fun String.toUiText() = UiText.Dyn(this)

@@ -117,4 +117,5 @@
     <string name="asset_statements" translatable="false">[{ \"include\": \"https://houseshare.hollowinsidepizza.xyz/.well-known/assetlinks.json\" }]</string>
     <string name="the_resource_has_changed_location">The resource has changed location!</string>
     <string name="session_expired_please_sign_in_again">Session expired. Please sign in again.</string>
+    <string name="network_error">Network error</string>
 </resources>

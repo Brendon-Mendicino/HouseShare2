@@ -46,6 +46,15 @@ sealed interface RemoteError : DataError {
         is NoConnection -> null
     }
 
+    fun message(): String {
+        val response = maybeResponse()
+        if (response == null) {
+            return "No connection"
+        }
+
+        return "[$response.code()] ${response.message() ?: "Unknown"}"
+    }
+
     val is3xx: Boolean
         get() = this is Redirect
 
