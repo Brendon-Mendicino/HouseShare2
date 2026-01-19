@@ -104,4 +104,22 @@
     <string name="invite_link_was_not_valid">Il link di invito non era valido.</string>
     <string name="no_groups_yet">Ancora Nessun Grouppo</string>
     <string name="create_a_group_to_start_sharing_expenses_and_shopping_lists">Create un grouppo per iniziare a condividere le spese.</string>
+    <string name="help_us_improve">Aiutaci a migliorare</string>
+    <string name="send_analytics">Consenti l\'invio anonimo di informazioni su arresti anomali ed errori. Questo ci aiuta a correggere i bug più velocemente. Puoi modificare questa scelta in qualsiasi momento dalle impostazioni.</string>
+    <string name="terms_and_privacy">Termini e Privacy</string>
+    <string name="please_review_and_accept_the_terms">Si prega di leggere e accettare i Termini di servizio. Puoi anche scegliere se condividere dati anonimi sugli arresti anomali per contribuire a migliorare l\'app.</string>
+    <string name="terms_conditions">Termini e Condizioni</string>
+    <string name="read_our_terms_on_the_website">Leggi i nostri termini sul sito web</string>
+    <string name="privacy_policies">Politiche sulla privacy</string>
+    <string name="read_our_privacy_policy_on_the_website">Leggi la nostra politica sulla privacy dal sito web</string>
+    <string name="you_must_read_the_terms_first">È necessario leggere i termini prima di accettarli! Tanto chi le legge mai queste cose? 🤔</string>
+    <string name="the_resource_has_changed_location">La risorsa ha cambiato posizione!</string>
+    <string name="session_expired_please_sign_in_again">Sessione scaduta. Per favore accedi di nuovo.</string>
+    <string name="network_error">Errore di rete</string>
+    <string name="invite_members">Invita membri</string>
+    <string name="active_members">%1$d membri attivi</string>
+    <string name="members">Membri</string>
+    <string name="you_have_no_friends_yet">Non hai ancora amici 🥺</string>
+    <string name="don_t_worry">Non preoccuparti! Puoi creare il gruppo adesso e invitare i tuoi amici in seguito utilizzando il link di invito nelle impostazioni del gruppo.</string>
+    <string name="create_group_anyway">Crea comunque il gruppo</string>
 </resources>
