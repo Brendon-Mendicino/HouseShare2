@@ -1,13 +1,17 @@
 package lol.terabrendon.houseshare2.presentation.groups.form
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -61,12 +65,17 @@ private fun GroupInfoFormScreenInner(
     onEvent: (GroupFormEvent) -> Unit = {},
 ) {
 
-    Column(modifier = Modifier.padding(8.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
         FormOutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             param = groupFormState.name,
             onValueChange = { onEvent(GroupFormEvent.NameChanged(it)) },
             labelText = stringResource(R.string.group_name),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         )
 
         FormOutlinedTextField(
@@ -74,6 +83,10 @@ private fun GroupInfoFormScreenInner(
             param = groupFormState.description,
             onValueChange = { onEvent(GroupFormEvent.DescriptionChanged(it)) },
             labelText = stringResource(R.string.group_description),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {
+                onEvent(GroupFormEvent.Submit)
+            }),
         )
     }
 }

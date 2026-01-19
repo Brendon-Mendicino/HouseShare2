@@ -121,4 +121,7 @@
     <string name="invite_members">Invite Members</string>
     <string name="active_members">%1$d active members</string>
     <string name="members">Members</string>
+    <string name="you_have_no_friends_yet">You have no friends yet 🥺</string>
+    <string name="don_t_worry">Don\'t worry! You can create the group now and invite your friends later using a share link in the group settings.</string>
+    <string name="create_group_anyway">Create Group Anyway</string>
 </resources>
