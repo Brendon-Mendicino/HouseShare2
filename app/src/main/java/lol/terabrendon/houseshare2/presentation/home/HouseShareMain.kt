@@ -49,6 +49,7 @@ import lol.terabrendon.houseshare2.presentation.shopping.shoppingNavigation
 import lol.terabrendon.houseshare2.presentation.user.userNavigation
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.TOP_LEVEL_TRANSITION
+import lol.terabrendon.houseshare2.presentation.util.rememberSharedViewModelStoreNavEntryDecorator
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
 import timber.log.Timber
@@ -141,6 +142,7 @@ private fun HouseShareMainInner(
                     entryDecorators = listOf(
                         rememberSaveableStateHolderNavEntryDecorator(),
                         rememberViewModelStoreNavEntryDecorator(),
+                        rememberSharedViewModelStoreNavEntryDecorator(),
                     ),
                     entryProvider = entryProvider {
                         entry<MainNavigation.Loading> {
