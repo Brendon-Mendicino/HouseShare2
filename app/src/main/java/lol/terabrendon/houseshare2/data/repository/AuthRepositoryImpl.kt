@@ -1,7 +1,9 @@
 package lol.terabrendon.houseshare2.data.repository
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
@@ -20,15 +22,15 @@ class AuthRepositoryImpl @Inject constructor(
     private val userDataRepository: UserDataRepository,
     private val userApi: UserApi,
 ) : AuthRepository {
-    private suspend fun refreshUser(): Result<UserModel, DataError> = coroutineBinding {
-        val user = userApi.getLoggedUser().bind()
+    private suspend fun refreshUser(): Result<UserModel, DataError> {
+        val user = userApi.getLoggedUser().getOrElse { return Err(it) }
 
         localSafe {
             userDataRepository.update(LoggedUserId(user.id))
             userDao.upsert(user.toEntity())
-        }.bind()
+        }.getOrElse { return Err(it) }
 
-        user.toModel()
+        return Ok(user.toModel())
     }
 
     override suspend fun finishLogin(): Result<UserModel, DataError> {
@@ -47,9 +49,11 @@ class AuthRepositoryImpl @Inject constructor(
             }
     }
 
-    // TODO: for now the loggedUser and finishLogin are identical but may change in the future
     override suspend fun loggedUser(): Result<UserModel, DataError> = refreshUser()
         .onSuccess { user ->
             Timber.i("loggedUser: got logged user from server. user=%s", user)
+        }
+        .onFailure { err ->
+            Timber.w("loggedUser: returned an error: err=%s", err)
         }
 }
