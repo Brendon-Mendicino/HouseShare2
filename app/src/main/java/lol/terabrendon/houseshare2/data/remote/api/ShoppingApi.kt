@@ -9,34 +9,42 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import javax.annotation.CheckReturnValue
 
+@CheckReturnValue
 interface ShoppingApi {
     @POST("groups/{groupId}/shopping-items")
-    suspend fun save(@Path("groupId") groupId: Long, @Body dto: ShoppingItemDto): ShoppingItemDto
+    suspend fun save(
+        @Path("groupId") groupId: Long,
+        @Body dto: ShoppingItemDto,
+    ): NetResult<ShoppingItemDto>
 
     @PUT("groups/{groupId}/shopping-items/{shoppingItemId}")
     suspend fun update(
         @Path("groupId") groupId: Long,
         @Path("shoppingItemId") shoppingItemId: Long,
         @Body dto: ShoppingItemDto,
-    ): ShoppingItemDto
+    ): NetResult<ShoppingItemDto>
 
     @GET("groups/{groupId}/shopping-items")
     suspend fun getByGroupId(@Path("groupId") groupId: Long): Page<ShoppingItemDto>
 
     @DELETE("groups/{groupId}/shopping-items/{shoppingItemId}")
-    suspend fun delete(@Path("groupId") groupId: Long, @Path("shoppingItemId") shoppingItemId: Long)
+    suspend fun delete(
+        @Path("groupId") groupId: Long,
+        @Path("shoppingItemId") shoppingItemId: Long,
+    ): NetResult<Unit>
 
     @POST("groups/{groupId}/shopping-items/{shoppingItemId}/checkoff")
     suspend fun checkShoppingItem(
         @Path("groupId") groupId: Long,
         @Path("shoppingItemId") shoppingItemId: Long,
         @Body dto: CheckDto,
-    ): CheckDto
+    ): NetResult<CheckDto>
 
     @DELETE("groups/{groupId}/shopping-items/{shoppingItemId}/checkoff")
     suspend fun uncheckShoppingItem(
         @Path("groupId") groupId: Long,
         @Path("shoppingItemId") shoppingItemId: Long,
-    )
+    ): NetResult<Unit>
 }

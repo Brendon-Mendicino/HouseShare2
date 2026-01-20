@@ -2,6 +2,7 @@ package lol.terabrendon.houseshare2.presentation.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.michaelbull.result.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseBalanceMapper
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +33,7 @@ class BillingViewModel @Inject constructor(
         viewModelScope.launch {
             val group = currentGroup.filterNotNull().first()
             expenseRepository.refreshByGroupId(group.info.groupId)
+                .onFailure { SnackbarController.sendError(it) }
         }
     }
 

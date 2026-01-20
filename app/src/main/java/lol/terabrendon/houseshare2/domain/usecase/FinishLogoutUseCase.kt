@@ -1,7 +1,6 @@
 package lol.terabrendon.houseshare2.domain.usecase
 
 import androidx.room.RoomDatabase
-import androidx.room.withTransaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
@@ -19,11 +18,9 @@ class FinishLogoutUseCase @Inject constructor(
     suspend operator fun invoke() = withContext(Dispatchers.IO) {
         db.clearAllTables()
 
-        db.withTransaction {
-            userDataRepository.update(LoggedUserId(null))
-            userDataRepository.update(SelectedGroupId(null))
-            userDataRepository.update(BackStack(listOf(MainNavigation.Login)))
-        }
+        userDataRepository.update(LoggedUserId(null))
+        userDataRepository.update(SelectedGroupId(null))
+        userDataRepository.update(BackStack(listOf(MainNavigation.Login)))
 
         Timber.i("invoke: logout completed! DB cleared of all previous stored data.")
     }

@@ -1,6 +1,7 @@
 package lol.terabrendon.houseshare2.data.repository
 
 import kotlinx.coroutines.flow.Flow
+import lol.terabrendon.houseshare2.data.util.DataResult
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
 
@@ -25,13 +26,17 @@ interface ShoppingItemRepository {
 
     suspend fun refreshByGroupId(groupId: Long)
 
-    suspend fun insert(newItem: ShoppingItemInfoModel)
+    suspend fun insert(newItem: ShoppingItemInfoModel): DataResult<Unit>
 
-    suspend fun update(item: ShoppingItemInfoModel)
+    suspend fun update(item: ShoppingItemInfoModel): DataResult<Unit>
 
-    suspend fun deleteAll(items: List<ShoppingItemInfoModel>)
+    suspend fun deleteAll(items: List<ShoppingItemInfoModel>): DataResult<Unit>
 
-    suspend fun checkoffItems(groupId: Long, shoppingItemIds: List<Long>, userId: Long)
+    suspend fun checkoffItems(
+        groupId: Long,
+        shoppingItemIds: List<Long>,
+        userId: Long,
+    ): DataResult<Unit>
 
-    suspend fun uncheckItems(groupId: Long, shoppingItemIds: List<Long>)
+    suspend fun uncheckItems(groupId: Long, shoppingItemIds: List<Long>): DataResult<Unit>
 }

@@ -6,10 +6,12 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import javax.annotation.CheckReturnValue
 
+@CheckReturnValue
 interface GroupApi {
     @POST("groups")
-    suspend fun save(@Body group: GroupDto): GroupDto
+    suspend fun save(@Body group: GroupDto): NetResult<GroupDto>
 
     @POST("groups/{groupId}/invite")
     suspend fun inviteUrl(@Path("groupId") groupId: Long): NetResult<InviteUrlDto>

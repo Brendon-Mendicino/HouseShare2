@@ -134,7 +134,11 @@ class GroupFormViewModel @Inject constructor(
             newGroup.info.name
         )
 
-        groupRepository.insert(newGroup)
+        val (_, err) = groupRepository.insert(newGroup)
+        if (err != null) {
+            SnackbarController.sendError(err)
+            return
+        }
 
         _uiEvent.send(GroupFormUiEvent.SubmitSuccess)
     }

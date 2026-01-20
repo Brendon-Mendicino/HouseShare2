@@ -39,9 +39,7 @@ interface GroupDao {
     suspend fun createGroup(group: Group, userIds: List<Long>): Long {
         val newGroupId = addGroup(group)
 
-        userIds
-            .map { GroupUserCrossRef(groupId = newGroupId, userId = it) }
-            .forEach { addUser(it) }
+        userIds.map { GroupUserCrossRef(groupId = newGroupId, userId = it) }.forEach { addUser(it) }
 
         return newGroupId
     }
@@ -53,8 +51,7 @@ interface GroupDao {
 
         deleteGroupUsers(group.id)
 
-        userIds
-            .map { GroupUserCrossRef(groupId = group.id, userId = it) }
+        userIds.map { GroupUserCrossRef(groupId = group.id, userId = it) }
             .forEach { upsertUser(it) }
 
         return groupId

@@ -18,6 +18,7 @@ import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreenEvent
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.util.mapState
 import timber.log.Timber
 import javax.inject.Inject
@@ -92,7 +93,11 @@ class ShoppingViewModel @Inject constructor(
 
                 Timber.i("onEvent: deleting %d ShoppingItems from the repository.", items.size)
 
-                shoppingItemRepository.deleteAll(items)
+                val (_, err) = shoppingItemRepository.deleteAll(items)
+                if (err != null) {
+                    SnackbarController.sendError(err)
+                    return@launch
+                }
 
                 _selectedItems.value = emptySet()
             }
@@ -108,7 +113,11 @@ class ShoppingViewModel @Inject constructor(
 
                 Timber.i("onEvent: check of %d ShoppingItems from the repository.", items.size)
 
-                shoppingItemRepository.checkoffItems(groupId, items, loggedUser.id)
+                val (_, err) = shoppingItemRepository.checkoffItems(groupId, items, loggedUser.id)
+                if (err != null) {
+                    SnackbarController.sendError(err)
+                    return@launch
+                }
 
                 _selectedItems.value = emptySet()
             }

@@ -23,8 +23,6 @@ import lol.terabrendon.houseshare2.presentation.groups.GroupInfoEvent
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
-import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
-import lol.terabrendon.houseshare2.presentation.util.toUiText
 import timber.log.Timber
 
 @HiltViewModel(assistedFactory = GroupInfoViewModel.Factory::class)
@@ -62,7 +60,7 @@ class GroupInfoViewModel @AssistedInject constructor(
             is GroupInfoEvent.ShareGroup -> {
                 val res = groupApi.inviteUrl(group.info.groupId)
                 val invite = res.getOrElse { err ->
-                    SnackbarController.sendEvent(SnackbarEvent(message = err.toUiText()))
+                    SnackbarController.sendError(err)
                     return@launch
                 }
                 val inviteUri = invite.inviteUri.toUri()

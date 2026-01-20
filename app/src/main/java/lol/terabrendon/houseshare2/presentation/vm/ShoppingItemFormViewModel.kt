@@ -83,7 +83,11 @@ class ShoppingItemFormViewModel @Inject constructor(
             shoppingItem.name
         )
 
-        shoppingItemRepository.insert(shoppingItem)
+        val (_, err) = shoppingItemRepository.insert(shoppingItem)
+        if (err != null) {
+            SnackbarController.sendError(err)
+            return
+        }
 
         _uiEvents.send(ShoppingItemFormUiEvent.SubmitSuccess)
     }

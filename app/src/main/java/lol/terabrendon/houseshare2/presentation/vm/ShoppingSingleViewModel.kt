@@ -110,18 +110,20 @@ class ShoppingSingleViewModel @AssistedInject constructor(
         if (newInfo == info)
             return
 
-        shoppingItemRepository.update(newInfo)
+        val (_, err) = shoppingItemRepository.update(newInfo)
+        if (err != null) {
+            SnackbarController.sendError(err)
+        }
     }
 
     private suspend fun onItemToggle() {
         val item = shoppingItem.value
-
         if (item == null)
             return
 
         val loggedUser = getLoggedUserUseCase().filterNotNull().first()
 
-        if (item.checkoffState == null) {
+        val (_, err) = if (item.checkoffState == null) {
             shoppingItemRepository.checkoffItems(
                 item.info.groupId,
                 listOf(item.info.id),
@@ -129,6 +131,10 @@ class ShoppingSingleViewModel @AssistedInject constructor(
             )
         } else {
             shoppingItemRepository.uncheckItems(item.info.groupId, listOf(item.info.id))
+        }
+
+        if (err != null) {
+            SnackbarController.sendError(err)
         }
     }
 }

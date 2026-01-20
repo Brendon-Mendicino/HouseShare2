@@ -1,5 +1,11 @@
 package lol.terabrendon.houseshare2.data.repository
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.coroutines.coroutineBinding
+import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -9,8 +15,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
+import lol.terabrendon.houseshare2.data.local.util.localSafe
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
 import lol.terabrendon.houseshare2.data.remote.dto.CheckDto
+import lol.terabrendon.houseshare2.data.util.DataResult
 import lol.terabrendon.houseshare2.di.IoDispatcher
 import lol.terabrendon.houseshare2.domain.mapper.toDto
 import lol.terabrendon.houseshare2.domain.mapper.toEntity
@@ -71,74 +79,85 @@ class ShoppingItemRepositoryImpl @Inject constructor(
         }.join()
     }
 
+    override suspend fun insert(newItem: ShoppingItemInfoModel): DataResult<Unit> {
+        val dto =
+            shoppingApi.save(newItem.groupId, newItem.toDto()).getOrElse { return Err(it) }
 
-    override suspend fun insert(newItem: ShoppingItemInfoModel) {
-        externalScope.launch(ioDispatcher) {
-            Timber.i("insert: inserting new shopping item to the db.")
+        localSafe { shoppingItemDao.insert(dto.toEntity()) }.getOrElse { return Err(it) }
 
-            val dto = shoppingApi.save(newItem.groupId, newItem.toDto())
+        Timber.i("insert: added new ShoppingItem@%d", dto.id)
 
-            shoppingItemDao.insert(newItem.copy(id = dto.id).toEntity())
-        }.join()
+        return Ok(Unit)
     }
 
-    override suspend fun update(item: ShoppingItemInfoModel) {
-        externalScope.launch(ioDispatcher) {
-            Timber.i("update: updating shopping item")
+    override suspend fun update(item: ShoppingItemInfoModel): DataResult<Unit> {
+        val dto = shoppingApi.update(item.groupId, item.id, item.toDto())
+            .getOrElse { return Err(it) }
 
-            val dto = shoppingApi.update(item.groupId, item.id, item.toDto())
+        localSafe { shoppingItemDao.upsert(dto.toEntity()) }.getOrElse { return Err(it) }
 
-            shoppingItemDao.upsert(dto.toEntity())
-        }.join()
+        Timber.i("update: updating ShoppingItem@%d", dto.id)
+
+        return Ok(Unit)
     }
 
-    override suspend fun deleteAll(items: List<ShoppingItemInfoModel>) {
-        externalScope.launch(ioDispatcher) {
-            Timber.i("deleteAll: deleting %d shopping items from the db.", items.size)
+    override suspend fun deleteAll(items: List<ShoppingItemInfoModel>): DataResult<Unit> {
+        coroutineBinding {
+            items.map { launch { shoppingApi.delete(it.groupId, it.id).bind() } }.joinAll()
 
-            items.map { launch { shoppingApi.delete(it.groupId, it.id) } }.joinAll()
+            localSafe { shoppingItemDao.deleteAllById(items.map { it.id }) }.bind()
+        }.onFailure { return Err(it) }
 
-            shoppingItemDao.deleteAllById(items.map { it.id })
-        }.join()
+        Timber.i("deleteAll: deleted shopping items ids=%s", items.map { it.id })
+
+        return Ok(Unit)
     }
 
     override suspend fun checkoffItems(
         groupId: Long,
         shoppingItemIds: List<Long>,
         userId: Long,
-    ) {
-        externalScope.launch(ioDispatcher) {
-            Timber.i("checkoffItems: userId=%d itemIds=%s", userId, shoppingItemIds)
-            val timestamp = OffsetDateTime.now()
+    ): DataResult<Unit> {
+        val timestamp = OffsetDateTime.now()
 
-            shoppingItemIds
-                .map {
-                    launch {
-                        shoppingApi.checkShoppingItem(
-                            groupId = groupId,
-                            shoppingItemId = it,
-                            dto = CheckDto(checkingUserId = userId, checkoffTimestamp = timestamp),
+        coroutineBinding {
+            shoppingItemIds.map {
+                launch {
+                    shoppingApi.checkShoppingItem(
+                        groupId = groupId,
+                        shoppingItemId = it,
+                        dto = CheckDto(checkingUserId = userId, checkoffTimestamp = timestamp),
+                    ).bind()
+
+                    localSafe {
+                        shoppingItemDao.check(
+                            it,
+                            userId,
+                            timestamp.toLocalDateTime()
                         )
-                        shoppingItemDao.check(it, userId, timestamp.toLocalDateTime())
-                    }
+                    }.bind()
                 }
-                .joinAll()
-        }.join()
+            }.joinAll()
+        }.onSuccess { Timber.i("checkoffItems: userId=%d itemIds=%s", userId, shoppingItemIds) }
+
+        return Ok(Unit)
     }
 
     override suspend fun uncheckItems(
         groupId: Long,
         shoppingItemIds: List<Long>,
-    ) {
-        externalScope.launch(ioDispatcher) {
-            Timber.i("uncheckItems: itemIds=%s", shoppingItemIds)
-
+    ): DataResult<Unit> {
+        coroutineBinding {
             shoppingItemIds.map { shoppingId ->
                 launch {
                     shoppingApi.uncheckShoppingItem(groupId = groupId, shoppingItemId = shoppingId)
-                    shoppingItemDao.uncheck(shoppingId)
+                        .bind()
+                    localSafe { shoppingItemDao.uncheck(shoppingId) }.bind()
                 }
             }.joinAll()
-        }
+        }.onSuccess { Timber.i("uncheckItems: itemIds=%s", shoppingItemIds) }
+
+
+        return Ok(Unit)
     }
 }
