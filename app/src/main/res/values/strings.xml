@@ -124,4 +124,15 @@
     <string name="you_have_no_friends_yet">You have no friends yet 🥺</string>
     <string name="don_t_worry">Don\'t worry! You can create the group now and invite your friends later using a share link in the group settings.</string>
     <string name="create_group_anyway">Create Group Anyway</string>
+    <string name="about">About</string>
+    <string name="environment">Environment</string>
+    <string name="general">General</string>
+    <string name="privacy_safety"><![CDATA[Privacy & Safety]]></string>
+    <string name="open_in_browser">Open in browser</string>
+    <string name="version_copied_to_clipboard">Version copied to clipboard</string>
+    <string name="account_settings">Account settings</string>
+    <string name="checked_by">Checked by</string>
+    <string name="checked_at">Checked at</string>
+    <string name="checked">Checked</string>
+    <string name="unchecked">Unchecked</string>
 </resources>

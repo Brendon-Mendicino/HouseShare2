@@ -15,9 +15,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -82,7 +82,7 @@ private fun GroupInfoInner(
     onEvent: (event: GroupInfoEvent) -> Unit,
 ) {
     LazyColumn(
-        modifier = modifier, // This likely contains the Scaffold padding
+        modifier = modifier,
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -149,9 +149,9 @@ fun GroupHeaderCard(
             }
 
             // Tonal Button is less aggressive than Filled, perfect for secondary actions
-            FilledTonalButton(
+            Button(
                 onClick = onShareClick,
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier.align(Alignment.End),
             ) {
                 Icon(
                     imageVector = Icons.Default.Share,

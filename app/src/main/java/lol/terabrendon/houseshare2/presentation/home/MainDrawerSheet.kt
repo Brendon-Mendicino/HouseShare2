@@ -1,7 +1,10 @@
 package lol.terabrendon.houseshare2.presentation.home
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Groups
@@ -85,32 +88,34 @@ fun MainDrawerSheet(
     )
 
     ModalDrawerSheet(modifier) {
-        Text(
-            stringResource(R.string.house_activities),
-            modifier = Modifier.padding(textPadding)
-        )
+        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            Text(
+                stringResource(R.string.house_activities),
+                modifier = Modifier.padding(textPadding)
+            )
 
-        firstSection.forEach {
+            firstSection.forEach {
+                DrawerItem(
+                    route = it.toDrawer(),
+                    itemSelected = itemSelected,
+                    onItemClick = onItemClick
+                )
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(8.dp))
+
             DrawerItem(
-                route = it.toDrawer(),
+                route = UserProfile.toDrawer(),
                 itemSelected = itemSelected,
                 onItemClick = onItemClick
             )
+
+            DrawerItem(
+                route = Settings.toDrawer(),
+                itemSelected = itemSelected,
+                onItemClick = onItemClick,
+            )
         }
-
-        HorizontalDivider(modifier = Modifier.padding(8.dp))
-
-        DrawerItem(
-            route = UserProfile.toDrawer(),
-            itemSelected = itemSelected,
-            onItemClick = onItemClick
-        )
-
-        DrawerItem(
-            route = Settings.toDrawer(),
-            itemSelected = itemSelected,
-            onItemClick = onItemClick,
-        )
     }
 }
 

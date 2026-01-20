@@ -6,13 +6,22 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -26,6 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,6 +48,7 @@ import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.presentation.vm.UserViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
+import lol.terabrendon.houseshare2.util.Config
 
 
 @Composable
@@ -65,45 +76,71 @@ private fun UserProfileInner(
     state: UserViewModel.State,
     onLogout: () -> Unit,
 ) {
-    Column(modifier = modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            AvatarIcon(
-                user = user,
-                size = 180.dp,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .rotatingGradient()
+    val uriHandler = LocalUriHandler.current
+
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                AvatarIcon(
+                    user = user,
+                    size = 180.dp,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .rotatingGradient()
+                )
+            }
+        }
+
+        item { UserField(text = user.username, label = stringResource(R.string.username)) }
+
+        item { UserField(text = user.email ?: "", label = stringResource(R.string.email)) }
+        item { UserField(text = user.firstName ?: "", label = stringResource(R.string.first_name)) }
+        item { UserField(text = user.lastName ?: "", label = stringResource(R.string.last_name)) }
+
+        item { HorizontalDivider(Modifier.padding(vertical = 16.dp)) }
+
+        item {
+            ListItem(
+                modifier = Modifier.clickable { uriHandler.openUri(Config.ACCOUNT_URL) },
+                headlineContent = { Text(stringResource(R.string.account_settings)) },
+                leadingContent = { Icon(Icons.Default.ManageAccounts, null) },
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                        contentDescription = stringResource(R.string.open_in_browser),
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             )
         }
 
-        UserField(text = user.username, label = stringResource(R.string.username))
+        item { HorizontalDivider(Modifier.padding(vertical = 16.dp)) }
 
-        UserField(text = user.email ?: "", label = stringResource(R.string.email))
-
-        UserField(text = user.firstName ?: "", label = stringResource(R.string.first_name))
-
-        UserField(text = user.lastName ?: "", label = stringResource(R.string.last_name))
-
-        HorizontalDivider(Modifier.padding(vertical = 16.dp))
-
-        val enabled = !state.logoutPending
-        fun Color.disable() = if (!enabled) this.copy(alpha = 0.1f) else this
-        OutlinedButton(
-            onClick = onLogout,
-            modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.error.disable(),
-            ),
-            enabled = enabled,
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                disabledContentColor = MaterialTheme.colorScheme.onErrorContainer.disable(),
-                disabledContainerColor = MaterialTheme.colorScheme.errorContainer.disable(),
-            ),
-        ) {
-            Text("Logout")
+        item {
+            val enabled = !state.logoutPending
+            fun Color.disable() = if (!enabled) this.copy(alpha = 0.1f) else this
+            OutlinedButton(
+                onClick = onLogout,
+                modifier = Modifier.fillMaxWidth(),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.error.disable(),
+                ),
+                enabled = enabled,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    disabledContentColor = MaterialTheme.colorScheme.onErrorContainer.disable(),
+                    disabledContainerColor = MaterialTheme.colorScheme.errorContainer.disable(),
+                ),
+            ) {
+                Text("Logout")
+            }
         }
     }
 }

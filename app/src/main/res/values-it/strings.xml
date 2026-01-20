@@ -122,4 +122,15 @@
     <string name="you_have_no_friends_yet">Non hai ancora amici 🥺</string>
     <string name="don_t_worry">Non preoccuparti! Puoi creare il gruppo adesso e invitare i tuoi amici in seguito utilizzando il link di invito nelle impostazioni del gruppo.</string>
     <string name="create_group_anyway">Crea comunque il gruppo</string>
+    <string name="about">Informazioni</string>
+    <string name="environment">Ambiente</string>
+    <string name="general">Generale</string>
+    <string name="privacy_safety">Privacy e Sicurezza</string>
+    <string name="open_in_browser">Apri nel browser</string>
+    <string name="version_copied_to_clipboard">Versione copiata negli appunti</string>
+    <string name="account_settings">Impostazioni account</string>
+    <string name="checked_by">Comprato da</string>
+    <string name="checked_at">Comprato il</string>
+    <string name="checked">Spuntato</string>
+    <string name="unchecked">Da comprare</string>
 </resources>

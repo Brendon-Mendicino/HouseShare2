@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Gavel
@@ -85,17 +87,18 @@ private fun SettingsInner(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        SettingsHeader("General")
+        SettingsHeader(stringResource(R.string.general))
         LanguagePicker(localeOptions = localeOptions)
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
 
         // Privacy & Safety
-        SettingsHeader("Privacy & Safety")
+        SettingsHeader(stringResource(R.string.privacy_safety))
 
         // Privacy / Crashlytics Opt-In (GDPR compliant)
         ListItem(
@@ -114,7 +117,7 @@ private fun SettingsInner(
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         // About & Legal
-        SettingsHeader("About")
+        SettingsHeader(stringResource(R.string.about))
         ListItem(
             modifier = Modifier.clickable { uriHandler.openUri(Config.PRIVACY_URL) },
             headlineContent = { Text(stringResource(R.string.privacy_policies)) },
@@ -122,7 +125,7 @@ private fun SettingsInner(
             trailingContent = {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                    contentDescription = "Open in browser",
+                    contentDescription = stringResource(R.string.open_in_browser),
                     modifier = Modifier.size(20.dp), // M3 standard trailing icon size is often 20-24dp
                     tint = MaterialTheme.colorScheme.onSurfaceVariant // Subtle hint
                 )
@@ -154,7 +157,7 @@ private fun SettingsInner(
                         clipboard.setClipEntry(entry)
                         SnackbarController.sendEvent(
                             SnackbarEvent(
-                                message = UiText.Dyn("Version copied to clipboard")
+                                message = UiText.Res(R.string.version_copied_to_clipboard)
                             )
                         )
                     }
@@ -163,7 +166,7 @@ private fun SettingsInner(
         )
 
         ListItem(
-            headlineContent = { Text("Environment") },
+            headlineContent = { Text(stringResource(R.string.environment)) },
             supportingContent = {
                 Text(BuildConfig.BUILD_TYPE)
             },

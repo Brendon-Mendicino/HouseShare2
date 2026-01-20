@@ -1,33 +1,45 @@
 package lol.terabrendon.houseshare2.presentation.shopping
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
@@ -45,8 +57,6 @@ fun ShoppingItemScreen(
 ) {
     val shoppingItem by viewModel.shoppingItem.collectAsStateWithLifecycle()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     if (shoppingItem == null) {
         LoadingOverlayScreen()
@@ -75,8 +85,10 @@ private fun ShoppingItemInner(
 
     Column(
         modifier = modifier
+            .fillMaxSize()
+            .animateContentSize()
             .padding(8.dp)
-            .animateContentSize(),
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         ModifyItemField(
@@ -112,38 +124,66 @@ private fun ShoppingItemInner(
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        ButtonGroup(
-            overflowIndicator = {},
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+        Row(
+            Modifier.padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
         ) {
-            toggleableItem(
+            ToggleButton(
                 checked = check != null,
                 onCheckedChange = { if (it) onEvent(ShoppingItemEvent.Toggled) },
-                label = "Checked",
-                icon = if (check != null) {
-                    { Icon(Icons.Filled.Check, null) }
-                } else null,
-            )
+                modifier = Modifier
+                    .weight(1f)
+                    .semantics { role = Role.RadioButton },
+                shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
+            ) {
+                AnimatedVisibility(check != null) { Icon(Icons.Filled.Check, null) }
+                Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+                Text(stringResource(R.string.checked))
+            }
 
-            toggleableItem(
+            ToggleButton(
                 checked = check == null,
                 onCheckedChange = { if (it) onEvent(ShoppingItemEvent.Toggled) },
-                label = "Unchecked",
-                icon = if (check == null) {
-                    { Icon(Icons.Filled.Check, null) }
-                } else null,
-            )
+                modifier = Modifier
+                    .weight(1f)
+                    .semantics { role = Role.RadioButton },
+                shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
+            ) {
+                AnimatedVisibility(check == null) { Icon(Icons.Filled.Check, null) }
+                Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+                Text(stringResource(R.string.unchecked))
+            }
         }
 
-        if (check != null) {
-            ItemField(text = check.checkoffUser.username, label = "Checked by", leadingIcon = {
-                AvatarIcon(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    user = check.checkoffUser
-                )
-            })
+        AnimatedVisibility(check != null) {
+            val checkInner by remember { mutableStateOf<CheckoffStateModel?>(null) }
+                .apply { if (check != null) value = check }
 
-            ItemField(text = check.checkoffTime.inlineFormat(), label = "Checked at")
+            if (checkInner == null)
+                return@AnimatedVisibility
+
+            ItemField(
+                text = checkInner!!.checkoffUser.username,
+                label = stringResource(R.string.checked_by),
+                leadingIcon = {
+                    AvatarIcon(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        user = checkInner!!.checkoffUser
+                    )
+                })
+        }
+
+        AnimatedVisibility(check != null) {
+            val checkInner by remember { mutableStateOf<CheckoffStateModel?>(null) }
+                .apply { if (check != null) value = check }
+
+            if (checkInner == null)
+                return@AnimatedVisibility
+
+            ItemField(
+                text = checkInner!!.checkoffTime.inlineFormat(),
+                label = stringResource(R.string.checked_at)
+            )
         }
     }
 
