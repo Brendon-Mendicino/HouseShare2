@@ -38,8 +38,8 @@ android {
         applicationId = "lol.terabrendon.houseshare2"
         minSdk = 24
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.0.1"
+        versionCode = 5
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -71,7 +71,9 @@ android {
             // Just for testing...
             buildConfigField("String", "BASE_URL", "\"https://houseshare.hollowinsidepizza.xyz/\"")
 
-            ndk.debugSymbolLevel = "FULL"
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
 
             isDebuggable = false
 
