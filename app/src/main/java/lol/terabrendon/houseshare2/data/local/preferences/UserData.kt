@@ -10,4 +10,12 @@ data class UserData(
     val selectedGroupId: Long? = null,
     val termsAndConditions: Boolean = false,
     val sendAnalytics: Boolean = false,
-)
+    val theme: Theme = Theme.System,
+    val dynamicColor: Boolean = false,
+) {
+    enum class Theme {
+        System,
+        Light,
+        Dark,
+    }
+}

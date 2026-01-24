@@ -1,6 +1,7 @@
 package lol.terabrendon.houseshare2.presentation.settings
 
 import android.content.ClipData
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -50,6 +50,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.BuildConfig
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.data.local.preferences.UserData
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.DynamicColor
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.SendAnalytics
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.Theme
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.UiText
@@ -59,20 +64,20 @@ import lol.terabrendon.houseshare2.util.Config
 
 @Composable
 fun SettingsScreen(modifier: Modifier = Modifier, viewModel: SettingsViewModel = hiltViewModel()) {
-    val sendAnalytics by viewModel.sendAnalytics.collectAsStateWithLifecycle()
+    val userData by viewModel.userSettings.collectAsStateWithLifecycle()
 
     SettingsInner(
         modifier = modifier,
-        toggleAnalytics = viewModel::toggleAnalytics,
-        sendAnalytics = sendAnalytics,
+        userData = userData,
+        onEvent = viewModel::onEvent,
     )
 }
 
 @Composable
 private fun SettingsInner(
     modifier: Modifier = Modifier,
-    toggleAnalytics: () -> Unit,
-    sendAnalytics: Boolean,
+    userData: UserData,
+    onEvent: (UserDataRepository.Update) -> Unit,
 ) {
     val clipboard = LocalClipboard.current
     val uriHandler = LocalUriHandler.current
@@ -93,6 +98,11 @@ private fun SettingsInner(
     ) {
         SettingsHeader(stringResource(R.string.general))
         LanguagePicker(localeOptions = localeOptions)
+        ThemePicker(theme = userData.theme, onClick = { onEvent(Theme(it)) })
+        DynamicColorPicker(
+            dynamic = userData.dynamicColor,
+            toggle = { onEvent(DynamicColor(it)) },
+        )
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -108,8 +118,8 @@ private fun SettingsInner(
             },
             trailingContent = {
                 Switch(
-                    checked = sendAnalytics,
-                    onCheckedChange = { toggleAnalytics() }
+                    checked = userData.sendAnalytics,
+                    onCheckedChange = { onEvent(SendAnalytics(userData.sendAnalytics.not())) }
                 )
             }
         )
@@ -126,8 +136,6 @@ private fun SettingsInner(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                     contentDescription = stringResource(R.string.open_in_browser),
-                    modifier = Modifier.size(20.dp), // M3 standard trailing icon size is often 20-24dp
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant // Subtle hint
                 )
             }
         )
@@ -140,13 +148,21 @@ private fun SettingsInner(
         )
 
         ListItem(
-            headlineContent = { Text("Version") },
+            headlineContent = { Text(stringResource(R.string.version)) },
             supportingContent = {
                 Text("${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
             },
             leadingContent = { Icon(Icons.Default.Info, null) },
             modifier = Modifier.combinedClickable(
-                onClick = { /* Nothing or show a Toast */ },
+                onClick = {
+                    scope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = UiText.Res(R.string.keep_pressed_to_copy_the_version)
+                            )
+                        )
+                    }
+                },
                 onLongClick = {
                     // Helpful for bug reporting: copy build info to clipboard
                     val buildInfo =
@@ -235,10 +251,88 @@ private fun LanguagePicker(modifier: Modifier = Modifier, localeOptions: Map<Str
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemePicker(
+    modifier: Modifier = Modifier,
+    theme: UserData.Theme,
+    onClick: (UserData.Theme) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val themes = mapOf(
+        UserData.Theme.System to stringResource(R.string.system),
+        UserData.Theme.Light to stringResource(R.string.light),
+        UserData.Theme.Dark to stringResource(R.string.dark),
+    )
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+    ) {
+        OutlinedTextField(
+            readOnly = true,
+            modifier = modifier
+                .fillMaxWidth()
+                .animateContentSize()
+                .menuAnchor(PrimaryNotEditable),
+            value = themes[theme]!!,
+            label = { Text(stringResource(R.string.application_theme)) },
+            onValueChange = { },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded
+                )
+            }
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+            }
+        ) {
+            themes.forEach { (value, text) ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        onClick(value)
+                    },
+                    text = { Text(text) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DynamicColorPicker(
+    modifier: Modifier = Modifier,
+    dynamic: Boolean,
+    toggle: (Boolean) -> Unit,
+) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+        return
+    }
+
+    ListItem(
+        modifier = modifier,
+        headlineContent = { Text(stringResource(R.string.dynamic_colors)) },
+        supportingContent = {
+            Text(stringResource(R.string.dynamic_colors_description))
+        },
+        trailingContent = {
+            Switch(
+                checked = dynamic,
+                onCheckedChange = { toggle(!dynamic) },
+            )
+        }
+    )
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun SettingsPreview() {
     HouseShare2Theme {
-        SettingsInner(toggleAnalytics = {}, sendAnalytics = false)
+        SettingsInner(userData = UserData(), onEvent = {})
     }
 }

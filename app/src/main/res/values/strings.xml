@@ -136,4 +136,12 @@
     <string name="checked_at">Checked at</string>
     <string name="checked">Checked</string>
     <string name="unchecked">Unchecked</string>
+    <string name="system">System</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="application_theme">Application theme</string>
+    <string name="version">Version</string>
+    <string name="dynamic_colors">Dynamic colors</string>
+    <string name="dynamic_colors_description">Automatically adapt the app\'s colors to your wallpaper. This feature is only available on Android 12 and above.</string>
+    <string name="keep_pressed_to_copy_the_version">Keep pressed to copy the version</string>
 </resources>
