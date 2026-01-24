@@ -66,12 +66,11 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
+import lol.terabrendon.houseshare2.presentation.util.UiText
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
 import lol.terabrendon.houseshare2.util.fullFormat
 import lol.terabrendon.houseshare2.util.inlineFormat
 import java.time.LocalDateTime
-
-private const val TAG: String = "ShoppingScreen"
 
 @Composable
 fun ShoppingScreen(
@@ -90,8 +89,7 @@ fun ShoppingScreen(
 
     RegisterFabConfig<HomepageNavigation.Shopping>(
         config = FabConfig.Toolbar(
-            // TODO: when having a nice config management put the groupAvailable here
-            visible = true,
+            visible = groupAvailable,
             expanded = isAnySelected,
             content = { expanded ->
                 IconButton(
@@ -109,7 +107,8 @@ fun ShoppingScreen(
                 }
             },
             fab = FabConfig.Fab(
-                onClick = { navigate(HomepageNavigation.ShoppingForm) }.takeIf { groupAvailable }
+                onClick = { navigate(HomepageNavigation.ShoppingForm) }.takeIf { groupAvailable },
+                text = UiText.Res(R.string.new_item),
             )
         )
     )

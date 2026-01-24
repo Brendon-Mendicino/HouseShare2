@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.fab
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -40,16 +39,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
-import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabManager
+import lol.terabrendon.houseshare2.presentation.util.UiText
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -85,7 +83,6 @@ private fun MainFabInner(
     val motion = MaterialTheme.motionScheme
 
     // Logic for default fallback values
-    val defaultText = stringResource(lastEntry.fabText())
     val defaultIcon = @Composable {
         Icon(imageVector = lastEntry.fabIcon(), contentDescription = null)
     }
@@ -133,7 +130,7 @@ private fun MainFabInner(
 
             is FabConfig.Fab -> {
                 MediumExtendedFloatingActionButton(
-                    text = { Text(fabConfig.text ?: defaultText) },
+                    text = { if (fabConfig.text != null) Text(fabConfig.text.text()) },
                     expanded = fabConfig.expanded ?: lastEntry.fabExpanded(),
                     icon = { fabConfig.icon?.invoke() ?: defaultIcon() },
                     onClick = {
@@ -164,12 +161,6 @@ private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is HomepageNavigation.Settings,
     is HomepageNavigation.UserProfile,
         -> Icons.Filled.Add
-}
-
-@StringRes
-private fun MainNavigation.fabText(): Int = when (this) {
-    // TODO: change this
-    else -> R.string.create
 }
 
 private fun MainNavigation.fabExpanded(): Boolean = when (this) {
@@ -222,7 +213,7 @@ private fun ExpFabPreview() {
     val config = FabConfig.Fab(
         visible = true,
         expanded = true,
-        text = "Drown",
+        text = UiText.Dyn("Drown"),
         icon = {
             Icon(Icons.Filled.Pool, null)
         }

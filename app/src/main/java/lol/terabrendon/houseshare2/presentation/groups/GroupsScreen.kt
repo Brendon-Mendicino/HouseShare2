@@ -48,6 +48,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
+import lol.terabrendon.houseshare2.presentation.util.UiText
 import lol.terabrendon.houseshare2.presentation.vm.GroupsViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
@@ -71,7 +72,7 @@ fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel(), navigate: (MainNa
         config = FabConfig.Fab(
             visible = true,
             expanded = true,
-            text = "Groups",
+            text = UiText.Res(R.string.new_group),
             icon = { Icon(Icons.Filled.Add, null) },
             onClick = { navigate(HomepageNavigation.GroupUsersForm) }
         )

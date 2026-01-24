@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.StateFlow
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.util.UiText
 
 sealed class FabConfig(
     open val visible: Boolean?,
@@ -19,7 +20,7 @@ sealed class FabConfig(
         override val visible: Boolean? = null,
         override val expanded: Boolean? = null,
         override val route: MainNavigation? = null,
-        val text: String? = null,
+        val text: UiText? = null,
         val icon: (@Composable () -> Unit)? = null,
         val onClick: (() -> Unit)? = null,
     ) : FabConfig(visible, expanded, route)
