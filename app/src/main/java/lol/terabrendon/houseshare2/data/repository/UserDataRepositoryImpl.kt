@@ -16,7 +16,7 @@ class UserDataRepositoryImpl @Inject constructor(
     private val userPreferencesStore: DataStore<UserData>,
 ) : UserDataRepository {
     private val userPreferencesFlow: Flow<UserData> = userPreferencesStore.data
-        .retryWhen { cause, attempt ->
+        .retryWhen { cause, _ ->
             // dataStore.data throws an IOException when an error is encountered when reading data
             if (cause !is IOException) throw cause
 

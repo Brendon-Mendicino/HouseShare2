@@ -133,4 +133,12 @@
     <string name="checked_at">Comprato il</string>
     <string name="checked">Spuntato</string>
     <string name="unchecked">Da comprare</string>
+    <string name="system">Sistema</string>
+    <string name="light">Chiaro</string>
+    <string name="dark">Scuro</string>
+    <string name="application_theme">Tema dell\'applicazione</string>
+    <string name="version">Versione</string>
+    <string name="dynamic_colors">Colori dinamici</string>
+    <string name="dynamic_colors_description">Adatta automaticamente i colori dell\'app allo sfondo. Questa funzione è disponibile solo su Android 12 e versioni successive.</string>
+    <string name="keep_pressed_to_copy_the_version">Mantieni premuto per copiare la versione</string>
 </resources>
