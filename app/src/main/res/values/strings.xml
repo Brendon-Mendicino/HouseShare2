@@ -1,4 +1,5 @@
-<resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en-US">
     <string name="app_name" translatable="false">HouseSplit</string>
     <string name="cleaning">Cleaning</string>
     <string name="shopping_list">Shopping list</string>

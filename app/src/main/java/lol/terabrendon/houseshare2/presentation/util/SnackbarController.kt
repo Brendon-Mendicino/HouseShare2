@@ -14,7 +14,7 @@ data class SnackbarEvent(
 
 data class SnackbarAction(
     val name: UiText,
-    val action: () -> Unit,
+    val action: suspend () -> Unit,
 )
 
 /**

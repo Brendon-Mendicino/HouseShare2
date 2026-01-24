@@ -1,5 +1,7 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
+import android.content.Intent
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,9 +14,12 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.SendAnalytics
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.TermsConditions
+import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
+import lol.terabrendon.houseshare2.presentation.util.SnackbarAction
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.UiText
+import lol.terabrendon.houseshare2.util.Config
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,7 +58,16 @@ class LegalViewModel @Inject constructor(
                     SnackbarController.sendEvent(
                         SnackbarEvent(
                             message = UiText.Res(R.string.you_must_read_the_terms_first),
-                            withDismissAction = true,
+                            action = SnackbarAction(
+                                name = UiText.Res(R.string.terms_and_privacy),
+                                action = {
+                                    _state.update { it.copy(termsVisited = true) }
+
+                                    val intent =
+                                        Intent(Intent.ACTION_VIEW, Config.TERMS_URL.toUri())
+                                    ActivityQueue.sendIntent(intent)
+                                },
+                            ),
                         )
                     )
                     return@launch
