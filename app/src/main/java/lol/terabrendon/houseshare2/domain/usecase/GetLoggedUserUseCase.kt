@@ -16,7 +16,6 @@ class GetLoggedUserUseCase @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(): Flow<UserModel?> = sharedPreferencesRepository
         .currentLoggedUserId
-        // TODO: should i get the user from remote?
         .flatMapLatest { userId ->
             if (userId != null)
                 userRepository.findById(userId)
