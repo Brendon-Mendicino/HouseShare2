@@ -145,6 +145,10 @@ private fun LegalConsentInner(
             }
         )
 
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+        LanguagePicker()
+
         Spacer(Modifier.weight(1f))
 
         Button(

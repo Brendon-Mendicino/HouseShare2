@@ -79,11 +79,6 @@ private fun SettingsInner(
     val appName = stringResource(R.string.app_name)
     val scope = rememberCoroutineScope()
 
-    val localeOptions = mapOf(
-        "English" to "en",
-        "Italiano" to "it",
-    )
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -92,7 +87,7 @@ private fun SettingsInner(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         SettingsHeader(stringResource(R.string.general))
-        LanguagePicker(localeOptions = localeOptions)
+        LanguagePicker()
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -188,7 +183,10 @@ private fun SettingsHeader(text: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LanguagePicker(modifier: Modifier = Modifier, localeOptions: Map<String, String>) {
+fun LanguagePicker(
+    modifier: Modifier = Modifier,
+    localeOptions: Map<String, String> = Config.LANG_LOCALES,
+) {
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
