@@ -48,6 +48,9 @@ class UserDataRepositoryImpl @Inject constructor(
             .map { data -> data.sendAnalytics }
             .distinctUntilChanged()
 
+    override val data: Flow<UserData>
+        get() = userPreferencesFlow
+
     override suspend fun update(update: Update) {
         Timber.i("updating UserData: update=%s", update)
         userPreferencesStore.updateData { data ->
@@ -57,6 +60,8 @@ class UserDataRepositoryImpl @Inject constructor(
                 is Update.LoggedUserId -> data.copy(currentLoggedUserId = update.userId)
                 is Update.SendAnalytics -> data.copy(sendAnalytics = update.accept)
                 is Update.TermsConditions -> data.copy(termsAndConditions = update.accept)
+                is Update.AppTheme -> data.copy(appTheme = update.theme)
+                is Update.DynamicColors -> data.copy(dynamicColors = update.dynamicColors)
             }
         }
     }

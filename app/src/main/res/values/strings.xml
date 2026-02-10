@@ -135,4 +135,10 @@
     <string name="checked_at">Checked at</string>
     <string name="checked">Checked</string>
     <string name="unchecked">Unchecked</string>
+    <string name="system">System</string>
+    <string name="dark">Dark</string>
+    <string name="light">Light</string>
+    <string name="app_theme">App theme</string>
+    <string name="dynamic_color">Dynamic Color</string>
+    <string name="apply_system_wallpaper_colors_to_the_app_theme">Apply system wallpaper colors to the app theme</string>
 </resources>

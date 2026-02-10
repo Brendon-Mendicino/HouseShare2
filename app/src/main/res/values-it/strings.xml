@@ -133,4 +133,10 @@
     <string name="checked_at">Comprato il</string>
     <string name="checked">Spuntato</string>
     <string name="unchecked">Da comprare</string>
+    <string name="system">Sistema</string>
+    <string name="dark">Scuro</string>
+    <string name="light">Chiaro</string>
+    <string name="app_theme">Tema dell\'app</string>
+    <string name="dynamic_color">Colori Dinamici</string>
+    <string name="apply_system_wallpaper_colors_to_the_app_theme">Applica i colori del tuo sfondo al tema dell\'applicazione</string>
 </resources>
