@@ -1,6 +1,7 @@
 package lol.terabrendon.houseshare2.presentation.screen.settings
 
 import android.content.ClipData
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
@@ -311,6 +312,10 @@ private fun DynamicColorPicker(
     dynamicColors: Boolean,
     onToggle: (Boolean) -> Unit,
 ) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+        return
+    }
+
     ListItem(
         modifier = modifier.toggleable(
             value = dynamicColors, onValueChange = onToggle, role = Role.Switch
