@@ -5,6 +5,7 @@ import lol.terabrendon.houseshare2.domain.form.ExpenseFormState
 import lol.terabrendon.houseshare2.domain.form.UserPart
 import lol.terabrendon.houseshare2.domain.model.sum
 import lol.terabrendon.houseshare2.domain.model.toMoney
+import lol.terabrendon.houseshare2.presentation.screen.billing.PaymentUnit
 import org.junit.Test
 
 

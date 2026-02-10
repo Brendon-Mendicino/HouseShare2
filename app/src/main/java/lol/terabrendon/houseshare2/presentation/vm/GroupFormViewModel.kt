@@ -20,8 +20,8 @@ import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
-import lol.terabrendon.houseshare2.presentation.groups.form.GroupFormEvent
-import lol.terabrendon.houseshare2.presentation.groups.form.GroupFormUiEvent
+import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupFormEvent
+import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupFormUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.toUiText

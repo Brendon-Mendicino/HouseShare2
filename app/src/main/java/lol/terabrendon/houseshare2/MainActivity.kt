@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import lol.terabrendon.houseshare2.presentation.home.HouseShareMain
+import lol.terabrendon.houseshare2.presentation.screen.home.HouseShareMain
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
 import lol.terabrendon.houseshare2.presentation.vm.MainViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme

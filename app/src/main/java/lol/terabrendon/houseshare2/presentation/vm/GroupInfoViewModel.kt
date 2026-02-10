@@ -19,8 +19,8 @@ import lol.terabrendon.houseshare2.BuildConfig
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
 import lol.terabrendon.houseshare2.data.repository.GroupRepository
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
-import lol.terabrendon.houseshare2.presentation.groups.GroupInfoEvent
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
+import lol.terabrendon.houseshare2.presentation.screen.groups.GroupInfoEvent
 import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import timber.log.Timber

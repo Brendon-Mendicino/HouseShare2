@@ -17,7 +17,7 @@ import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.Sel
 import lol.terabrendon.houseshare2.data.repository.UserRepository
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
-import lol.terabrendon.houseshare2.presentation.groups.GroupEvent
+import lol.terabrendon.houseshare2.presentation.screen.groups.GroupEvent
 import timber.log.Timber
 import javax.inject.Inject
 

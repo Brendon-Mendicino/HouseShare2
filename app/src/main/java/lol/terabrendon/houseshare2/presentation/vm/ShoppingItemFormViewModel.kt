@@ -16,8 +16,8 @@ import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
-import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormEvent
-import lol.terabrendon.houseshare2.presentation.shopping.form.ShoppingItemFormUiEvent
+import lol.terabrendon.houseshare2.presentation.screen.shopping.form.ShoppingItemFormEvent
+import lol.terabrendon.houseshare2.presentation.screen.shopping.form.ShoppingItemFormUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.toUiText

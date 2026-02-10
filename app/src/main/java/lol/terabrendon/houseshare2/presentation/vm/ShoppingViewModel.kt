@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
-import lol.terabrendon.houseshare2.presentation.shopping.ShoppingScreenEvent
+import lol.terabrendon.houseshare2.presentation.screen.shopping.ShoppingScreenEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.util.mapState
 import timber.log.Timber

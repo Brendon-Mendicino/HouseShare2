@@ -16,7 +16,7 @@ import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.sum
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.domain.model.toMoneyOrNull
-import lol.terabrendon.houseshare2.presentation.billing.PaymentUnit
+import lol.terabrendon.houseshare2.presentation.screen.billing.PaymentUnit
 import lol.terabrendon.houseshare2.util.IsTrue
 import java.math.BigDecimal
 

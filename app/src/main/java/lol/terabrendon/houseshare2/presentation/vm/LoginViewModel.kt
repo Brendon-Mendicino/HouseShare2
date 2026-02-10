@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.StartLoginUseCase
-import lol.terabrendon.houseshare2.presentation.login.LoginEvent
-import lol.terabrendon.houseshare2.presentation.login.LoginUiEvent
+import lol.terabrendon.houseshare2.presentation.screen.login.LoginEvent
+import lol.terabrendon.houseshare2.presentation.screen.login.LoginUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.UiText

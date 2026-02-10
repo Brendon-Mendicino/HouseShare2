@@ -22,7 +22,7 @@ import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.toMoneyOrNull
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
-import lol.terabrendon.houseshare2.presentation.shopping.ShoppingItemEvent
+import lol.terabrendon.houseshare2.presentation.screen.shopping.ShoppingItemEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.toUiText
