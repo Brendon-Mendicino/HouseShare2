@@ -38,6 +38,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
 import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
+import lol.terabrendon.houseshare2.presentation.screen.settings.LanguagePicker
 import lol.terabrendon.houseshare2.presentation.vm.LegalViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.Config
@@ -95,7 +96,6 @@ private fun LegalConsentInner(
                 TextButton(
                     onClick = {
                         uriHandler.openUri(Config.TERMS_URL)
-                        onEvent(LegalViewModel.Event.TermsVisited)
                     },
                     contentPadding = PaddingValues(0.dp)
                 ) {
