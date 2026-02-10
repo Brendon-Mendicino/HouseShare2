@@ -3,9 +3,11 @@ package lol.terabrendon.houseshare2.presentation.shopping.form
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -23,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,7 +52,6 @@ fun ShoppingItemFormScreen(
     onBack: () -> Unit,
 ) {
     val state by viewModel.formState.collectAsState()
-    val scope = rememberCoroutineScope()
 
     ObserveAsEvent(viewModel.uiEvents) { event ->
         when (event) {
@@ -81,13 +81,13 @@ private fun ShoppingItemFormScreenInner(
     state: ShoppingItemFormStateValidator,
     onEvent: (ShoppingItemFormEvent) -> Unit,
 ) {
-    val scrollState = rememberScrollState()
     var categoryExpended by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
+            .fillMaxSize()
             .padding(8.dp)
-            .verticalScroll(scrollState),
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         FormOutlinedTextField(
@@ -160,6 +160,7 @@ private fun ShoppingItemFormScreenInner(
             supportParams = listOf(state.price),
             onValueChange = { onEvent(ShoppingItemFormEvent.PriceChanged(it)) },
             labelText = stringResource(R.string.price),
+            keyboardActions = KeyboardActions(onDone = { onEvent(ShoppingItemFormEvent.Submit) }),
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done,
                 keyboardType = KeyboardType.Decimal,

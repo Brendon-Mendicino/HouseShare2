@@ -11,7 +11,10 @@ sealed class UiText {
     /**
      * If you pass any [UiText] as [args] they will be converted to text.
      */
-    class Res(@StringRes val id: Int, val args: Array<Any> = emptyArray()) : UiText()
+    class Res(@StringRes val id: Int, val args: List<Any> = emptyList()) : UiText() {
+        constructor(@StringRes id: Int, vararg args: Any) : this(id, args.toList())
+    }
+
     class Multi(val uiTexts: List<UiText>, val separator: String = " ") : UiText() {
         constructor(vararg uiTexts: UiText, separator: String = " ") : this(
             uiTexts.toList(),

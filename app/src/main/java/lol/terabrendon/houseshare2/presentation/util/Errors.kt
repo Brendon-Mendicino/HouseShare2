@@ -60,8 +60,8 @@ fun FormError.toUiText(): UiText = when (this) {
 fun ValidationError<*>.toUiText(): UiText {
     val meta = metadata
 
-    if (meta == null) throw IllegalStateException("Cannot call toUiText() without metadata!")
-    if (meta !is FormMetadata) throw IllegalStateException("metadata must be of FormMetadata type!")
+    if (meta == null) throw IllegalStateException("Cannot call toUiText() without metadata! error=$this")
+    if (meta !is FormMetadata) throw IllegalStateException("metadata must be of FormMetadata type! metadata=$meta")
 
     return meta.toUiText(annotation)
 }
@@ -76,29 +76,25 @@ fun ValidationError<*>.toUiText(label: Any?): UiText {
     return when (this) {
         is ValidationError.NotNullErr,
         is ValidationError.NotBlankErr,
-            -> UiText.Res(R.string.should_not_be_blank, arrayOf(label))
+            -> UiText.Res(R.string.should_not_be_blank, label)
 
         is ValidationError.PatternErr -> UiText.Res(
             R.string.does_not_match_the_correct_pattern,
-            arrayOf(label)
+            label
         )
 
         is ValidationError.SizeErr -> UiText.Res(
             R.string.size_should_be_between_and,
-            arrayOf(
-                label,
-                annotation.min.toString(),
-                annotation.max.toString()
-            )
+            label,
+            annotation.min.toString(),
+            annotation.max.toString()
         )
 
         is ValidationError.EmailErr -> UiText.Res(R.string.is_not_a_valid_email, arrayOf(label))
         is ValidationError.MaxErr -> UiText.Res(
             R.string.should_not_be_greater_than,
-            arrayOf(
-                label,
-                annotation.max.toString()
-            )
+            label,
+            annotation.max.toString()
         )
 
         is ValidationError.MaxDoubleErr -> UiText.Res(
@@ -111,21 +107,17 @@ fun ValidationError<*>.toUiText(label: Any?): UiText {
 
         is ValidationError.MinErr -> UiText.Res(
             R.string.should_not_be_less_than,
-            arrayOf(
-                label,
-                annotation.min.toString()
-            )
+            label,
+            annotation.min.toString()
         )
 
         is ValidationError.MinDoubleErr -> UiText.Res(
             R.string.should_not_be_less_than,
-            arrayOf(
-                label,
-                annotation.min.toString()
-            )
+            label,
+            annotation.min.toString()
         )
 
-        is ValidationError.ToNumberErr -> UiText.Res(R.string.is_not_a_valid_number, arrayOf(label))
+        is ValidationError.ToNumberErr -> UiText.Res(R.string.is_not_a_valid_number, label)
     }
 }
 
