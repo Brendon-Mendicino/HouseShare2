@@ -6,6 +6,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import timber.log.Timber
+import kotlin.reflect.KClass
 
 @Composable
 fun LocalTopBarManagerProvider(content: @Composable () -> Unit) {
@@ -17,18 +18,18 @@ fun LocalTopBarManagerProvider(content: @Composable () -> Unit) {
 }
 
 @Composable
-inline fun <reified T : MainNavigation> RegisterTopBarConfig(
+fun RegisterTopBarConfig(
     config: TopBarConfig,
+    route: KClass<out MainNavigation>,
 ) {
     val topBarManager = LocalTopBarManager.current
 
     // Use the backStack to make dispositions happen quicker
     val backStack = LocalBackStack.current
-    val enabled = backStack?.lastOrNull() is T
+    val enabled = backStack?.lastOrNull()?.let { it::class } == route
 
     DisposableEffect(config, enabled) {
-        if (!enabled)
-            return@DisposableEffect onDispose { }
+        if (!enabled) return@DisposableEffect onDispose { }
 
         Timber.d("RegisterTopBarConfig: setting-up topBarManager")
         val key = topBarManager.putState(config)

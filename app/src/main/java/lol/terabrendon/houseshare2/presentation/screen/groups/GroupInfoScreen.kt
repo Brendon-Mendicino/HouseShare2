@@ -40,6 +40,8 @@ import lol.terabrendon.houseshare2.domain.model.GroupModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
+import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.vm.GroupInfoViewModel
@@ -54,6 +56,11 @@ fun GroupInfoScreen(
 ) {
     val group by viewModel.groupInfo.collectAsStateWithLifecycle()
     val currentUser by viewModel.currentUser.collectAsStateWithLifecycle()
+
+    RegisterBackNavIcon(
+        onClick = { navigator.pop() },
+        route = HomepageNavigation.GroupInfo::class,
+    )
 
     ObserveAsEvent(viewModel.uiEvent) { event ->
         when (event) {

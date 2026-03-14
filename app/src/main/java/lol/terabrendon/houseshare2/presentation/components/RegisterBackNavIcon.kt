@@ -5,13 +5,15 @@ import androidx.compose.ui.Modifier
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
 import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
+import kotlin.reflect.KClass
 
 @Composable
-inline fun <reified T : MainNavigation> RegisterBackNavIcon(
-    crossinline onClick: () -> Unit,
+fun RegisterBackNavIcon(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    route: KClass<out MainNavigation>,
 ) {
-    RegisterTopBarConfig<T>(
+    RegisterTopBarConfig(
         config = TopBarConfig(
             navigationIcon = {
                 BackButtonIcon(
@@ -22,5 +24,6 @@ inline fun <reified T : MainNavigation> RegisterBackNavIcon(
                 )
             }
         ),
+        route = route,
     )
 }

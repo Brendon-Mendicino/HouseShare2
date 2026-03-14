@@ -144,8 +144,9 @@ private fun HouseShareMainInner(
                     ),
                     entryProvider = entryProvider {
                         entry<MainNavigation.Loading> {
-                            RegisterTopBarConfig<MainNavigation.Loading>(
-                                config = TopBarConfig(navigationIcon = {})
+                            RegisterTopBarConfig(
+                                config = TopBarConfig(navigationIcon = {}),
+                                route = MainNavigation.Loading::class,
                             )
 
                             LoadingOverlayScreen()

@@ -52,7 +52,10 @@ fun GroupInfoFormScreen(
         }
     }
 
-    RegisterBackNavIcon<HomepageNavigation.GroupInfoForm>(onClick = onBack)
+    RegisterBackNavIcon(
+        onClick = { onBack() },
+        route = HomepageNavigation.GroupInfoForm::class,
+    )
 
     GroupInfoFormScreenInner(
         groupFormState = formState,

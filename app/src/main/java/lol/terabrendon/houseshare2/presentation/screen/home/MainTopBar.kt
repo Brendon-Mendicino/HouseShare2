@@ -23,7 +23,7 @@ fun MainTopBar(
     mainNavigation: MainNavigation,
     onNavigationClick: () -> Unit,
 ) {
-    val topBarConfig by LocalTopBarManager.current.topBarConfig.collectAsStateWithLifecycle(null)
+    val topBarConfig by LocalTopBarManager.current.topBarConfig.collectAsStateWithLifecycle()
 
     CenterAlignedTopAppBar(
         title = { Text(stringResource(mainNavigation.asResource())) },

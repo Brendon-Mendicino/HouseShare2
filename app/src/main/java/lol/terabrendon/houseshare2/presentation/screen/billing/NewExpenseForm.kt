@@ -92,7 +92,11 @@ fun NewExpenseForm(
         route = HomepageNavigation.ExpenseForm::class,
     )
 
-    RegisterBackNavIcon<HomepageNavigation.ExpenseForm>(onClick = onFinish)
+    RegisterBackNavIcon(
+        onClick = onFinish,
+        route = HomepageNavigation.ExpenseForm::class,
+    )
+
 
     NewExpenseFormInner(
         modifier = modifier,

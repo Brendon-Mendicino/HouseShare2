@@ -47,7 +47,10 @@ import lol.terabrendon.houseshare2.util.Config
 fun LegalConsentScreen(modifier: Modifier = Modifier, viewModel: LegalViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    RegisterTopBarConfig<MainNavigation.Legal>(config = TopBarConfig(navigationIcon = {}))
+    RegisterTopBarConfig(
+        config = TopBarConfig(navigationIcon = {}),
+        route = MainNavigation.Legal::class,
+    )
 
     LegalConsentInner(modifier = modifier, state = state, onEvent = viewModel::onEvent)
 }

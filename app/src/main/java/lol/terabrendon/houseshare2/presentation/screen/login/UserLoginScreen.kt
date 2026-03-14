@@ -61,7 +61,10 @@ fun UserLoginScreen(
         }
     }
 
-    RegisterTopBarConfig<MainNavigation.Login>(config = TopBarConfig(navigationIcon = {}))
+    RegisterTopBarConfig(
+        config = TopBarConfig(navigationIcon = {}),
+        route = MainNavigation.Login::class,
+    )
 
     UserLoginInner(
         modifier = modifier,

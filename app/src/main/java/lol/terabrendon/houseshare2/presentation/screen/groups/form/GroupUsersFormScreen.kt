@@ -86,7 +86,10 @@ fun GroupUsersFormScreen(
     val users by viewModel.users.collectAsState()
     val selectedUsers by viewModel.selectedUsers.collectAsState()
 
-    RegisterBackNavIcon<HomepageNavigation.GroupUsersForm>(onClick = onBack)
+    RegisterBackNavIcon(
+        onClick = { onBack() },
+        route = HomepageNavigation.GroupUsersForm::class,
+    )
 
     RegisterFabConfig(
         config = FabConfig.Fab(

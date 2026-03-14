@@ -64,7 +64,10 @@ fun ShoppingItemFormScreen(
         route = HomepageNavigation.ShoppingForm::class,
     )
 
-    RegisterBackNavIcon<HomepageNavigation.ShoppingForm>(onClick = onBack)
+    RegisterBackNavIcon(
+        onClick = { onBack() },
+        route = HomepageNavigation.ShoppingForm::class,
+    )
 
     ShoppingItemFormScreenInner(
         state = state,
