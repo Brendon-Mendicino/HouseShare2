@@ -19,13 +19,12 @@ fun LocalTopBarManagerProvider(content: @Composable () -> Unit) {
 @Composable
 inline fun <reified T : MainNavigation> RegisterTopBarConfig(
     config: TopBarConfig,
-    enabled: Boolean = true,
 ) {
     val topBarManager = LocalTopBarManager.current
 
     // Use the backStack to make dispositions happen quicker
     val backStack = LocalBackStack.current
-    val enabled = enabled && backStack?.lastOrNull() is T
+    val enabled = backStack?.lastOrNull() is T
 
     DisposableEffect(config, enabled) {
         if (!enabled)

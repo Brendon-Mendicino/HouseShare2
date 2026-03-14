@@ -67,14 +67,15 @@ fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel(), navigate: (MainNa
         }
     }
 
-    RegisterFabConfig<HomepageNavigation.Groups>(
+    RegisterFabConfig(
         config = FabConfig.Fab(
             visible = true,
             expanded = true,
             text = "Groups",
             icon = { Icon(Icons.Filled.Add, null) },
             onClick = { navigate(HomepageNavigation.GroupUsersForm) }
-        )
+        ),
+        route = HomepageNavigation.Groups::class,
     )
 
     GroupsScreenInner(

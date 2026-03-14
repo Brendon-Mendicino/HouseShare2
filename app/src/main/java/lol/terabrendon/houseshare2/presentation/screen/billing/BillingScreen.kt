@@ -100,7 +100,7 @@ fun BillingScreen(
     val expenses by billingViewModel.expenses.collectAsStateWithLifecycle()
     val balances by billingViewModel.balances.collectAsStateWithLifecycle()
 
-    RegisterFabConfig<HomepageNavigation.Billing>(
+    RegisterFabConfig(
         config = FabConfig.Fab(
             // TODO: when having a nice config management put the groupAvailable here
             visible = true,
@@ -108,7 +108,8 @@ fun BillingScreen(
             text = "Create",
             icon = { Icon(Icons.Default.Receipt, null) },
             onClick = { navigate(HomepageNavigation.ExpenseForm) }.takeIf { groupAvailable },
-        )
+        ),
+        route = HomepageNavigation.Billing::class,
     )
 
     if (!groupAvailable) {

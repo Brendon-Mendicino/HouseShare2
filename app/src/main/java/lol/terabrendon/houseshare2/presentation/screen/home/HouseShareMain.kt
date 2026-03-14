@@ -124,9 +124,7 @@ private fun HouseShareMainInner(
                     )
                 },
                 floatingActionButton = {
-                    MainFab(
-                        lastEntry = backStack.last(),
-                    )
+                    MainFab()
                 },
                 snackbarHost = {
                     SnackbarHost(

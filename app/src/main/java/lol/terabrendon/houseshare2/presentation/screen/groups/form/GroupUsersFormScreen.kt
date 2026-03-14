@@ -88,10 +88,11 @@ fun GroupUsersFormScreen(
 
     RegisterBackNavIcon<HomepageNavigation.GroupUsersForm>(onClick = onBack)
 
-    RegisterFabConfig<HomepageNavigation.GroupUsersForm>(
-        FabConfig.Fab(
-            onClick = onNext,
-        )
+    RegisterFabConfig(
+        config = FabConfig.Fab(
+            onClick = { onNext() },
+        ),
+        route = HomepageNavigation.GroupUsersForm::class,
     )
 
     GroupUsersFormScreenInner(

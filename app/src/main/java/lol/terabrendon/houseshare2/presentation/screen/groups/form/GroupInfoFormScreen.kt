@@ -36,13 +36,14 @@ fun GroupInfoFormScreen(
 ) {
     val formState by viewModel.groupFormState.collectAsState()
 
-    RegisterFabConfig<HomepageNavigation.GroupInfoForm>(
+    RegisterFabConfig(
         config = FabConfig.Fab(
             onClick = {
                 Timber.d("GroupInfoFormScreen: fab has been clicked")
                 viewModel.onEvent(GroupFormEvent.Submit)
             },
-        )
+        ),
+        route = HomepageNavigation.GroupInfoForm::class,
     )
 
     ObserveAsEvent(viewModel.uiEvent) { event ->

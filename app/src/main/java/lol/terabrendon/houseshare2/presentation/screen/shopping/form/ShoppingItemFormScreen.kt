@@ -59,12 +59,13 @@ fun ShoppingItemFormScreen(
         }
     }
 
-    RegisterFabConfig<HomepageNavigation.ShoppingForm>(
+    RegisterFabConfig(
         config = FabConfig.Fab(
             visible = true,
             icon = { Icon(Icons.Filled.Check, null) },
             onClick = { viewModel.onEvent(ShoppingItemFormEvent.Submit) },
-        )
+        ),
+        route = HomepageNavigation.ShoppingForm::class,
     )
 
     RegisterBackNavIcon<HomepageNavigation.ShoppingForm>(onClick = onBack)

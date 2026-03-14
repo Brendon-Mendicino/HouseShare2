@@ -86,7 +86,7 @@ fun ShoppingScreen(
     val itemSorting by viewModel.itemSorting.collectAsStateWithLifecycle()
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
-    RegisterFabConfig<HomepageNavigation.Shopping>(
+    RegisterFabConfig(
         config = FabConfig.Toolbar(
             // TODO: when having a nice config management put the groupAvailable here
             visible = true,
@@ -107,9 +107,10 @@ fun ShoppingScreen(
                 }
             },
             fab = FabConfig.Fab(
-                onClick = { navigate(HomepageNavigation.ShoppingForm) }.takeIf { groupAvailable }
+                onClick = { if (groupAvailable) navigate(HomepageNavigation.ShoppingForm) },
             )
-        )
+        ),
+        route = HomepageNavigation.Shopping::class,
     )
 
     if (!groupAvailable) {

@@ -1,10 +1,16 @@
 package lol.terabrendon.houseshare2.presentation.provider
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import java.util.UUID
+import kotlin.time.Duration
 
 abstract class StateManager<T : Any> {
 
@@ -73,4 +79,10 @@ abstract class StateManager<T : Any> {
             }
         }
     }
+
+    @OptIn(FlowPreview::class)
+    fun debounced(scope: CoroutineScope, duration: Duration) = state.debounce(duration).stateIn(
+        scope,
+        SharingStarted.WhileSubscribed(5000L), state.value
+    )
 }

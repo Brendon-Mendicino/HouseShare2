@@ -1,6 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.fab
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -33,23 +32,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.retain.retain
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabManager
+import timber.log.Timber
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -57,37 +52,32 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun MainFab(
     modifier: Modifier = Modifier,
-    lastEntry: MainNavigation,
 ) {
     // Debounce the stateFlow
-    val baseFabFlow = LocalFabManager.current.fabConfig
-    var fabConfig by retain { mutableStateOf<FabConfig?>(null) }
+    val fabManager = LocalFabManager.current
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(baseFabFlow) {
-        baseFabFlow.debounce(50.milliseconds).collectLatest {
-            fabConfig = it
-        }
-    }
+    val fabConfig by fabManager.debounced(scope, 50.milliseconds).collectAsStateWithLifecycle()
 
-    MainFabInner(modifier, lastEntry, fabConfig)
+    MainFabInner(modifier, fabConfig)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, FlowPreview::class)
 @Composable
 private fun MainFabInner(
     modifier: Modifier = Modifier,
-    lastEntry: MainNavigation,
     fabConfig: FabConfig?,
 ) {
+    Timber.e("FAB CONFIG: $fabConfig")
     val haptic = LocalHapticFeedback.current
 
     val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
     val motion = MaterialTheme.motionScheme
 
     // Logic for default fallback values
-    val defaultText = stringResource(lastEntry.fabText())
     val defaultIcon = @Composable {
-        Icon(imageVector = lastEntry.fabIcon(), contentDescription = null)
+        val icon = fabConfig?.route?.fabIcon()
+        if (icon != null) Icon(imageVector = icon, contentDescription = null)
     }
 
     // This fires every time the toolbar opens or closes.
@@ -101,12 +91,13 @@ private fun MainFabInner(
         contentKey = { conf -> conf?.route ?: "none" },
         transitionSpec = {
             // Material 3 recommendation: Scale + Fade for FABs
-            (fadeIn(motion.defaultSpatialSpec()) + scaleIn(initialScale = 0.8f))
-                .togetherWith(fadeOut(motion.defaultSpatialSpec()) + scaleOut(targetScale = 0.8f))
+            (fadeIn(motion.defaultSpatialSpec()) + scaleIn(initialScale = 0.8f)).togetherWith(
+                fadeOut(motion.defaultSpatialSpec()) + scaleOut(targetScale = 0.8f)
+            )
         },
         label = "FabTransform"
     ) { fabConfig ->
-        if (fabConfig == null || !(fabConfig.visible ?: lastEntry.fabVisible())) {
+        if (fabConfig == null || !(fabConfig.visible ?: fabConfig.route?.fabVisible() ?: false)) {
             return@AnimatedContent
         }
 
@@ -133,8 +124,8 @@ private fun MainFabInner(
 
             is FabConfig.Fab -> {
                 MediumExtendedFloatingActionButton(
-                    text = { Text(fabConfig.text ?: defaultText) },
-                    expanded = fabConfig.expanded ?: lastEntry.fabExpanded(),
+                    text = { Text(fabConfig.text ?: "") },
+                    expanded = fabConfig.expanded ?: fabConfig.route?.fabExpanded() ?: false,
                     icon = { fabConfig.icon?.invoke() ?: defaultIcon() },
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -164,12 +155,6 @@ private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is HomepageNavigation.Settings,
     is HomepageNavigation.UserProfile,
         -> Icons.Filled.Add
-}
-
-@StringRes
-private fun MainNavigation.fabText(): Int = when (this) {
-    // TODO: change this
-    else -> R.string.create
 }
 
 private fun MainNavigation.fabExpanded(): Boolean = when (this) {
@@ -228,7 +213,7 @@ private fun ExpFabPreview() {
         }
     )
 
-    MainFabInner(lastEntry = MainNavigation.Loading, fabConfig = config)
+    MainFabInner(fabConfig = config)
 }
 
 @Preview
@@ -240,7 +225,7 @@ private fun FabPreview() {
         icon = { Icon(Icons.Filled.Factory, null) }
     )
 
-    MainFabInner(lastEntry = MainNavigation.Loading, fabConfig = config)
+    MainFabInner(fabConfig = config)
 }
 
 @Preview
@@ -270,7 +255,7 @@ private fun ExpToolbarPreview() {
         )
     )
 
-    MainFabInner(lastEntry = MainNavigation.Loading, fabConfig = config)
+    MainFabInner(fabConfig = config)
 }
 
 @Preview
@@ -287,5 +272,5 @@ private fun ToolbarPreview() {
         )
     )
 
-    MainFabInner(lastEntry = MainNavigation.Loading, fabConfig = config)
+    MainFabInner(fabConfig = config)
 }
