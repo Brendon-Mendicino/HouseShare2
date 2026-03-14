@@ -9,8 +9,8 @@ import kotlin.reflect.KClass
 
 @Composable
 fun RegisterBackNavIcon(
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClick: () -> Unit,
     route: KClass<out MainNavigation>,
 ) {
     RegisterTopBarConfig(

@@ -47,6 +47,8 @@ import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
+import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingSingleViewModel
 import lol.terabrendon.houseshare2.util.inlineFormat
 
@@ -54,9 +56,15 @@ import lol.terabrendon.houseshare2.util.inlineFormat
 fun ShoppingItemScreen(
     modifier: Modifier = Modifier,
     viewModel: ShoppingSingleViewModel = hiltViewModel(),
+    onBack: () -> Unit = {},
 ) {
     val shoppingItem by viewModel.shoppingItem.collectAsStateWithLifecycle()
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    RegisterBackNavIcon(
+        onClick = { onBack() },
+        route = HomepageNavigation.ShoppingItem::class,
+    )
 
     if (shoppingItem == null) {
         LoadingOverlayScreen()

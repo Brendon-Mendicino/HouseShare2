@@ -24,7 +24,7 @@ fun EntryProviderScope<MainNavigation>.shoppingNavigation(navigator: Navigator<M
             hiltViewModel<ShoppingSingleViewModel, ShoppingSingleViewModel.Factory>(creationCallback = { factory ->
                 factory.create(key)
             })
-        ShoppingItemScreen(viewModel = viewModel)
+        ShoppingItemScreen(viewModel = viewModel, onBack = { navigator.pop() })
     }
 
     entry<HomepageNavigation.ShoppingForm> {
