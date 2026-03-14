@@ -84,7 +84,8 @@ fun MainDrawerSheet(
         Groups,
         Shopping,
         Billing,
-        Cleaning,
+        // TODO: disabled for now
+//        Cleaning,
     )
 
     ModalDrawerSheet(modifier) {

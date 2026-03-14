@@ -45,7 +45,6 @@ import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabManager
 import lol.terabrendon.houseshare2.presentation.util.toUiText
-import timber.log.Timber
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -69,7 +68,6 @@ private fun MainFabInner(
     modifier: Modifier = Modifier,
     fabConfig: FabConfig?,
 ) {
-    Timber.e("FAB CONFIG: $fabConfig")
     val haptic = LocalHapticFeedback.current
 
     val vibrantColors = FloatingToolbarDefaults.vibrantFloatingToolbarColors()
@@ -156,28 +154,6 @@ private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is HomepageNavigation.Settings,
     is HomepageNavigation.UserProfile,
         -> Icons.Filled.Add
-}
-
-private fun MainNavigation.fabVisible(): Boolean = when (this) {
-    is HomepageNavigation.Billing,
-    is HomepageNavigation.Cleaning,
-    is HomepageNavigation.Shopping,
-    is HomepageNavigation.Groups,
-    is HomepageNavigation.GroupInfoForm,
-    is HomepageNavigation.GroupUsersForm,
-        -> true
-
-
-    is MainNavigation.Login,
-    is MainNavigation.Loading,
-    is MainNavigation.Legal,
-    is HomepageNavigation.UserProfile,
-    is HomepageNavigation.Settings,
-    is HomepageNavigation.GroupInfo,
-    is HomepageNavigation.ExpenseForm,
-    is HomepageNavigation.ShoppingForm,
-    is HomepageNavigation.ShoppingItem,
-        -> false
 }
 
 @Preview

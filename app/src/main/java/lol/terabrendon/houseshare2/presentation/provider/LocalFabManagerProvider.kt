@@ -48,7 +48,6 @@ fun RegisterFabConfig(
     // Use the backStack to make dispositions happen quicker
     val backStack = LocalBackStack.current
     val enabled = backStack?.lastOrNull()?.let { it::class } == route
-    Timber.e("REGISTER: back=$backStack config=$config")
 
     // Add the current route to the configuration in case the caller did not insert it
     // This is likely the case, being a very repetitive action, this can be done
