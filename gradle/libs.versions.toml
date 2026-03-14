@@ -3,7 +3,7 @@ agp = "8.13.2"
 kotlin = "2.3.0"
 ksp = "2.3.4"
 coreKtx = "1.17.0"
-coil = "2.7.0"
+coil = "3.4.0"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 activityCompose = "1.11.0"
@@ -108,7 +108,9 @@ androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", vers
 androidx-material3-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "nav3Material" }
 
 # Coil (Image loading)
-coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 
 # Test core
 androidx-test-core = { module = "androidx.test:core", version.ref = "testCore" }
@@ -151,3 +153,4 @@ aformvalidator = ["aformvalidator-core", "aformvalidator-annotation", "aformvali
 retrofit = ["retrofit", "retrofit-converter-gson", "logging-interceptor", "okhttp-urlconnection"]
 navigation3 = ["androidx-navigation3-runtime", "androidx-navigation3-ui", "androidx-lifecycle-viewmodel-navigation3", "androidx-material3-navigation3"]
 firebase = ["google-firebase-crashlytics", "google-firebase-analytics"]
+coil = ["coil", "coil-network", "coil-gif"]

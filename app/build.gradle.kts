@@ -175,7 +175,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     // Coil (image loader)
-    implementation(libs.coil)
+    implementation(libs.bundles.coil)
 
     implementation(libs.bundles.aformvalidator)
     ksp(libs.aformvalidator.processor)

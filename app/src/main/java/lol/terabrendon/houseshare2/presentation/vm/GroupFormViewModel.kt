@@ -91,6 +91,12 @@ class GroupFormViewModel @Inject constructor(
                 }
             }
 
+            is GroupFormEvent.ImageUrlChanged -> _groupFormState.update {
+                it.update {
+                    imageUrl = event.url
+                }
+            }
+
             is GroupFormEvent.UserListClicked -> {
                 _selectedUsers.update {
                     val userAlreadySelected = event.user.id in it
