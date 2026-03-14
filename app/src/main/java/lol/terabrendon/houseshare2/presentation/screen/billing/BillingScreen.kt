@@ -64,6 +64,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
+import lol.terabrendon.houseshare2.presentation.util.UiText
 import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel
 import lol.terabrendon.houseshare2.util.inlineFormat
 
@@ -103,11 +104,9 @@ fun BillingScreen(
     RegisterFabConfig(
         config = FabConfig.Fab(
             // TODO: when having a nice config management put the groupAvailable here
-            visible = true,
             expanded = true,
-            text = "Create",
-            icon = { Icon(Icons.Default.Receipt, null) },
-            onClick = { navigate(HomepageNavigation.ExpenseForm) }.takeIf { groupAvailable },
+            text = UiText.Res(R.string.create),
+            onClick = { if (groupAvailable) navigate(HomepageNavigation.ExpenseForm) },
         ),
         route = HomepageNavigation.Billing::class,
     )

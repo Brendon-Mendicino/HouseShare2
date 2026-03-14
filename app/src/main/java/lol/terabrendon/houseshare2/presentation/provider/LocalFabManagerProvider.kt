@@ -61,6 +61,11 @@ fun <T : MainNavigation> RegisterFabConfig(
     DisposableEffect(configWithRoute) {
 //        if (!enabled) return@DisposableEffect onDispose { }
 
+        val dontRegister = configWithRoute.route == null
+        if (dontRegister) {
+            return@DisposableEffect onDispose { }
+        }
+
         Timber.d("RegisterFabConfig: setting-up fabManager")
         // This is needed because of the android:enableOnBackInvokedCallback="true"
         val key = fabManager.putState(configWithRoute)

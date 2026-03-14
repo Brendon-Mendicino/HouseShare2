@@ -87,9 +87,6 @@ fun NewExpenseForm(
 
     RegisterFabConfig(
         config = FabConfig.Fab(
-            visible = true,
-            expanded = false,
-            icon = { Icon(Icons.Default.Check, null) },
             onClick = { viewModel.onEvent(ExpenseFormEvent.Submit) }
         ),
         route = HomepageNavigation.ExpenseForm::class,

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +47,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
+import lol.terabrendon.houseshare2.presentation.util.UiText
 import lol.terabrendon.houseshare2.presentation.vm.GroupsViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
@@ -69,10 +69,8 @@ fun GroupsScreen(viewModel: GroupsViewModel = hiltViewModel(), navigate: (MainNa
 
     RegisterFabConfig(
         config = FabConfig.Fab(
-            visible = true,
             expanded = true,
-            text = "Groups",
-            icon = { Icon(Icons.Filled.Add, null) },
+            text = UiText.Res(R.string.groups),
             onClick = { navigate(HomepageNavigation.GroupUsersForm) }
         ),
         route = HomepageNavigation.Groups::class,

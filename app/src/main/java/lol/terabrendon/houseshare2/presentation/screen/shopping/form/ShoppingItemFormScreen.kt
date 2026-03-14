@@ -10,8 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType.Companion.PrimaryNotEditable
@@ -61,8 +59,6 @@ fun ShoppingItemFormScreen(
 
     RegisterFabConfig(
         config = FabConfig.Fab(
-            visible = true,
-            icon = { Icon(Icons.Filled.Check, null) },
             onClick = { viewModel.onEvent(ShoppingItemFormEvent.Submit) },
         ),
         route = HomepageNavigation.ShoppingForm::class,

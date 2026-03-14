@@ -44,6 +44,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabManager
+import lol.terabrendon.houseshare2.presentation.util.toUiText
 import timber.log.Timber
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -97,14 +98,14 @@ private fun MainFabInner(
         },
         label = "FabTransform"
     ) { fabConfig ->
-        if (fabConfig == null || !(fabConfig.visible ?: fabConfig.route?.fabVisible() ?: false)) {
+        if (fabConfig == null || !fabConfig.visible) {
             return@AnimatedContent
         }
 
         when (fabConfig) {
             is FabConfig.Toolbar -> {
                 HorizontalFloatingToolbar(
-                    expanded = fabConfig.expanded ?: false,
+                    expanded = fabConfig.expanded,
                     colors = vibrantColors,
                     floatingActionButton = {
                         FloatingToolbarDefaults.VibrantFloatingActionButton(
@@ -117,15 +118,15 @@ private fun MainFabInner(
                         }
                     },
                     content = {
-                        fabConfig.content?.invoke(this, fabConfig.expanded ?: false)
+                        fabConfig.content?.invoke(this, fabConfig.expanded)
                     },
                 )
             }
 
             is FabConfig.Fab -> {
                 MediumExtendedFloatingActionButton(
-                    text = { Text(fabConfig.text ?: "") },
-                    expanded = fabConfig.expanded ?: fabConfig.route?.fabExpanded() ?: false,
+                    text = { Text(fabConfig.text?.text() ?: "") },
+                    expanded = fabConfig.expanded,
                     icon = { fabConfig.icon?.invoke() ?: defaultIcon() },
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -144,39 +145,17 @@ private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is HomepageNavigation.GroupUsersForm -> Icons.AutoMirrored.Filled.ArrowForward
     is HomepageNavigation.GroupInfoForm -> Icons.Filled.Check
     is HomepageNavigation.ExpenseForm -> Icons.Filled.Check
+    is HomepageNavigation.ShoppingForm -> Icons.Filled.Check
 
     is MainNavigation.Loading,
     is MainNavigation.Login,
     is MainNavigation.Legal,
-    is HomepageNavigation.ShoppingForm,
     is HomepageNavigation.ShoppingItem,
     is HomepageNavigation.Cleaning,
     is HomepageNavigation.GroupInfo,
     is HomepageNavigation.Settings,
     is HomepageNavigation.UserProfile,
         -> Icons.Filled.Add
-}
-
-private fun MainNavigation.fabExpanded(): Boolean = when (this) {
-    is HomepageNavigation.Billing,
-    is HomepageNavigation.Cleaning,
-    is HomepageNavigation.Groups,
-    is HomepageNavigation.Shopping,
-        -> true
-
-
-    is HomepageNavigation.GroupInfo,
-    is HomepageNavigation.ExpenseForm,
-    is HomepageNavigation.GroupInfoForm,
-    is HomepageNavigation.GroupUsersForm,
-    is HomepageNavigation.ShoppingItem,
-    is HomepageNavigation.ShoppingForm,
-    is HomepageNavigation.UserProfile,
-    is HomepageNavigation.Settings,
-    is MainNavigation.Login,
-    is MainNavigation.Loading,
-    is MainNavigation.Legal,
-        -> false
 }
 
 private fun MainNavigation.fabVisible(): Boolean = when (this) {
@@ -207,7 +186,7 @@ private fun ExpFabPreview() {
     val config = FabConfig.Fab(
         visible = true,
         expanded = true,
-        text = "Drown",
+        text = "Drown".toUiText(),
         icon = {
             Icon(Icons.Filled.Pool, null)
         }

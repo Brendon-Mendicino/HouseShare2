@@ -4,10 +4,11 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.StateFlow
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
+import lol.terabrendon.houseshare2.presentation.util.UiText
 
 sealed class FabConfig(
-    open val visible: Boolean?,
-    open val expanded: Boolean?,
+    open val visible: Boolean,
+    open val expanded: Boolean,
     open val route: MainNavigation?,
 ) {
     fun withRoute(route: MainNavigation) = when (this) {
@@ -16,21 +17,21 @@ sealed class FabConfig(
     }
 
     data class Fab(
-        override val visible: Boolean? = null,
-        override val expanded: Boolean? = null,
+        override val visible: Boolean = true,
+        override val expanded: Boolean = false,
         override val route: MainNavigation? = null,
-        val text: String? = null,
+        val text: UiText? = null,
         val icon: (@Composable () -> Unit)? = null,
         val onClick: (() -> Unit)? = null,
     ) : FabConfig(visible, expanded, route)
 
     data class Toolbar(
-        override val visible: Boolean? = null,
-        override val expanded: Boolean? = null,
+        override val visible: Boolean = true,
+        override val expanded: Boolean = false,
         override val route: MainNavigation? = null,
         // TODO: decide if `expanded` needs to be kept
         val content: (@Composable RowScope.(expanded: Boolean) -> Unit)? = null,
-        val fab: Fab,
+        val fab: Fab = Fab(),
     ) : FabConfig(visible, expanded, route)
 }
 

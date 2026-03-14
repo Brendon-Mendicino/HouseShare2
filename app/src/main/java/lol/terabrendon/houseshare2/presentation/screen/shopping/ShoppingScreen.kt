@@ -89,7 +89,6 @@ fun ShoppingScreen(
     RegisterFabConfig(
         config = FabConfig.Toolbar(
             // TODO: when having a nice config management put the groupAvailable here
-            visible = true,
             expanded = isAnySelected,
             content = { expanded ->
                 IconButton(
