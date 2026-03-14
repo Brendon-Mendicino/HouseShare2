@@ -7,14 +7,18 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.LocalTopBarManager
+import lol.terabrendon.houseshare2.presentation.provider.LocalTopBarManagerProvider
+import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +42,23 @@ fun MainTopBar(
                 }
             }
         },
-        actions = { AppBarActions() },
+        actions = {
+            // TODO: in future implement actions inside the topBarConfig
+        },
         modifier = modifier
     )
+}
+
+@Preview
+@Composable
+private fun TopBarPreview() {
+    HouseShare2Theme {
+        LocalTopBarManagerProvider {
+            Scaffold(topBar = {
+                MainTopBar(
+                    onNavigationClick = {}, mainNavigation = MainNavigation.Login
+                )
+            }) { it }
+        }
+    }
 }

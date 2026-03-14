@@ -35,7 +35,6 @@ import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.provider.LocalBackStackProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalFabManagerProvider
-import lol.terabrendon.houseshare2.presentation.provider.LocalMenuActionManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.LocalTopBarManagerProvider
 import lol.terabrendon.houseshare2.presentation.provider.RegisterTopBarConfig
 import lol.terabrendon.houseshare2.presentation.provider.TopBarConfig
@@ -210,11 +209,9 @@ private fun MainProviders(
     content: @Composable () -> Unit,
 ) {
     LocalFabManagerProvider {
-        LocalMenuActionManagerProvider {
-            LocalTopBarManagerProvider {
-                LocalBackStackProvider(backStack) {
-                    content()
-                }
+        LocalTopBarManagerProvider {
+            LocalBackStackProvider(backStack) {
+                content()
             }
         }
     }

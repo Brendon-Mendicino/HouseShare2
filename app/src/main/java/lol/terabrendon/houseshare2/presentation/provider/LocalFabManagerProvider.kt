@@ -39,9 +39,9 @@ fun LocalFabManagerProvider(content: @Composable (() -> Unit)) {
 }
 
 @Composable
-fun <T : MainNavigation> RegisterFabConfig(
+fun RegisterFabConfig(
     config: FabConfig,
-    route: KClass<T>,
+    route: KClass<out MainNavigation>,
 ) {
     val fabManager = LocalFabManager.current
 
