@@ -173,6 +173,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+    androidTestImplementation(libs.androidx.room.testing)
 
     // Coil (image loader)
     implementation(libs.bundles.coil)

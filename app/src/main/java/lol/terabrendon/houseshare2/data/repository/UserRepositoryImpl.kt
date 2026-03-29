@@ -130,11 +130,7 @@ class UserRepositoryImpl @Inject constructor(
             .findGroupsByUserId(userId)
             .map { groups ->
                 groups?.groups?.map {
-                    GroupInfoModel(
-                        groupId = it.id,
-                        name = it.name,
-                        description = it.description,
-                    )
+                    it.toModel()
                 } ?: emptyList()
             }
     }

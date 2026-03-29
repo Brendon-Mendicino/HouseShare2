@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.GroupRepository
 import lol.terabrendon.houseshare2.data.repository.UserRepository
 import lol.terabrendon.houseshare2.domain.form.GroupFormState
+import lol.terabrendon.houseshare2.domain.form.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
@@ -75,26 +76,28 @@ class GroupFormViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
+    /**
+     * Helper function.
+     */
+    private fun MutableStateFlow<GroupFormStateValidator>.updateState(inner: GroupFormStateValidator.Updater.() -> Unit) =
+        this.update { it.update(inner) }
+
     fun onEvent(event: GroupFormEvent) {
         Timber.d("onEvent: event=%s", event)
 
         when (event) {
             is GroupFormEvent.NameChanged -> {
-                _groupFormState.update { it.update { name = event.name } }
+                _groupFormState.updateState { name = event.name }
             }
 
             is GroupFormEvent.DescriptionChanged -> {
-                _groupFormState.update {
-                    it.update {
-                        description = event.description.takeIf { desc -> desc.isNotEmpty() }
-                    }
+                _groupFormState.updateState {
+                    description = event.description.takeIf { desc -> desc.isNotEmpty() }
                 }
             }
 
-            is GroupFormEvent.ImageUrlChanged -> _groupFormState.update {
-                it.update {
-                    imageUrl = event.url
-                }
+            is GroupFormEvent.ImageUrlChanged -> _groupFormState.updateState {
+                imageUrl = event.url
             }
 
             is GroupFormEvent.UserListClicked -> {

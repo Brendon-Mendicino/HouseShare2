@@ -6,7 +6,6 @@ import com.github.michaelbull.result.getOrElse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import lol.terabrendon.houseshare2.data.entity.Group
 import lol.terabrendon.houseshare2.data.local.dao.GroupDao
 import lol.terabrendon.houseshare2.data.local.util.localSafe
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
@@ -28,7 +27,7 @@ class GroupRepositoryImpl @Inject constructor(
     override suspend fun insert(group: GroupModel): DataResult<Unit> {
         val groupDto = groupApi.save(group.toDto()).getOrElse { return Err(it) }
 
-        val groupEntity = Group.from(group)
+        val groupEntity = group.toEntity()
         val userIds = group.users.map { it.id }
 
         val newGroupId =

@@ -17,7 +17,7 @@ import lol.terabrendon.houseshare2.data.local.dao.UserDao
 
 @Database(
     entities = [ShoppingItem::class, User::class, Expense::class, ExpensePart::class, Group::class, GroupUserCrossRef::class],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(DateConverter::class, Expense.Converter::class)
