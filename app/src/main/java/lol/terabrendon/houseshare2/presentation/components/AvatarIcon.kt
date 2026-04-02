@@ -38,7 +38,6 @@ fun AvatarIcon(
     modifier: Modifier = Modifier,
     user: UserModel? = null,
     text: String? = null,
-    picture: Boolean = user?.picture != null,
     size: Dp = 40.dp,
 ) {
     val density = LocalDensity.current
@@ -69,21 +68,20 @@ fun AvatarIcon(
         }
     }
 
-    if (user?.picture != null && picture) {
-        SubcomposeAsyncImage(
-            user.picture,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = modifier
-                .size(size)
-                .clip(CircleShape),
-            loading = {
-                letterIcon()
-            },
-        )
-    } else {
-        letterIcon()
-    }
+    SubcomposeAsyncImage(
+        user?.picture,
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape),
+        loading = {
+            letterIcon()
+        },
+        error = {
+            letterIcon()
+        }
+    )
 }
 
 private class Prev : PreviewParameterProvider<Int> {

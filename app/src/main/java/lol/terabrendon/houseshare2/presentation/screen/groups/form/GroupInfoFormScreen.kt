@@ -165,7 +165,7 @@ private fun GroupInfoFormScreenInner(
         )
 
         Text(
-            text = "Group image",
+            text = stringResource(R.string.group_image),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -206,7 +206,7 @@ private fun GroupInfoFormScreenInner(
 
 @Preview(showBackground = true)
 @Composable
-fun GroupInfoFormScreenPreview() {
+private fun GroupInfoFormScreenPreview() {
     HouseShare2Theme {
         GroupInfoFormScreenInner(
             groupFormState = GroupFormState(
