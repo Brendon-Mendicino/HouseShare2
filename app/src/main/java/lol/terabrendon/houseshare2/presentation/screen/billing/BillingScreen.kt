@@ -64,6 +64,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.UiText
 import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel
 import lol.terabrendon.houseshare2.util.inlineFormat
@@ -101,12 +102,17 @@ fun BillingScreen(
     val expenses by billingViewModel.expenses.collectAsStateWithLifecycle()
     val balances by billingViewModel.balances.collectAsStateWithLifecycle()
 
+    val scope = rememberCoroutineScope()
+
     RegisterFabConfig(
         config = FabConfig.Fab(
             // TODO: when having a nice config management put the groupAvailable here
             expanded = true,
             text = UiText.Res(R.string.create),
-            onClick = { if (groupAvailable) navigate(HomepageNavigation.ExpenseForm) },
+            onClick = {
+                if (groupAvailable) navigate(HomepageNavigation.ExpenseForm)
+                else scope.launch { SnackbarController.sendRes(R.string.select_group_before_expense) }
+            },
         ),
         route = HomepageNavigation.Billing::class,
     )

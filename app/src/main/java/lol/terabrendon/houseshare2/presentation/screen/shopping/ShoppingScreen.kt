@@ -50,6 +50,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.mapper.toStringRes
@@ -77,7 +79,9 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
 import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
+import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.vm.ShoppingViewModel
+import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.fullFormat
 import lol.terabrendon.houseshare2.util.inlineFormat
 import java.time.LocalDateTime
@@ -97,11 +101,12 @@ fun ShoppingScreen(
     val itemSorting by viewModel.itemSorting.collectAsStateWithLifecycle()
     var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
 
+    val scope = rememberCoroutineScope()
+
     RegisterFabConfig(
         config = FabConfig.Toolbar(
             // TODO: when having a nice config management put the groupAvailable here
-            expanded = isAnySelected,
-            content = { expanded ->
+            expanded = isAnySelected, content = { expanded ->
                 IconButton(
                     onClick = { showDeleteDialog = true },
                     Modifier.focusProperties { canFocus = expanded },
@@ -115,9 +120,11 @@ fun ShoppingScreen(
                 ) {
                     Icon(imageVector = Icons.Filled.Checklist, contentDescription = null)
                 }
-            },
-            fab = FabConfig.Fab(
-                onClick = { if (groupAvailable) navigate(HomepageNavigation.ShoppingForm) },
+            }, fab = FabConfig.Fab(
+                onClick = {
+                    if (groupAvailable) navigate(HomepageNavigation.ShoppingForm)
+                    else scope.launch { SnackbarController.sendRes(R.string.select_group_before_shopping_item) }
+                },
             )
         ),
         route = HomepageNavigation.Shopping::class,
@@ -140,8 +147,7 @@ fun ShoppingScreen(
         selectedItems = selectedItems,
         itemSorting = itemSorting,
         onEvent = viewModel::onEvent,
-        onItemClick = { navigate(HomepageNavigation.ShoppingItem(it.info.id)) }
-    )
+        onItemClick = { navigate(HomepageNavigation.ShoppingItem(it.info.id)) })
 
     if (showDeleteDialog) {
         DeleteShoppingItemsDialog(
@@ -253,20 +259,15 @@ private fun SortingRow(
         items(ShoppingItemRepository.Sorting.entries) { entry ->
             val selected = itemSorting == entry
 
-            InputChip(
-                selected = selected,
-                onClick = {
-                    onEvent(ShoppingScreenEvent.SortingChanged(entry))
-                },
-                label = {
-                    Text(stringResource(entry.toStringRes()))
-                },
-                leadingIcon = {
-                    AnimatedVisibility(selected) {
-                        Icon(Icons.Filled.Done, contentDescription = null)
-                    }
+            InputChip(selected = selected, onClick = {
+                onEvent(ShoppingScreenEvent.SortingChanged(entry))
+            }, label = {
+                Text(stringResource(entry.toStringRes()))
+            }, leadingIcon = {
+                AnimatedVisibility(selected) {
+                    Icon(Icons.Filled.Done, contentDescription = null)
                 }
-            )
+            })
         }
     }
 }
@@ -324,11 +325,10 @@ private fun CheckedShoppingListItem(
         LocalContentColor provides MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
     ) {
         Box(
-            modifier = modifier
-                .combinedClickable(
-                    onLongClick = {},
-                    onClick = { onItemClick(shoppingItem) },
-                ),
+            modifier = modifier.combinedClickable(
+                onLongClick = {},
+                onClick = { onItemClick(shoppingItem) },
+            ),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -368,41 +368,32 @@ private fun DeleteShoppingItemsDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
-        icon = {
-            Icon(
-                Icons.Filled.Delete,
-                contentDescription = stringResource(R.string.delete_shopping_items)
-            )
-        },
-        title = {
-            Text(text = stringResource(R.string.delete_shopping_items))
-        },
-        text = {
-            Text(text = stringResource(R.string.the_current_selected_items_will_be_delete_permanently))
-        },
-        onDismissRequest = {
-            onDismiss()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirm()
-                }
-            ) {
-                Text(stringResource(R.string.confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                }
-            ) {
-                Text(stringResource(R.string.dismiss))
-            }
+    AlertDialog(icon = {
+        Icon(
+            Icons.Filled.Delete,
+            contentDescription = stringResource(R.string.delete_shopping_items)
+        )
+    }, title = {
+        Text(text = stringResource(R.string.delete_shopping_items))
+    }, text = {
+        Text(text = stringResource(R.string.the_current_selected_items_will_be_delete_permanently))
+    }, onDismissRequest = {
+        onDismiss()
+    }, confirmButton = {
+        TextButton(
+            onClick = {
+                onConfirm()
+            }) {
+            Text(stringResource(R.string.confirm))
         }
-    )
+    }, dismissButton = {
+        TextButton(
+            onClick = {
+                onDismiss()
+            }) {
+            Text(stringResource(R.string.dismiss))
+        }
+    })
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -414,18 +405,15 @@ private fun NoItems(modifier: Modifier = Modifier) {
         while (true) {
             delay(3000)
             rotation.animateTo(
-                targetValue = rotation.value + 360f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
+                targetValue = rotation.value + 360f, animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow
                 )
             )
         }
     }
 
     Box(
-        modifier = modifier.padding(24.dp),
-        contentAlignment = Alignment.Center
+        modifier = modifier.padding(24.dp), contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -471,28 +459,27 @@ private fun NoItemsPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun ShoppingScreenPreview() {
-    val items = List(4) { ShoppingItemModel.default() }
-        .mapIndexed { id, it ->
-            it.copy(info = it.info.copy(id = id.toLong(), name = "Item"))
-        }
+    val items = List(4) { ShoppingItemModel.default() }.mapIndexed { id, it ->
+        it.copy(info = it.info.copy(id = id.toLong(), name = "Item"))
+    }
 
-    val checked = List(4) { ShoppingItemModel.default() }
-        .map {
-            it.copy(
-                checkoffState = CheckoffStateModel.default()
-                    .copy(checkoffTime = LocalDateTime.of(2020, 1, 1, 1, 1))
-            )
-        }
-        .mapIndexed { id, item ->
-            item.copy(info = item.info.copy(id = id.toLong() + items.size, name = "Checked"))
-        }
+    val checked = List(4) { ShoppingItemModel.default() }.map {
+        it.copy(
+            checkoffState = CheckoffStateModel.default()
+                .copy(checkoffTime = LocalDateTime.of(2020, 1, 1, 1, 1))
+        )
+    }.mapIndexed { id, item ->
+        item.copy(info = item.info.copy(id = id.toLong() + items.size, name = "Checked"))
+    }
 
-    ShoppingScreenInner(
-        shoppingItems = items,
-        selectedItems = emptySet(),
-        checkedItems = checked,
-        onEvent = {},
-        itemSorting = ShoppingItemRepository.Sorting.CreationDate,
-        onItemClick = {},
-    )
+    HouseShare2Theme {
+        ShoppingScreenInner(
+            shoppingItems = items,
+            selectedItems = emptySet(),
+            checkedItems = checked,
+            onEvent = {},
+            itemSorting = ShoppingItemRepository.Sorting.CreationDate,
+            onItemClick = {},
+        )
+    }
 }

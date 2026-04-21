@@ -1,5 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.util
 
+import androidx.annotation.StringRes
 import androidx.compose.material3.SnackbarDuration
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -40,7 +41,18 @@ object SnackbarController {
         _events.send(event)
     }
 
-    suspend inline fun sendError(error: RootError) {
+    suspend fun sendRes(@StringRes resId: Int, vararg args: Any) {
+        _events.send(
+            SnackbarEvent(
+                message = UiText.Res(resId, args),
+                withDismissAction = false,
+                action = null,
+                duration = SnackbarDuration.Short,
+            )
+        )
+    }
+
+    suspend fun sendError(error: RootError) {
         sendEvent(SnackbarEvent(message = error.toUiText()))
     }
 }
