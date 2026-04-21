@@ -176,6 +176,7 @@ private fun GroupInfoFormScreenInner(
             onValueChange = { onEvent(GroupFormEvent.ImageUrlChanged(it)) },
             labelText = stringResource(R.string.image_url),
             placeholder = { Text("https://example.com/image.jpg") },
+            maxLines = 1,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Next,
                 keyboardType = KeyboardType.Uri,

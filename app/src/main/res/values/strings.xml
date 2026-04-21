@@ -143,4 +143,6 @@
     <string name="apply_system_wallpaper_colors_to_the_app_theme">Apply system wallpaper colors to the app theme</string>
     <string name="image_url">Image URL</string>
     <string name="group_image">Group image</string>
+    <string name="no_items_yet">No items yet</string>
+    <string name="add_an_item_to_get_started">Add an item to get started</string>
 </resources>
