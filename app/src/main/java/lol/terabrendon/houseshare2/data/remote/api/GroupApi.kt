@@ -4,6 +4,7 @@ import lol.terabrendon.houseshare2.data.remote.dto.GroupDto
 import lol.terabrendon.houseshare2.data.remote.dto.InviteUrlDto
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import javax.annotation.CheckReturnValue
@@ -12,6 +13,9 @@ import javax.annotation.CheckReturnValue
 interface GroupApi {
     @POST("groups")
     suspend fun save(@Body group: GroupDto): NetResult<GroupDto>
+
+    @PUT("groups/{groupId}")
+    suspend fun update(@Path("groupId") groupId: Long, @Body group: GroupDto): NetResult<GroupDto>
 
     @POST("groups/{groupId}/invite")
     suspend fun inviteUrl(@Path("groupId") groupId: Long): NetResult<InviteUrlDto>

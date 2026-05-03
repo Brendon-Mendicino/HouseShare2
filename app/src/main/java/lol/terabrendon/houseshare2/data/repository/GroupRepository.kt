@@ -9,6 +9,8 @@ interface GroupRepository {
 
     suspend fun insert(group: GroupModel): DataResult<Unit>
 
+    suspend fun update(group: GroupModel): DataResult<Unit>
+
     suspend fun acceptInvite(
         groupId: Long,
         expires: Long,

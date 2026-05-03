@@ -3,3 +3,5 @@
 /workspace.xml
 deploymentTargetSelector.xml
 appInsightsSettings.xml
+studiobot.xml
+androidTestResultsUserPreferences.xml

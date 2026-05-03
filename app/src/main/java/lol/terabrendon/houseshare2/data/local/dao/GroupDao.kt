@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.data.entity.Group
@@ -21,6 +22,9 @@ interface GroupDao {
 
     @Upsert
     suspend fun upsert(group: Group): Long
+
+    @Update
+    suspend fun update(group: Group)
 
     @Query("delete from `Group` where id=:groupId")
     suspend fun delete(groupId: Long)

@@ -82,6 +82,7 @@
     <string name="language">Linguaggio</string>
     <string name="shopping_item">Articolo</string>
     <string name="no_group_selected">Nessun gruppo selezionato</string>
+    <string name="select_group_before_expense">Seleziona prima di poter aggiungere una nuova spesa</string>
     <string name="please_go_to_the_group_tab_and_select_a_group">Vai nella pagina dei gruppi e selezionane uno</string>
     <string name="selected_items">Articoli selezionati</string>
     <string name="group_info">Info del gruppo</string>
@@ -139,4 +140,11 @@
     <string name="app_theme">Tema dell\'app</string>
     <string name="dynamic_color">Colori Dinamici</string>
     <string name="apply_system_wallpaper_colors_to_the_app_theme">Applica i colori del tuo sfondo al tema dell\'applicazione</string>
+    <string name="image_url">URL dell\'immagine</string>
+    <string name="group_image">Immagine del gruppo</string>
+    <string name="no_items_yet">Ancora nessun articolo</string>
+    <string name="add_an_item_to_get_started">Aggiungi un articolo per iniziare</string>
+    <string name="you">Tu</string>
+    <string name="member">Membro</string>
+    <string name="select_group_before_shopping_item">Seleziona prima di poter aggiungere un nuovo articolo</string>
 </resources>

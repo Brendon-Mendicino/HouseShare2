@@ -1,9 +1,12 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package lol.terabrendon.houseshare2.presentation.screen.groups
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,13 +15,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +46,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.GroupModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
+import lol.terabrendon.houseshare2.presentation.components.GroupAvatar
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
@@ -56,6 +64,7 @@ fun GroupInfoScreen(
 ) {
     val group by viewModel.groupInfo.collectAsStateWithLifecycle()
     val currentUser by viewModel.currentUser.collectAsStateWithLifecycle()
+    val inviteUrlLoading by viewModel.inviteUrlLoading.collectAsStateWithLifecycle()
 
     RegisterBackNavIcon(
         onClick = { navigator.pop() },
@@ -77,7 +86,9 @@ fun GroupInfoScreen(
         modifier = modifier,
         group = group!!,
         currentUser = currentUser,
+        inviteUrlLoading = inviteUrlLoading,
         onEvent = viewModel::onEvent,
+        onEditClick = { navigator.navigate(HomepageNavigation.GroupInfoForm(groupId = group!!.info.groupId)) },
     )
 }
 
@@ -86,19 +97,37 @@ private fun GroupInfoInner(
     modifier: Modifier = Modifier,
     group: GroupModel,
     currentUser: UserModel?,
+    inviteUrlLoading: Boolean,
     onEvent: (event: GroupInfoEvent) -> Unit,
+    onEditClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item {
+            Box(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                GroupAvatar(
+                    group = group.info,
+                    size = 140.dp,
+                )
+            }
+        }
+
         // Group Header Section
         item {
             GroupHeaderCard(
                 groupName = group.info.name,
                 memberCount = group.users.size,
-                onShareClick = { onEvent(GroupInfoEvent.ShareGroup) }
+                onShareClick = { onEvent(GroupInfoEvent.ShareGroup) },
+                onEditClick = onEditClick,
+                inviteUrlLoading = inviteUrlLoading,
             )
         }
 
@@ -124,6 +153,8 @@ fun GroupHeaderCard(
     groupName: String,
     memberCount: Int,
     onShareClick: () -> Unit,
+    onEditClick: () -> Unit,
+    inviteUrlLoading: Boolean,
 ) {
     // A surface container to group the top-level info
     Card(
@@ -136,35 +167,50 @@ fun GroupHeaderCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = groupName,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                    Text(
-                        text = stringResource(R.string.active_members, memberCount),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
-                    )
+            ListItem(
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                headlineContent = {
+                    Column {
+                        Text(
+                            text = groupName,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Text(
+                            text = stringResource(R.string.active_members, memberCount),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
+                },
+                trailingContent = {
+                    IconButton(onClick = { onEditClick() }) {
+                        Icon(Icons.Default.Edit, contentDescription = null)
+                    }
                 }
-            }
+            )
 
             // Tonal Button is less aggressive than Filled, perfect for secondary actions
             Button(
                 onClick = onShareClick,
                 modifier = Modifier.align(Alignment.End),
+                enabled = !inviteUrlLoading,
             ) {
-                Icon(
-                    imageVector = Icons.Default.Share,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
+                AnimatedContent(inviteUrlLoading) { loading ->
+                    if (loading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.invite_members))
             }
@@ -189,7 +235,7 @@ fun UserListItem(modifier: Modifier = Modifier, user: UserModel, isCurrentUser: 
                 BadgedBox(badge = {
                     if (isCurrentUser) {
                         Badge {
-                            Text("You")
+                            Text(stringResource(R.string.you))
                         }
                     }
                 }) {
@@ -206,7 +252,7 @@ fun UserListItem(modifier: Modifier = Modifier, user: UserModel, isCurrentUser: 
             supportingContent = {
                 // TODO: Useful for context (e.g., "Joined 2 days ago" or email)
                 // If you don't have this data yet, you can remove this parameter
-                Text("Member", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.member), style = MaterialTheme.typography.labelMedium)
             }
         )
     }
@@ -222,7 +268,9 @@ fun PreviewGroupInfo_Populated() {
         GroupInfoInner(
             group = mockGroup,
             currentUser = mockUsers.first(),
-            onEvent = {}
+            inviteUrlLoading = false,
+            onEvent = {},
+            onEditClick = {},
         )
     }
 }
@@ -236,7 +284,9 @@ fun PreviewGroupInfo_Empty() {
         GroupInfoInner(
             group = mockGroup,
             currentUser = null,
-            onEvent = {}
+            inviteUrlLoading = true,
+            onEvent = {},
+            onEditClick = {},
         )
     }
 }

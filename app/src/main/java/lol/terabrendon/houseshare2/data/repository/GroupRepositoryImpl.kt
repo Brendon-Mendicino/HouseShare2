@@ -39,6 +39,17 @@ class GroupRepositoryImpl @Inject constructor(
         return Ok(Unit)
     }
 
+    override suspend fun update(group: GroupModel): DataResult<Unit> {
+        val groupDto =
+            groupApi.update(group.info.groupId, group.toDto()).getOrElse { return Err(it) }
+
+        val groupEntity = groupDto.toEntity()
+        localSafe { groupDao.upsertGroup(groupEntity, group.users.map { it.id }) }
+            .getOrElse { return Err(it) }
+
+        return Ok(Unit)
+    }
+
     override suspend fun acceptInvite(
         groupId: Long,
         expires: Long,

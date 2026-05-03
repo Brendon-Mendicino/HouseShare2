@@ -1,7 +1,12 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
+import androidx.compose.runtime.Composable
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +26,7 @@ import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
+import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupFormEvent
 import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupFormUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
@@ -29,14 +35,28 @@ import lol.terabrendon.houseshare2.presentation.util.toUiText
 import lol.terabrendon.houseshare2.util.CombinedStateFlow
 import lol.terabrendon.houseshare2.util.mapState
 import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class GroupFormViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = GroupFormViewModel.Factory::class)
+class GroupFormViewModel @AssistedInject constructor(
+    @Assisted
+    private val route: HomepageNavigation.GroupInfoForm,
     private val groupRepository: GroupRepository,
     getLoggedUserUseCase: GetLoggedUserUseCase,
     userRepository: UserRepository,
 ) : ViewModel() {
+    @AssistedFactory
+    interface Factory {
+        fun create(route: HomepageNavigation.GroupInfoForm): GroupFormViewModel
+    }
+
+    companion object {
+        @Composable
+        fun create(route: HomepageNavigation.GroupInfoForm) =
+            hiltViewModel<GroupFormViewModel, Factory>(creationCallback = { factory ->
+                factory.create(route)
+            })
+    }
+
     private var _uiEvent = Channel<GroupFormUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -67,6 +87,21 @@ class GroupFormViewModel @Inject constructor(
         }
 
     val groupFormState = _groupFormState.asStateFlow()
+
+    init {
+        // Pre-fill group form state
+        viewModelScope.launch {
+            if (route.groupId == null) return@launch
+
+            val group = groupRepository.findById(route.groupId).first() ?: return@launch
+            _groupFormState.updateState {
+                name = group.info.name
+                description = group.info.description
+                users = group.users
+                imageUrl = group.info.imageUrl?.toString()
+            }
+        }
+    }
 
     val users = userRepository
         .findAll()
@@ -143,7 +178,12 @@ class GroupFormViewModel @Inject constructor(
             newGroup.info.name
         )
 
-        val (_, err) = groupRepository.insert(newGroup)
+        val (_, err) = if (route.groupId == null) {
+            groupRepository.insert(newGroup)
+        } else {
+            val toUpdate = newGroup.copy(info = newGroup.info.copy(groupId = route.groupId))
+            groupRepository.update(toUpdate)
+        }
         if (err != null) {
             SnackbarController.sendError(err)
             return

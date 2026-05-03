@@ -1,7 +1,9 @@
 package lol.terabrendon.houseshare2.presentation.vm
 
 import android.content.Intent
+import androidx.compose.runtime.Composable
 import androidx.core.net.toUri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.getOrElse
@@ -10,7 +12,9 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -38,6 +42,14 @@ class GroupInfoViewModel @AssistedInject constructor(
         fun create(route: HomepageNavigation.GroupInfo): GroupInfoViewModel
     }
 
+    companion object {
+        @Composable
+        fun create(route: HomepageNavigation.GroupInfo) =
+            hiltViewModel<GroupInfoViewModel, Factory>(creationCallback = { factory ->
+                factory.create(route)
+            })
+    }
+
     sealed class UiEvent {
         data object NoGroupFound : UiEvent()
     }
@@ -50,6 +62,10 @@ class GroupInfoViewModel @AssistedInject constructor(
         .onEach { if (it == null) uiChannel.send(UiEvent.NoGroupFound) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 
+    private val _inviteUrlLoading = MutableStateFlow(false)
+    val inviteUrlLoading = _inviteUrlLoading.asStateFlow()
+
+
     val currentUser =
         getLoggedUserUseCase().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), null)
 
@@ -58,6 +74,8 @@ class GroupInfoViewModel @AssistedInject constructor(
 
         when (event) {
             is GroupInfoEvent.ShareGroup -> {
+                _inviteUrlLoading.value = true
+
                 val res = groupApi.inviteUrl(group.info.groupId)
                 val invite = res.getOrElse { err ->
                     SnackbarController.sendError(err)
@@ -85,6 +103,8 @@ class GroupInfoViewModel @AssistedInject constructor(
 
                 Timber.i("onEvent: sending group invite url")
                 ActivityQueue.sendIntent(share)
+
+                _inviteUrlLoading.value = false
             }
         }
     }.let { }
