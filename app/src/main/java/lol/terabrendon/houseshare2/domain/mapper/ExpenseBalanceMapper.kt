@@ -2,7 +2,6 @@ package lol.terabrendon.houseshare2.domain.mapper
 
 import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
-import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.sum
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import javax.inject.Inject
@@ -10,7 +9,7 @@ import javax.inject.Inject
 // TODO: remove from here
 class ExpenseBalanceMapper @Inject constructor() {
     /**
-     * Map a list of [ExpenseModel] to a map of [UserModel.id] to [BillingBalanceModel].
+     * Map a list of [ExpenseModel] to a map of `userId` to [BillingBalanceModel].
      */
     fun map(expenses: List<ExpenseModel>): Map<Long, BillingBalanceModel> = expenses
         .asSequence()
@@ -20,8 +19,8 @@ class ExpenseBalanceMapper @Inject constructor() {
         .flatMap { expense ->
             val debts = expense
                 .userExpenses
-                .filter { userPart -> userPart.user != expense.expensePayer }
-                .map { userPart -> Pair(userPart.user, -userPart.partAmount) }
+                .filter { participant -> participant.user.id != expense.expensePayer.id }
+                .map { participant -> Pair(participant.user, -participant.partAmount) }
 
             // Add the payer of the expense with a positive debt
             val credit = Pair(expense.expensePayer, debts.map { -it.second }.sum())
