@@ -1,10 +1,18 @@
 package lol.terabrendon.houseshare2.presentation.screen.billing
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -70,9 +78,11 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
+import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.ChooseGroup
+import lol.terabrendon.houseshare2.presentation.components.UsersAvatar
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.provider.FabConfig
@@ -191,8 +201,8 @@ private fun AccountBalance(modifier: Modifier = Modifier, balances: List<Billing
 @Composable
 private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: BillingBalanceModel) {
     val userBillingColor = when {
-        billingBalance.finalBalance > 0 -> Color(168, 213, 186)
-        billingBalance.finalBalance < 0 -> MaterialTheme.colorScheme.error
+        billingBalance.finalBalance > 0.toMoney() -> Color(168, 213, 186)
+        billingBalance.finalBalance < 0.toMoney() -> MaterialTheme.colorScheme.error
         else -> Color.Gray
     }
 
@@ -285,13 +295,38 @@ private fun ExpenseItem(
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleMedium,
                 )
-                Text(
-                    stringResource(
-                        R.string.paid,
-                        expense.expensePayer.username,
-                        expense.amount.toCurrency()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(
+                            R.string.paid,
+                            expense.expensePayer.username,
+                            expense.amount.toCurrency()
+                        ),
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                )
+
+                    AnimatedVisibility(
+                        visible = !isExpanded,
+                        enter = fadeIn() + slideInHorizontally { it / 2 } + scaleIn(),
+                        exit = fadeOut() + slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        ) + shrinkHorizontally() + scaleOut()
+                    ) {
+                        UsersAvatar(
+                            modifier = Modifier.padding(start = 8.dp),
+                            users = expense.userExpenses.map { it.user },
+                            avatarSize = 24.dp,
+                        )
+                    }
+                }
             }
 
             Spacer(Modifier.requiredWidth(16.dp))
@@ -313,7 +348,11 @@ private fun ExpenseItem(
 
                 Spacer(Modifier.requiredHeight(8.dp))
 
-                Text(stringResource(R.string.expense_shares))
+                Text(
+                    text = stringResource(R.string.expense_shares),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
                 expense.userExpenses.forEach { item ->
                     Row(
@@ -326,7 +365,10 @@ private fun ExpenseItem(
 
                         Spacer(Modifier.requiredWidth(16.dp))
 
-                        Text("${item.user.username}: ${item.partAmount.toCurrency()}")
+                        Text(
+                            text = "${item.user.username}: ${item.partAmount.toCurrency()}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
             }
@@ -403,23 +445,76 @@ private fun NoExpensePreview() {
 @Preview(showBackground = true)
 @Composable
 private fun ExpensesPreview() {
-    val e = (0..5L).map { ExpenseModel.default().copy(id = it) }.toMutableList()
-    e[0] = e[0].copy(title = "Very looooooooooooooooooong title")
+    val users = List(5) { UserModel.random().copy(id = it.toLong(), username = "User $it") }
 
-    ExpenseList(expenses = e, modifier = Modifier.fillMaxWidth())
+    val e = listOf(
+        ExpenseModel.random(
+            id = 1,
+            title = "Pizza night",
+            amount = 30.0.toMoney(),
+            expensePayer = users[0],
+            userExpenses = users.take(3).map { UserExpenseModel(it, 10.0.toMoney()) }
+        ),
+        ExpenseModel.random(
+            id = 2,
+            title = "Electricity bill",
+            amount = 54.20.toMoney(),
+            expensePayer = users[1],
+            userExpenses = listOf(
+                UserExpenseModel(users[0], 27.10.toMoney()),
+                UserExpenseModel(users[1], 27.10.toMoney())
+            )
+        ),
+        ExpenseModel.random(
+            id = 3,
+            title = "Groceries",
+            amount = 15.50.toMoney(),
+            expensePayer = users[2],
+            userExpenses = users.map { UserExpenseModel(it, 3.10.toMoney()) }
+        ),
+        ExpenseModel.random(
+            id = 4,
+            title = "Internet bill",
+            amount = 29.99.toMoney(),
+            expensePayer = users[0],
+            userExpenses = listOf(
+                UserExpenseModel(users[0], 15.0.toMoney()),
+                UserExpenseModel(users[1], 14.99.toMoney())
+            )
+        )
+    )
+
+    HouseShare2Theme {
+        Surface {
+            ExpenseList(expenses = e, modifier = Modifier.fillMaxWidth())
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun ExpenseItemPreview(
-    expense: ExpenseModel = ExpenseModel.default()
-        .copy(
-            userExpenses = (0..5).map { UserExpenseModel.default() }.toList(),
-            title = "Very looooooooooooooooooooooooooooooooooooooooooooooooooong title",
-        ),
-) {
+private fun ExpenseItemPreview() {
+    val alice = UserModel.default().copy(id = 1, username = "Alice")
+    val bob = UserModel.default().copy(id = 2, username = "Bob")
+    val charlie = UserModel.default().copy(id = 3, username = "Charlie")
 
-    ExpenseItem(expense = expense, modifier = Modifier.fillMaxWidth(), isExpanded = true)
+    val expense = ExpenseModel.default().copy(
+        id = 1,
+        title = "Very looooooooooooooooooooooooooooooooooooooooooooooooooong title",
+        amount = 100.0.toMoney(),
+        expensePayer = alice,
+        userExpenses = listOf(
+            UserExpenseModel(alice, 33.33.toMoney()),
+            UserExpenseModel(bob, 33.33.toMoney()),
+            UserExpenseModel(charlie, 33.34.toMoney())
+        )
+    )
+
+    HouseShare2Theme {
+        Surface {
+            ExpenseItem(expense = expense, modifier = Modifier.fillMaxWidth(), isExpanded = true)
+        }
+    }
 }
 
 @Preview(showBackground = true)
