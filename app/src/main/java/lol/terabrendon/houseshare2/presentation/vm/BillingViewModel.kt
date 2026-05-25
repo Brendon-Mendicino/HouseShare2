@@ -6,6 +6,7 @@ import com.github.michaelbull.result.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -14,6 +15,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseBalanceMapper
+import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
+import lol.terabrendon.houseshare2.domain.model.UserModel
+import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import javax.inject.Inject
@@ -24,6 +28,26 @@ class BillingViewModel @Inject constructor(
     private val expenseBalanceMapper: ExpenseBalanceMapper,
     getSelectedGroupUseCase: GetSelectedGroupUseCase,
 ) : ViewModel() {
+
+    companion object {
+        @JvmStatic
+        private fun addMissingUsers(
+            expenses: Map<Long, BillingBalanceModel>,
+            groupUsers: Map<Long, UserModel>,
+        ): List<BillingBalanceModel> {
+            val missingUsers = groupUsers.keys - expenses.keys
+
+            val completeBalance = expenses + missingUsers.map { userId ->
+                userId to BillingBalanceModel(
+                    groupUsers[userId]!!,
+                    0.toMoney()
+                )
+            }
+
+            return completeBalance.toSortedMap().values.toList()
+        }
+
+    }
 
     val currentGroup = getSelectedGroupUseCase()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -37,6 +61,10 @@ class BillingViewModel @Inject constructor(
         }
     }
 
+    val groupUsers = currentGroup.filterNotNull()
+        .map { it.users.associateBy { user -> user.id } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyMap())
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val expenses = currentGroup
         .filterNotNull()
@@ -45,8 +73,11 @@ class BillingViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
-    val balances = expenses
+    private val partialBalances = expenses
         .map(expenseBalanceMapper::map)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    val balances = combine(partialBalances, groupUsers, ::addMissingUsers)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 }
 
