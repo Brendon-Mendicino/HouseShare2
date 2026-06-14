@@ -68,7 +68,7 @@ class ExpenseRepositoryImpl @Inject constructor(
 
         // Refresh expenses users not already present in the db
         dto
-            .flatMap { expense -> expense.expenseParts.map { it.userId } }
+            .flatMap { expense -> expense.expenseParts.map { it.memberId } }
             .distinct()
             .asFlow()
             .filter { userId -> !userDao.existById(userId) }

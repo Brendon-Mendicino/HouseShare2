@@ -3,12 +3,12 @@ package lol.terabrendon.houseshare2.domain.mapper
 import androidx.core.net.toUri
 import lol.terabrendon.houseshare2.data.entity.Group
 import lol.terabrendon.houseshare2.data.entity.composite.GroupWithUsers
-import lol.terabrendon.houseshare2.data.remote.dto.GroupDto
+import lol.terabrendon.houseshare2.data.remote.dto.AppGroupDto
 import lol.terabrendon.houseshare2.domain.form.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.domain.model.GroupModel
 
-fun GroupModel.toDto() = GroupDto(
+fun GroupModel.toDto() = AppGroupDto(
     id = info.groupId,
     name = info.name,
     description = info.description,
@@ -50,7 +50,7 @@ fun GroupWithUsers.toModel() = GroupModel(
     users = users.map { it.toModel() },
 )
 
-fun GroupDto.toEntity() = Group(
+fun AppGroupDto.toEntity() = Group(
     id = id,
     name = name,
     description = description,

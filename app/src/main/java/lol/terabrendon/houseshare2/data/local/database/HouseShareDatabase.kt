@@ -7,6 +7,7 @@ import lol.terabrendon.houseshare2.data.entity.DateConverter
 import lol.terabrendon.houseshare2.data.entity.Expense
 import lol.terabrendon.houseshare2.data.entity.ExpensePart
 import lol.terabrendon.houseshare2.data.entity.Group
+import lol.terabrendon.houseshare2.data.entity.GroupMember
 import lol.terabrendon.houseshare2.data.entity.GroupUserCrossRef
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.User
@@ -16,9 +17,17 @@ import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
 
 @Database(
-    entities = [ShoppingItem::class, User::class, Expense::class, ExpensePart::class, Group::class, GroupUserCrossRef::class],
-    version = 2,
-    exportSchema = true
+    entities = [
+        ShoppingItem::class,
+        User::class,
+        Expense::class,
+        ExpensePart::class,
+        Group::class,
+        GroupUserCrossRef::class,
+        GroupMember::class,
+    ],
+    version = 3,
+    exportSchema = true,
 )
 @TypeConverters(DateConverter::class, Expense.Converter::class)
 abstract class HouseShareDatabase : RoomDatabase() {

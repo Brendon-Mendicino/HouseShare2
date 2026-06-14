@@ -1,6 +1,6 @@
 package lol.terabrendon.houseshare2.data.remote.dto
 
-data class UserDto(
+data class AppUserDto(
     val id: Long,
     val username: String,
     val email: String?,

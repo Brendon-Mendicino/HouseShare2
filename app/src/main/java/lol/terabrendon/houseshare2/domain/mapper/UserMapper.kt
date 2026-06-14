@@ -2,10 +2,10 @@ package lol.terabrendon.houseshare2.domain.mapper
 
 import androidx.core.net.toUri
 import lol.terabrendon.houseshare2.data.entity.User
-import lol.terabrendon.houseshare2.data.remote.dto.UserDto
+import lol.terabrendon.houseshare2.data.remote.dto.AppUserDto
 import lol.terabrendon.houseshare2.domain.model.UserModel
 
-fun UserDto.toEntity() = User(
+fun AppUserDto.toEntity() = User(
     id = id,
     username = username,
     email = email,
@@ -14,7 +14,7 @@ fun UserDto.toEntity() = User(
     picture = picture,
 )
 
-fun UserDto.toModel() = UserModel(
+fun AppUserDto.toModel() = UserModel(
     id = id,
     username = username,
     email = email,

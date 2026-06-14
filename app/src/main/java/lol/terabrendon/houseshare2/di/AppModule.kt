@@ -19,7 +19,6 @@ import lol.terabrendon.houseshare2.data.local.dao.GroupDao
 import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.local.database.HouseShareDatabase
-import lol.terabrendon.houseshare2.data.local.database.MIGRATION_1_2
 import lol.terabrendon.houseshare2.data.local.preferences.UserData
 import lol.terabrendon.houseshare2.data.local.preferences.userPreferencesStore
 import javax.inject.Singleton
@@ -48,8 +47,8 @@ object AppModule {
             .databaseBuilder(
                 applicationContext, HouseShareDatabase::class.java, "house_share_db"
             )
-            .addMigrations(MIGRATION_1_2)
-//            .fallbackToDestructiveMigration(true)
+//            .addMigrations(MIGRATION_1_2)
+            .fallbackToDestructiveMigration(true)
 //            .setQueryCallback({ sqlQuery, bindArgs ->
 //                Timber.i("query: $sqlQuery | args: $bindArgs")
 //            }, Executors.newSingleThreadExecutor())
