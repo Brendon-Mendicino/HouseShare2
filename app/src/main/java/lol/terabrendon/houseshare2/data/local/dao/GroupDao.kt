@@ -55,8 +55,10 @@ interface GroupDao {
 
         deleteGroupUsers(group.id)
 
-        userIds.map { GroupUserCrossRef(groupId = group.id, userId = it) }
-            .forEach { upsertUser(it) }
+        val refs = userIds.map { GroupUserCrossRef(groupId = group.id, userId = it) }
+        for (ref in refs) {
+            upsertUser(ref)
+        }
 
         return groupId
     }

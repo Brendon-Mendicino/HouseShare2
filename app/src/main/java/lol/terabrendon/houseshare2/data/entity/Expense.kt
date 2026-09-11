@@ -11,9 +11,16 @@ import java.time.LocalDateTime
 @Entity(
     foreignKeys = [
         ForeignKey(
-            entity = User::class,
+            entity = GroupMember::class,
             parentColumns = ["id"],
             childColumns = ["ownerId"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
+        ),
+        ForeignKey(
+            entity = GroupMember::class,
+            parentColumns = ["id"],
+            childColumns = ["payerId"],
             onDelete = ForeignKey.CASCADE,
             onUpdate = ForeignKey.CASCADE,
         ),
@@ -30,12 +37,12 @@ data class Expense(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     /**
-     * The [User] who created the [Expense]
+     * The [GroupMember] who created the [Expense]
      */
     @ColumnInfo(index = true)
     val ownerId: Long,
     /**
-     * The [User] who payed the [Expense]
+     * The [GroupMember] who payed the [Expense]
      */
     @ColumnInfo(index = true)
     val payerId: Long,

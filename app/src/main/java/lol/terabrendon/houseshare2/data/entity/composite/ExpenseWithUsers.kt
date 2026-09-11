@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import lol.terabrendon.houseshare2.data.entity.Expense
 import lol.terabrendon.houseshare2.data.entity.ExpensePart
-import lol.terabrendon.houseshare2.data.entity.User
+import lol.terabrendon.houseshare2.data.entity.GroupMember
 
 data class ExpenseWithUsers(
     @Embedded
@@ -13,12 +13,12 @@ data class ExpenseWithUsers(
         parentColumn = "ownerId",
         entityColumn = "id",
     )
-    val owner: User,
+    val owner: GroupMember,
     @Relation(
         parentColumn = "payerId",
         entityColumn = "id",
     )
-    val payer: User,
+    val payer: GroupMember,
     @Relation(
         entity = ExpensePart::class,
         parentColumn = "id",

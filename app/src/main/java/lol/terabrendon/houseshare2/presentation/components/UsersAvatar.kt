@@ -22,12 +22,12 @@ import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import lol.terabrendon.houseshare2.domain.model.UserModel
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 
 @Composable
 fun UsersAvatar(
-    users: List<UserModel>,
+    users: List<GroupMemberModel>,
     modifier: Modifier = Modifier,
     avatarSize: Dp = 40.dp,
     maxVisible: Int = 3,
@@ -97,7 +97,7 @@ private fun GroupAvatarPreview(
 ) {
     HouseShare2Theme {
         UsersAvatar(
-            List(users) { UserModel.random() },
+            List(users) { GroupMemberModel.random() },
         )
     }
 }

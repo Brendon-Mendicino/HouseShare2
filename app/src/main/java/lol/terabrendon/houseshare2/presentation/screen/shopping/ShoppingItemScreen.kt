@@ -41,9 +41,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.CheckoffStateModel
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemModel
-import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
@@ -120,7 +120,7 @@ private fun ShoppingItemInner(
         ItemField(text = info.creationTimestamp.inlineFormat(), label = "Created at")
 
         ItemField(
-            text = item.itemOwner.username,
+            text = item.itemOwner.fullName,
             label = "Created by",
             leadingIcon = {
                 AvatarIcon(
@@ -171,7 +171,7 @@ private fun ShoppingItemInner(
                 return@AnimatedVisibility
 
             ItemField(
-                text = checkInner!!.checkoffUser.username,
+                text = checkInner!!.checkoffUser.fullName,
                 label = stringResource(R.string.checked_by),
                 leadingIcon = {
                     AvatarIcon(
@@ -257,7 +257,7 @@ private fun ShoppingItemPreview() {
                     amount = 10,
                     price = 3.50.toMoney()
                 ),
-            itemOwner = UserModel.default(),
+            itemOwner = GroupMemberModel.default(),
             checkoffState = null,
         ),
         onEvent = {},
@@ -275,7 +275,7 @@ private fun ShoppingItemCheckedPreview() {
                     amount = 10,
                     price = 3.50.toMoney()
                 ),
-            itemOwner = UserModel.default(),
+            itemOwner = GroupMemberModel.default(),
             checkoffState = CheckoffStateModel.default(),
         ),
         onEvent = {},

@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.GroupModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
@@ -142,7 +143,7 @@ private fun GroupInfoInner(
         }
 
         // 3. User List
-        items(group.users, key = { it.id }) { user ->
+        items(group.members, key = { it.id }) { user ->
             UserListItem(user = user, isCurrentUser = currentUser?.id == user.id)
         }
     }
@@ -219,7 +220,7 @@ fun GroupHeaderCard(
 }
 
 @Composable
-fun UserListItem(modifier: Modifier = Modifier, user: UserModel, isCurrentUser: Boolean) {
+fun UserListItem(modifier: Modifier = Modifier, user: GroupMemberModel, isCurrentUser: Boolean) {
     // OutlinedCard gives a clean separation without heavy shadows
     OutlinedCard(
         modifier = modifier.fillMaxWidth(),
@@ -244,7 +245,7 @@ fun UserListItem(modifier: Modifier = Modifier, user: UserModel, isCurrentUser: 
             },
             headlineContent = {
                 Text(
-                    text = user.username,
+                    text = user.fullName,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )

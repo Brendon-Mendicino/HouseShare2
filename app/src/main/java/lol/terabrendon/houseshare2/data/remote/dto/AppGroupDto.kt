@@ -5,6 +5,7 @@ data class AppGroupDto(
     val name: String,
     val description: String? = null,
     val userIds: List<Long> = listOf(),
+    val users: List<AppUserDto> = listOf(),
     val members: List<GroupMemberDto> = listOf(),
     val imageUrl: String? = null,
 )

@@ -11,15 +11,15 @@ import androidx.room.PrimaryKey
  */
 @Entity(
     indices = [
-        Index("userId"),
+        Index("memberId"),
         Index("expenseId"),
-        Index(value = ["expenseId", "userId"], unique = true),
+        Index(value = ["expenseId", "memberId"], unique = true),
     ],
     foreignKeys = [
         ForeignKey(
-            entity = User::class,
+            entity = GroupMember::class,
             parentColumns = ["id"],
-            childColumns = ["userId"],
+            childColumns = ["memberId"],
             onDelete = ForeignKey.Companion.CASCADE,
         ),
         ForeignKey(
@@ -35,7 +35,7 @@ data class ExpensePart(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     val expenseId: Long,
-    val userId: Long,
+    val memberId: Long,
     /**
      * What are the total user debts in the expense. This value represents cents, this means
      * that 1 euro is equal to 100 partAmount.

@@ -17,6 +17,9 @@ interface UserDao {
     @Query("select * from User where id=:id")
     fun findById(id: Long): Flow<User?>
 
+    @Query("select u.* from User u join GroupUserCrossRef g on u.id = g.userId where u.id = :userId and g.groupId = :groupId")
+    suspend fun findByIdAndGroupId(userId: Long, groupId: Long): User?
+
     @Query("select exists (select * from User where id=:id)")
     suspend fun existById(id: Long): Boolean
 

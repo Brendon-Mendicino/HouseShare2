@@ -344,7 +344,7 @@ private fun CheckedShoppingListItem(
                     )
 
                     Text(
-                        stringResource(R.string.bought_by, checkoff.checkoffUser.username),
+                        stringResource(R.string.bought_by, checkoff.checkoffUser.fullName),
                         fontStyle = FontStyle.Italic,
                     )
 

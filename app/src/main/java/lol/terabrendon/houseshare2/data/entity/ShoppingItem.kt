@@ -12,11 +12,11 @@ import java.time.LocalDateTime
 
 @Entity(
     indices = [
-        Index("checkingUserId")
+        Index("checkingMemberId")
     ],
     foreignKeys = [
         ForeignKey(
-            entity = User::class,
+            entity = GroupMember::class,
             parentColumns = ["id"],
             childColumns = ["ownerId"],
             onUpdate = ForeignKey.CASCADE,
@@ -31,9 +31,9 @@ import java.time.LocalDateTime
             onDelete = ForeignKey.CASCADE,
         ),
         ForeignKey(
-            entity = User::class,
+            entity = GroupMember::class,
             parentColumns = ["id"],
-            childColumns = ["checkingUserId"],
+            childColumns = ["checkingMemberId"],
             onUpdate = ForeignKey.CASCADE,
             // TODO: decide if a user is deleted what needs to happen (maybe anonymous or deleted-user?)
             onDelete = ForeignKey.CASCADE,
@@ -60,7 +60,7 @@ data class ShoppingItem(
     val check: CheckoffState?,
 ) {
     data class CheckoffState(
-        val checkingUserId: Long,
+        val checkingMemberId: Long,
         val checkoffTimestamp: LocalDateTime = LocalDateTime.now(),
     )
 }

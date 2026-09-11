@@ -5,17 +5,17 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import lol.terabrendon.houseshare2.domain.form.ExpenseFormState
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
-import lol.terabrendon.houseshare2.domain.model.UserModel
 import java.time.LocalDateTime
 
 // TODO: remove from here
 class ExpenseModelMapper {
     fun map(
         formState: ExpenseFormState,
-        expenseOwner: UserModel,
-        userParts: List<Pair<Money, UserModel>>,
+        expenseOwner: GroupMemberModel,
+        userParts: List<Pair<Money, GroupMemberModel>>,
         creationTimestamp: LocalDateTime = LocalDateTime.now(),
         groupId: Long,
     ): Result<ExpenseModel, String> {
@@ -32,7 +32,7 @@ class ExpenseModelMapper {
                 creationTimestamp = creationTimestamp,
                 userExpenses = userParts.map { (amount, user) ->
                     UserExpenseModel(
-                        user = user,
+                        member = user,
                         partAmount = amount,
                     )
                 },

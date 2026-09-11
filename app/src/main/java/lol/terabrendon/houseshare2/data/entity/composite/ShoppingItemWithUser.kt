@@ -2,8 +2,8 @@ package lol.terabrendon.houseshare2.data.entity.composite
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import lol.terabrendon.houseshare2.data.entity.GroupMember
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
-import lol.terabrendon.houseshare2.data.entity.User
 
 data class ShoppingItemWithUser(
     @Embedded
@@ -12,10 +12,10 @@ data class ShoppingItemWithUser(
         parentColumn = "ownerId",
         entityColumn = "id",
     )
-    val itemOwner: User,
+    val itemOwner: GroupMember,
     @Relation(
-        parentColumn = "checkingUserId",
+        parentColumn = "checkingMemberId",
         entityColumn = "id",
     )
-    val checkingUser: User?,
+    val checkingUser: GroupMember?,
 )

@@ -26,7 +26,7 @@ fun ExpenseDto.toEntity() = Expense(
 fun ExpensePartDto.toEntity() = ExpensePart(
     id = id,
     expenseId = expenseId,
-    userId = memberId,
+    memberId = memberId,
     partAmount = partAmount,
 )
 
@@ -43,7 +43,7 @@ fun ExpenseModel.toDto() = ExpenseDto(
         ExpensePartDto(
             id = 0,
             expenseId = id,
-            memberId = it.user.id,
+            memberId = it.member.id,
             partAmount = it.partAmount.compact
         )
     }
@@ -61,7 +61,7 @@ fun ExpenseModel.toEntity() = Expense(
 )
 
 fun PaymentWithUser.toModel() = UserExpenseModel(
-    user = user.toModel(),
+    member = member.toModel(),
     partAmount = Money.fromCompact(expensePart.partAmount),
 )
 

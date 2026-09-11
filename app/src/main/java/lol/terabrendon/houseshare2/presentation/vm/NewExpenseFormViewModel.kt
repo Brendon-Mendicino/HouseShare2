@@ -60,9 +60,9 @@ class NewExpenseFormViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
 
-    val users = selectedGroup
+    val members = selectedGroup
         .filterNotNull()
-        .map { it.users }
+        .map { it.members }
         .onEach {
             Timber.i("onEach: Getting updated list of users from the database.")
         }
@@ -75,7 +75,7 @@ class NewExpenseFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            users.collect { users ->
+            members.collect { users ->
                 _expenseFormState.update {
                     it.update {
                         userParts = List(users.size) { UserPart() }
@@ -100,14 +100,14 @@ class NewExpenseFormViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            users.collect {
+            members.collect {
                 _userSelected.value = it.map { true }
             }
         }
     }
 
     val simpleDivisionParts =
-        combine(_userSelected, users, expenseFormState) { selectedUsers, users, formState ->
+        combine(_userSelected, members, expenseFormState) { selectedUsers, users, formState ->
             val total = formState.totalAmountMoney.value
             val noSelected = selectedUsers.count { it }
 
@@ -218,8 +218,8 @@ class NewExpenseFormViewModel @Inject constructor(
 
         val state = formState.toData()
         val userParts =
-            if (state.simpleDivisionEnabled) simpleDivisionParts.value.zip(users.value)
-            else state.convertedValues.zip(users.value)
+            if (state.simpleDivisionEnabled) simpleDivisionParts.value.zip(members.value)
+            else state.convertedValues.zip(members.value)
 
         val expense = expenseModelMapper
             .map(

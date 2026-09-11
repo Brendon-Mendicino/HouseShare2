@@ -23,7 +23,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import coil3.compose.SubcomposeAsyncImage
-import lol.terabrendon.houseshare2.domain.model.UserModel
+import lol.terabrendon.houseshare2.domain.model.AvatarModel
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import kotlin.math.abs
 import kotlin.math.pow
 
@@ -36,13 +37,13 @@ private fun String.toHslColor(saturation: Float = 0.5f, lightness: Float = 0.4f)
 @Composable
 fun AvatarIcon(
     modifier: Modifier = Modifier,
-    user: UserModel? = null,
+    user: AvatarModel? = null,
     text: String? = null,
     size: Dp = 40.dp,
 ) {
     val density = LocalDensity.current
-    val firstName = user?.firstName ?: user?.username ?: ""
-    val lastName = user?.lastName ?: user?.username?.drop(1) ?: ""
+    val firstName = user?.firstName ?: ""
+    val lastName = user?.lastName ?: ""
 
     val color = remember(user) {
         val name = listOf(firstName, lastName).joinToString(separator = "").uppercase()
@@ -103,7 +104,7 @@ private fun IconUserPreview(
     @PreviewParameter(provider = Prev::class) size: Int,
 ) {
     AvatarIcon(
-        user = UserModel.default(),
+        user = GroupMemberModel.default(),
         size = size.dp
     )
 }

@@ -90,7 +90,7 @@ fun ShoppingItemDto.toEntity() = ShoppingItem(
     priority = priority,
     check = check?.let { dto ->
         ShoppingItem.CheckoffState(
-            checkingUserId = dto.checkingUserId,
+            checkingMemberId = dto.checkingMemberId,
             checkoffTimestamp = dto.checkoffTimestamp.toLocalDateTime(),
         )
     },

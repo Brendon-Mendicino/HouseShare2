@@ -55,6 +55,7 @@ import lol.terabrendon.houseshare2.domain.form.ExpenseFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.UserPartValidator
 import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
@@ -75,7 +76,7 @@ fun NewExpenseForm(
     onFinish: () -> Unit,
 ) {
     val expenseFormState by viewModel.expenseFormState.collectAsStateWithLifecycle()
-    val users by viewModel.users.collectAsStateWithLifecycle()
+    val users by viewModel.members.collectAsStateWithLifecycle()
     val userSelected by viewModel.userSelected.collectAsStateWithLifecycle()
     val simpleDivisionParts by viewModel.simpleDivisionParts.collectAsStateWithLifecycle()
 
@@ -113,7 +114,7 @@ fun NewExpenseForm(
 fun NewExpenseFormInner(
     modifier: Modifier = Modifier,
     state: ExpenseFormStateValidator,
-    users: List<UserModel>,
+    users: List<GroupMemberModel>,
     userSelected: List<Boolean>,
     simpleDivisionParts: List<Money>,
     onEvent: (ExpenseFormEvent) -> Unit = {},
@@ -205,7 +206,7 @@ fun NewExpenseFormInner(
                     .menuAnchor(PrimaryNotEditable),
                 readOnly = true,
                 param = state.payer,
-                value = state.payer.value?.username ?: "",
+                value = state.payer.value?.fullName ?: "",
                 onValueChange = {},
                 labelText = stringResource(R.string.payed_by),
                 leadingIcon = state.payer.value?.let { { AvatarIcon(user = it, size = 24.dp) } },

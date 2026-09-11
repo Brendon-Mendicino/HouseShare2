@@ -30,7 +30,8 @@ import androidx.room.PrimaryKey
 data class GroupMember(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
-    val username: String,
+    val firstName: String,
+    val lastName: String?,
     val groupId: Long,
     val picture: String?,
     val userId: Long?,

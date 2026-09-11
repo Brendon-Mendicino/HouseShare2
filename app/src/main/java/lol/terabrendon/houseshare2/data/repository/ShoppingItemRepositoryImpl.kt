@@ -116,7 +116,7 @@ class ShoppingItemRepositoryImpl @Inject constructor(
     override suspend fun checkoffItems(
         groupId: Long,
         shoppingItemIds: List<Long>,
-        userId: Long,
+        memberId: Long,
     ): DataResult<Unit> {
         val timestamp = OffsetDateTime.now()
 
@@ -126,19 +126,19 @@ class ShoppingItemRepositoryImpl @Inject constructor(
                     shoppingApi.checkShoppingItem(
                         groupId = groupId,
                         shoppingItemId = it,
-                        dto = CheckDto(checkingUserId = userId, checkoffTimestamp = timestamp),
+                        dto = CheckDto(checkingMemberId = memberId, checkoffTimestamp = timestamp),
                     ).bind()
 
                     localSafe {
                         shoppingItemDao.check(
                             it,
-                            userId,
+                            memberId,
                             timestamp.toLocalDateTime()
                         )
                     }.bind()
                 }
             }.joinAll()
-        }.onSuccess { Timber.i("checkoffItems: userId=%d itemIds=%s", userId, shoppingItemIds) }
+        }.onSuccess { Timber.i("checkoffItems: memberId=%d itemIds=%s", memberId, shoppingItemIds) }
 
         return Ok(Unit)
     }

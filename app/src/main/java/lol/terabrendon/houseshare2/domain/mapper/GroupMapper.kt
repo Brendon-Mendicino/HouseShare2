@@ -7,6 +7,7 @@ import lol.terabrendon.houseshare2.data.remote.dto.AppGroupDto
 import lol.terabrendon.houseshare2.domain.form.GroupFormState
 import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.domain.model.GroupModel
+import lol.terabrendon.houseshare2.domain.model.UserModel
 
 fun GroupModel.toDto() = AppGroupDto(
     id = info.groupId,
@@ -31,6 +32,7 @@ fun GroupFormState.toModel() = GroupModel(
         imageUrl = imageUrl?.toUri(),
     ),
     users = users,
+    members = listOf(),
 )
 
 fun Group.toModel() = GroupInfoModel(
@@ -48,6 +50,7 @@ fun GroupWithUsers.toModel() = GroupModel(
         imageUrl = group.imageUrl?.toUri(),
     ),
     users = users.map { it.toModel() },
+    members = members.map { it.toModel() },
 )
 
 fun AppGroupDto.toEntity() = Group(
@@ -55,4 +58,15 @@ fun AppGroupDto.toEntity() = Group(
     name = name,
     description = description,
     imageUrl = imageUrl,
+)
+
+fun AppGroupDto.toModel(userProvider: (Long) -> UserModel) = GroupModel(
+    info = GroupInfoModel(
+        groupId = id,
+        name = name,
+        description = description,
+        imageUrl = imageUrl?.toUri(),
+    ),
+    users = userIds.map { userProvider(it) },
+    members = members.map { it.toModel() }
 )

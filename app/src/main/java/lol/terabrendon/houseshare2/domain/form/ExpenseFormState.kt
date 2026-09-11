@@ -11,8 +11,8 @@ import io.github.brendonmendicino.aformvalidator.annotation.annotations.ToNumber
 import io.github.brendonmendicino.aformvalidator.core.DependsOn
 import io.github.brendonmendicino.aformvalidator.core.FormState
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.Money
-import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.sum
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.domain.model.toMoneyOrNull
@@ -36,7 +36,7 @@ data class ExpenseFormState(
     @NotNull
     val category: ExpenseCategory? = null,
     @NotNull
-    val payer: UserModel? = null,
+    val payer: GroupMemberModel? = null,
     val userParts: List<UserPart> = emptyList(),
     val simpleDivisionEnabled: Boolean = true,
 ) {

@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import lol.terabrendon.houseshare2.HouseShareApplication
 import lol.terabrendon.houseshare2.data.local.dao.ExpenseDao
 import lol.terabrendon.houseshare2.data.local.dao.GroupDao
+import lol.terabrendon.houseshare2.data.local.dao.GroupMemberDao
 import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.local.database.HouseShareDatabase
@@ -73,4 +74,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGroupDao(db: HouseShareDatabase): GroupDao = db.groupDao()
+
+    @Provides
+    @Singleton
+    fun provideGroupMemberDao(db: HouseShareDatabase): GroupMemberDao = db.groupMemberDao()
 }

@@ -36,11 +36,11 @@ data class ExpenseModel(
     /**
      * The user whom created the expense.
      */
-    val expenseOwner: UserModel,
+    val expenseOwner: GroupMemberModel,
     /**
      * The user whom payed the expense.
      */
-    val expensePayer: UserModel,
+    val expensePayer: GroupMemberModel,
     val groupId: Long,
     val category: ExpenseCategory,
     val title: String,
@@ -53,8 +53,8 @@ data class ExpenseModel(
         fun default(): ExpenseModel = ExpenseModel(
             id = 0,
             amount = 0.toMoney(),
-            expenseOwner = UserModel.default(),
-            expensePayer = UserModel.default(),
+            expenseOwner = GroupMemberModel.default(),
+            expensePayer = GroupMemberModel.default(),
             groupId = 0,
             category = ExpenseCategory.Car,
             title = "Title",
@@ -66,8 +66,8 @@ data class ExpenseModel(
         fun random(
             id: Long = Random.nextLong(),
             amount: Money = Random.nextDouble().toMoney(),
-            expenseOwner: UserModel = UserModel.default(),
-            expensePayer: UserModel = UserModel.default(),
+            expenseOwner: GroupMemberModel = GroupMemberModel.default(),
+            expensePayer: GroupMemberModel = GroupMemberModel.default(),
             groupId: Long = Random.nextLong(),
             category: ExpenseCategory = ExpenseCategory.Car,
             title: String = UUID.randomUUID().toString(),
@@ -90,13 +90,13 @@ data class ExpenseModel(
 }
 
 data class UserExpenseModel(
-    val user: UserModel,
+    val member: GroupMemberModel,
     val partAmount: Money,
 ) {
     companion object {
         @JvmStatic
         fun default(): UserExpenseModel =
-            UserExpenseModel(user = UserModel.default(), partAmount = 0.toMoney())
+            UserExpenseModel(member = GroupMemberModel.default(), partAmount = 0.toMoney())
 
     }
 }

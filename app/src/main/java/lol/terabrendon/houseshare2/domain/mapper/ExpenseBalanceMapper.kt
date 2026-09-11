@@ -19,8 +19,8 @@ class ExpenseBalanceMapper @Inject constructor() {
         .flatMap { expense ->
             val debts = expense
                 .userExpenses
-                .filter { participant -> participant.user.id != expense.expensePayer.id }
-                .map { participant -> Pair(participant.user, -participant.partAmount) }
+                .filter { participant -> participant.member.id != expense.expensePayer.id }
+                .map { participant -> Pair(participant.member, -participant.partAmount) }
 
             // Add the payer of the expense with a positive debt
             val credit = Pair(expense.expensePayer, debts.map { -it.second }.sum())

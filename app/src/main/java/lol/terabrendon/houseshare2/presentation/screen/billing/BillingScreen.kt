@@ -77,8 +77,8 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
-import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.ChooseGroup
@@ -219,7 +219,7 @@ private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: Bi
             Spacer(Modifier.requiredWidth(16.dp))
 
             Text(
-                text = billingBalance.user.username,
+                text = billingBalance.user.firstName,
                 modifier = Modifier.weight(1f),
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -302,7 +302,7 @@ private fun ExpenseItem(
                     Text(
                         text = stringResource(
                             R.string.paid,
-                            expense.expensePayer.username,
+                            expense.expensePayer.fullName,
                             expense.amount.toCurrency()
                         ),
                         modifier = Modifier.weight(1f),
@@ -322,7 +322,7 @@ private fun ExpenseItem(
                     ) {
                         UsersAvatar(
                             modifier = Modifier.padding(start = 8.dp),
-                            users = expense.userExpenses.map { it.user },
+                            users = expense.userExpenses.map { it.member },
                             avatarSize = 24.dp,
                         )
                     }
@@ -361,12 +361,12 @@ private fun ExpenseItem(
                             .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        AvatarIcon(user = item.user, size = 24.dp)
+                        AvatarIcon(user = item.member, size = 24.dp)
 
                         Spacer(Modifier.requiredWidth(16.dp))
 
                         Text(
-                            text = "${item.user.username}: ${item.partAmount.toCurrency()}",
+                            text = "${item.member.fullName}: ${item.partAmount.toCurrency()}",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -445,7 +445,7 @@ private fun NoExpensePreview() {
 @Preview(showBackground = true)
 @Composable
 private fun ExpensesPreview() {
-    val users = List(5) { UserModel.random().copy(id = it.toLong(), username = "User $it") }
+    val users = List(5) { GroupMemberModel.random().copy(id = it.toLong(), firstName = "User $it") }
 
     val e = listOf(
         ExpenseModel.random(
@@ -494,9 +494,9 @@ private fun ExpensesPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun ExpenseItemPreview() {
-    val alice = UserModel.default().copy(id = 1, username = "Alice")
-    val bob = UserModel.default().copy(id = 2, username = "Bob")
-    val charlie = UserModel.default().copy(id = 3, username = "Charlie")
+    val alice = GroupMemberModel.default().copy(id = 1, firstName = "Alice")
+    val bob = GroupMemberModel.default().copy(id = 2, firstName = "Bob")
+    val charlie = GroupMemberModel.default().copy(id = 3, firstName = "Charlie")
 
     val expense = ExpenseModel.default().copy(
         id = 1,

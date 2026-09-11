@@ -64,6 +64,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.form.GroupFormState
 import lol.terabrendon.houseshare2.domain.form.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.toValidator
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
@@ -111,7 +112,7 @@ fun GroupUsersFormScreen(
 @Composable
 private fun GroupUsersFormScreenInner(
     groupFormState: GroupFormStateValidator,
-    users: List<UserModel>,
+    users: List<GroupMemberModel>,
     selectedUsers: Set<Long>,
     onNext: () -> Unit,
     onEvent: (GroupFormEvent) -> Unit,
@@ -196,13 +197,13 @@ private fun GroupUsersFormScreenInner(
 @Composable
 private fun UserListItem(
     modifier: Modifier = Modifier,
-    user: UserModel,
+    user: GroupMemberModel,
     selected: Boolean,
-    onClick: (UserModel) -> Unit,
+    onClick: (GroupMemberModel) -> Unit,
 ) {
     ListItem(
         modifier = modifier.clickable { onClick(user) },
-        headlineContent = { Text(user.username) },
+        headlineContent = { Text(user.fullName) },
         leadingContent = {
             // Better selection indicator: swap avatar for checkmark or overlay
             Box {
@@ -233,10 +234,10 @@ private fun UserListItem(
 @Composable
 private fun SelectedUserItem(
     modifier: Modifier = Modifier,
-    user: UserModel,
+    user: GroupMemberModel,
     selected: Boolean,
     onSelected: (chipBounds: Rect?) -> Unit,
-    onSelectedClick: (UserModel) -> Unit,
+    onSelectedClick: (GroupMemberModel) -> Unit,
 ) {
     var chipBounds by remember { mutableStateOf<Rect?>(null) }
     val backgroundColor by animateColorAsState(
@@ -263,7 +264,7 @@ private fun SelectedUserItem(
             }
         },
         label = {
-            Text(text = user.username)
+            Text(text = user.fullName)
         },
         colors = InputChipDefaults.inputChipColors(
             containerColor = backgroundColor,

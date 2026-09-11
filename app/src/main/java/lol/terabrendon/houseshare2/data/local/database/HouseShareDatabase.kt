@@ -13,6 +13,7 @@ import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 import lol.terabrendon.houseshare2.data.entity.User
 import lol.terabrendon.houseshare2.data.local.dao.ExpenseDao
 import lol.terabrendon.houseshare2.data.local.dao.GroupDao
+import lol.terabrendon.houseshare2.data.local.dao.GroupMemberDao
 import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
 
@@ -38,4 +39,6 @@ abstract class HouseShareDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     abstract fun groupDao(): GroupDao
+
+    abstract fun groupMemberDao(): GroupMemberDao
 }

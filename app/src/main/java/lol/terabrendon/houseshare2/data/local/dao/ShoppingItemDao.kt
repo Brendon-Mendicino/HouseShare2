@@ -24,7 +24,7 @@ interface ShoppingItemDao {
         "select s.* from ShoppingItem as s " +
                 "join (select id, (case priority when 'Now' then 3 when 'Soon' then 2 when 'Later' then 1 end) as pid from ShoppingItem) as prio on s.id=prio.id " +
                 "join `User` as u on u.id=s.ownerId " +
-                "where groupId=:groupId and checkingUserId is null " +
+                "where groupId=:groupId and checkingMemberId is null " +
                 "order by " +
                 "case :sorting " +
                 "   when 'CreationDate' then creationTimestamp " +
@@ -44,7 +44,7 @@ interface ShoppingItemDao {
         "select s.* from ShoppingItem as s " +
                 "join (select id, (case priority when 'Now' then 3 when 'Soon' then 2 when 'Later' then 1 end) as pid from ShoppingItem) as prio on s.id=prio.id " +
                 "join `User` as u on u.id=s.ownerId " +
-                "where groupId=:groupId and not checkingUserId is null " +
+                "where groupId=:groupId and not checkingMemberId is null " +
                 "order by " +
                 "case :sorting " +
                 "   when 'CreationDate' then creationTimestamp " +
@@ -76,9 +76,9 @@ interface ShoppingItemDao {
     @Query("delete from ShoppingItem where id=:shoppingItemId")
     suspend fun deleteById(shoppingItemId: Long)
 
-    @Query("update ShoppingItem set checkingUserId=:checkingUserId, checkoffTimestamp=:checkoffTimestamp where id=:shoppingItemId")
+    @Query("update ShoppingItem set checkingMemberId=:checkingUserId, checkoffTimestamp=:checkoffTimestamp where id=:shoppingItemId")
     suspend fun check(shoppingItemId: Long, checkingUserId: Long, checkoffTimestamp: LocalDateTime)
 
-    @Query("update ShoppingItem set checkingUserId=null, checkoffTimestamp=null where id=:shoppingItemId")
+    @Query("update ShoppingItem set checkingMemberId=null, checkoffTimestamp=null where id=:shoppingItemId")
     suspend fun uncheck(shoppingItemId: Long)
 }

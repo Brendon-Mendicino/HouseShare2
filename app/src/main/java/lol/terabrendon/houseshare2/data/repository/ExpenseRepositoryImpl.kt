@@ -5,17 +5,12 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.getOrElse
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import lol.terabrendon.houseshare2.data.local.dao.ExpenseDao
-import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.local.util.localSafe
 import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
 import lol.terabrendon.houseshare2.data.util.DataResult
@@ -30,10 +25,9 @@ import javax.inject.Inject
 class ExpenseRepositoryImpl @Inject constructor(
     private val expenseDao: ExpenseDao,
     private val expenseApi: ExpenseApi,
+    private val groupRepository: GroupRepository,
     @param:IoDispatcher
     private val ioDispatcher: CoroutineDispatcher,
-    private val userRepository: UserRepository,
-    private val userDao: UserDao,
 ) : ExpenseRepository {
     override fun findAll(): Flow<List<ExpenseModel>> = expenseDao.findAll().map { expenses ->
         expenses.map { it.toModel() }
@@ -66,14 +60,12 @@ class ExpenseRepositoryImpl @Inject constructor(
         // Get remote dto
         val dto = expenseApi.getExpenses(groupId).getOrElse { return@withContext Err(it) }.content
 
-        // Refresh expenses users not already present in the db
+        // Refresh expenses owners not already present in the db
         dto
             .flatMap { expense -> expense.expenseParts.map { it.memberId } }
             .distinct()
-            .asFlow()
-            .filter { userId -> !userDao.existById(userId) }
-            .onEach { userId -> userRepository.refreshGroupUser(groupId, userId) }
-            .collect()
+            .map { memberId -> launch { groupRepository.findOrFetchMember(groupId, memberId) } }
+            .joinAll()
 
         // Upsert all the expenses
         dto

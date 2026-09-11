@@ -8,18 +8,6 @@ import javax.annotation.CheckReturnValue
 
 @CheckReturnValue
 interface UserApi {
-    @GET("groups/{groupId}/users")
-    suspend fun getGroupUsers(@Path("groupId") groupId: Long): NetResult<List<AppUserDto>>
-
-    /**
-     * Use this route to get users in a group.
-     */
-    @GET("groups/{groupId}/users/{userId}")
-    suspend fun getGroupUser(
-        @Path("groupId") groupId: Long,
-        @Path("userId") userId: Long,
-    ): NetResult<AppUserDto>
-
     @GET("users/{userId}/groups")
     suspend fun getGroups(@Path("userId") userId: Long): NetResult<List<AppGroupDto>>
 

@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseBalanceMapper
 import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
-import lol.terabrendon.houseshare2.domain.model.UserModel
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
@@ -33,7 +33,7 @@ class BillingViewModel @Inject constructor(
         @JvmStatic
         private fun addMissingUsers(
             expenses: Map<Long, BillingBalanceModel>,
-            groupUsers: Map<Long, UserModel>,
+            groupUsers: Map<Long, GroupMemberModel>,
         ): List<BillingBalanceModel> {
             val missingUsers = groupUsers.keys - expenses.keys
 
@@ -61,8 +61,8 @@ class BillingViewModel @Inject constructor(
         }
     }
 
-    val groupUsers = currentGroup.filterNotNull()
-        .map { it.users.associateBy { user -> user.id } }
+    val groupMembers = currentGroup.filterNotNull()
+        .map { it.members.associateBy { user -> user.id } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyMap())
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -77,7 +77,7 @@ class BillingViewModel @Inject constructor(
         .map(expenseBalanceMapper::map)
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
 
-    val balances = combine(partialBalances, groupUsers, ::addMissingUsers)
+    val balances = combine(partialBalances, groupMembers, ::addMissingUsers)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 }
 

@@ -1,8 +1,11 @@
 package lol.terabrendon.houseshare2.data.remote.api
 
 import lol.terabrendon.houseshare2.data.remote.dto.AppGroupDto
+import lol.terabrendon.houseshare2.data.remote.dto.AppUserDto
+import lol.terabrendon.houseshare2.data.remote.dto.GroupMemberDto
 import lol.terabrendon.houseshare2.data.remote.dto.InviteUrlDto
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -19,6 +22,27 @@ interface GroupApi {
         @Path("groupId") groupId: Long,
         @Body group: AppGroupDto,
     ): NetResult<AppGroupDto>
+
+    @GET("groups/{groupId}/users")
+    suspend fun getGroupUsers(@Path("groupId") groupId: Long): NetResult<List<AppUserDto>>
+
+    /**
+     * Use this route to get users in a group.
+     */
+    @GET("groups/{groupId}/users/{userId}")
+    suspend fun getGroupUser(
+        @Path("groupId") groupId: Long,
+        @Path("userId") userId: Long,
+    ): NetResult<AppUserDto>
+
+    @GET("groups/{groupId}/members")
+    suspend fun getGroupMembers(@Path("groupId") groupId: Long): NetResult<List<GroupMemberDto>>
+
+    @GET("groups/{groupId}/members/{memberId}")
+    suspend fun getGroupMember(
+        @Path("groupId") groupId: Long,
+        @Path("memberId") memberId: Long,
+    ): NetResult<GroupMemberDto>
 
     @POST("groups/{groupId}/invite")
     suspend fun inviteUrl(@Path("groupId") groupId: Long): NetResult<InviteUrlDto>

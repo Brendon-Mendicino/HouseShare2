@@ -8,10 +8,10 @@ data class UserModel(
     val id: Long,
     val username: String,
     val email: String?,
-    val firstName: String?,
-    val lastName: String?,
+    override val firstName: String?,
+    override val lastName: String?,
     val picture: Uri?,
-) {
+) : AvatarModel {
     companion object {
         @JvmStatic
         fun default(): UserModel = UserModel(

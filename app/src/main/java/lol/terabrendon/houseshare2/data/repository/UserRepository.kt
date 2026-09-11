@@ -2,7 +2,6 @@ package lol.terabrendon.houseshare2.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.data.util.DataResult
-import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 
 interface UserRepository {
@@ -13,11 +12,5 @@ interface UserRepository {
 
     fun findAllById(ids: List<Long>): Flow<List<UserModel>>
 
-    fun findGroupsByUserId(userId: Long): Flow<List<GroupInfoModel>>
-
     suspend fun refreshUsers(): DataResult<Unit>
-
-    suspend fun refreshGroupUsers(groupId: Long): DataResult<Unit>
-
-    suspend fun refreshGroupUser(groupId: Long, userId: Long): DataResult<Unit>
 }
