@@ -33,6 +33,7 @@ import lol.terabrendon.houseshare2.domain.model.GroupInfoModel
 import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.GroupModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
+import lol.terabrendon.houseshare2.util.zip
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -44,8 +45,7 @@ class GroupRepositoryImpl @Inject constructor(
     private val groupApi: GroupApi,
     private val userApi: UserApi,
     private val externalScope: CoroutineScope,
-    @param:IoDispatcher
-    private val io: CoroutineDispatcher,
+    @param:IoDispatcher private val io: CoroutineDispatcher,
 ) : GroupRepository {
     // TODO: consider something else?
     private val refreshGroups = AtomicBoolean(false)
@@ -57,7 +57,8 @@ class GroupRepositoryImpl @Inject constructor(
         val group = dto.toEntity()
 
         return localSafe {
-            val userIds = userDao.upsertAll(users)
+            val upsertIds = userDao.upsertAll(users).toList()
+            val userIds = zip(users, upsertIds) { user, id -> if (id == -1L) user.id else id }
             groupDao.upsertGroup(group, userIds.toList())
             groupMemberDao.upsertAll(members)
 
