@@ -1,17 +1,8 @@
 package lol.terabrendon.houseshare2.data.local.database
 
-import androidx.room.testing.MigrationTestHelper
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-
-@RunWith(AndroidJUnit4::class)
+@Deprecated(message = "Deprecated since the dbV2 migration")
 class Migration1To2Test {
+    /*
     companion object {
         private const val TEST_DB = "group-migration-test"
     }
@@ -74,4 +65,5 @@ class Migration1To2Test {
         assertTrue(found)
         cursor.close()
     }
+     */
 }

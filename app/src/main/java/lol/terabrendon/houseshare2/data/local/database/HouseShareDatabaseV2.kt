@@ -27,11 +27,11 @@ import lol.terabrendon.houseshare2.data.local.dao.UserDao
         GroupUserCrossRef::class,
         GroupMember::class,
     ],
-    version = 3,
+    version = 1,
     exportSchema = true,
 )
 @TypeConverters(DateConverter::class, Expense.Converter::class)
-abstract class HouseShareDatabase : RoomDatabase() {
+abstract class HouseShareDatabaseV2 : RoomDatabase() {
     abstract fun shoppingItemDao(): ShoppingItemDao
 
     abstract fun expenseDao(): ExpenseDao

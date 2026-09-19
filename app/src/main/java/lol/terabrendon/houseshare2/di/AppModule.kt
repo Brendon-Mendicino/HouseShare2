@@ -19,7 +19,7 @@ import lol.terabrendon.houseshare2.data.local.dao.GroupDao
 import lol.terabrendon.houseshare2.data.local.dao.GroupMemberDao
 import lol.terabrendon.houseshare2.data.local.dao.ShoppingItemDao
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
-import lol.terabrendon.houseshare2.data.local.database.HouseShareDatabase
+import lol.terabrendon.houseshare2.data.local.database.HouseShareDatabaseV2
 import lol.terabrendon.houseshare2.data.local.preferences.UserData
 import lol.terabrendon.houseshare2.data.local.preferences.userPreferencesStore
 import javax.inject.Singleton
@@ -43,10 +43,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideHouseShareDatabase(@ApplicationContext applicationContext: Context): HouseShareDatabase =
+    fun provideHouseShareDatabase(@ApplicationContext applicationContext: Context): HouseShareDatabaseV2 =
         Room
             .databaseBuilder(
-                applicationContext, HouseShareDatabase::class.java, "house_share_db"
+                applicationContext, HouseShareDatabaseV2::class.java, "house_share_db_v2"
             )
 //            .addMigrations(MIGRATION_1_2)
             .fallbackToDestructiveMigration(true)
@@ -57,25 +57,25 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRoomDatabase(db: HouseShareDatabase): RoomDatabase = db
+    fun provideRoomDatabase(db: HouseShareDatabaseV2): RoomDatabase = db
 
     @Provides
     @Singleton
-    fun provideShoppingItemDao(db: HouseShareDatabase): ShoppingItemDao = db.shoppingItemDao()
+    fun provideShoppingItemDao(db: HouseShareDatabaseV2): ShoppingItemDao = db.shoppingItemDao()
 
     @Provides
     @Singleton
-    fun provideExpenseDao(db: HouseShareDatabase): ExpenseDao = db.expenseDao()
+    fun provideExpenseDao(db: HouseShareDatabaseV2): ExpenseDao = db.expenseDao()
 
     @Provides
     @Singleton
-    fun provideUserDao(db: HouseShareDatabase): UserDao = db.userDao()
+    fun provideUserDao(db: HouseShareDatabaseV2): UserDao = db.userDao()
 
     @Provides
     @Singleton
-    fun provideGroupDao(db: HouseShareDatabase): GroupDao = db.groupDao()
+    fun provideGroupDao(db: HouseShareDatabaseV2): GroupDao = db.groupDao()
 
     @Provides
     @Singleton
-    fun provideGroupMemberDao(db: HouseShareDatabase): GroupMemberDao = db.groupMemberDao()
+    fun provideGroupMemberDao(db: HouseShareDatabaseV2): GroupMemberDao = db.groupMemberDao()
 }
