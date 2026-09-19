@@ -60,11 +60,12 @@ android {
 
     buildTypes {
         debug {
+            // Local server (for emulator)
 //            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:9090/\"")
-            // Local server
-//            buildConfigField("String", "BASE_URL", "\"http://192.168.1.150:9090/\"")
-            // Remote server
-            buildConfigField("String", "BASE_URL", "\"https://houseshare.hollowinsidepizza.xyz/\"")
+            // LAN server (for when deploying on the phone)
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.150:9090/\"")
+            // Remote server (for testing production)
+//            buildConfigField("String", "BASE_URL", "\"https://houseshare.hollowinsidepizza.xyz/\"")
             signingConfig = signingConfigs.getByName("debug")
         }
         release {

@@ -8,7 +8,7 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.data.entity.Expense
 import lol.terabrendon.houseshare2.data.entity.ExpensePart
-import lol.terabrendon.houseshare2.data.entity.composite.ExpenseWithUsers
+import lol.terabrendon.houseshare2.data.entity.composite.ExpenseWithMembers
 
 @Dao
 interface ExpenseDao {
@@ -64,13 +64,13 @@ interface ExpenseDao {
 
     @Query("SELECT * FROM Expense")
     @Transaction
-    fun findAll(): Flow<List<ExpenseWithUsers>>
+    fun findAll(): Flow<List<ExpenseWithMembers>>
 
     @Transaction
     @Query("SELECT * FROM Expense WHERE groupId=:groupId")
-    fun findByGroupId(groupId: Long): Flow<List<ExpenseWithUsers>>
+    fun findByGroupId(groupId: Long): Flow<List<ExpenseWithMembers>>
 
     @Query("SELECT * FROM Expense WHERE id=:expenseId")
     @Transaction
-    fun findByExpenseId(expenseId: Int): Flow<ExpenseWithUsers>
+    fun findByExpenseId(expenseId: Int): Flow<ExpenseWithMembers>
 }

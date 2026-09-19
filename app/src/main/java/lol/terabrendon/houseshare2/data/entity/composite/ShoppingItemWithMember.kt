@@ -5,7 +5,7 @@ import androidx.room.Relation
 import lol.terabrendon.houseshare2.data.entity.GroupMember
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
 
-data class ShoppingItemWithUser(
+data class ShoppingItemWithMember(
     @Embedded
     val item: ShoppingItem,
     @Relation(
@@ -17,5 +17,5 @@ data class ShoppingItemWithUser(
         parentColumn = "checkingMemberId",
         entityColumn = "id",
     )
-    val checkingUser: GroupMember?,
+    val checkingMember: GroupMember?,
 )

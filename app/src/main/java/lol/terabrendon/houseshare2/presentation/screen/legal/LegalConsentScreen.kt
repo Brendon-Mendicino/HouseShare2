@@ -134,7 +134,7 @@ private fun LegalConsentInner(
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // Privacy / Crashlytics Opt-In (GDPR compliant)
+        // Privacy / Crashlytics Opt-In (GDPR-compliant)
         ListItem(
             headlineContent = { Text(stringResource(R.string.help_us_improve)) },
             supportingContent = {
@@ -159,7 +159,7 @@ private fun LegalConsentInner(
             enabled = state.termsAccepted, // User MUST accept terms to proceed
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Get Started")
+            Text(stringResource(R.string.get_started))
         }
     }
 }

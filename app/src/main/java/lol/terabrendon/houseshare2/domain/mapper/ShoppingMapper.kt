@@ -3,7 +3,7 @@ package lol.terabrendon.houseshare2.domain.mapper
 import androidx.annotation.StringRes
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
-import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
+import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithMember
 import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormState
@@ -26,13 +26,13 @@ fun ShoppingItem.toModel() = ShoppingItemInfoModel(
     priority = priority,
 )
 
-fun ShoppingItemWithUser.toModel() = ShoppingItemModel(
+fun ShoppingItemWithMember.toModel() = ShoppingItemModel(
     info = item.toModel(),
     itemOwner = itemOwner.toModel(),
-    checkoffState = if (checkingUser == null || item.check == null) null
+    checkoffState = if (checkingMember == null || item.check == null) null
     else CheckoffStateModel(
         checkoffTime = item.check.checkoffTimestamp,
-        checkoffUser = checkingUser.toModel(),
+        checkoffMember = checkingMember.toModel(),
     ),
 )
 

@@ -4,13 +4,13 @@ import java.time.LocalDateTime
 
 data class CheckoffStateModel(
     val checkoffTime: LocalDateTime,
-    val checkoffUser: GroupMemberModel,
+    val checkoffMember: GroupMemberModel,
 ) {
     companion object {
         @JvmStatic
         fun default() = CheckoffStateModel(
             checkoffTime = LocalDateTime.now(),
-            checkoffUser = GroupMemberModel.default(),
+            checkoffMember = GroupMemberModel.default(),
         )
     }
 }

@@ -5,7 +5,7 @@ import androidx.room.Relation
 import lol.terabrendon.houseshare2.data.entity.ExpensePart
 import lol.terabrendon.houseshare2.data.entity.GroupMember
 
-data class PaymentWithUser(
+data class PaymentWithMember(
     @Embedded
     val expensePart: ExpensePart,
     @Relation(

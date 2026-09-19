@@ -171,12 +171,12 @@ private fun ShoppingItemInner(
                 return@AnimatedVisibility
 
             ItemField(
-                text = checkInner!!.checkoffUser.fullName,
+                text = checkInner!!.checkoffMember.fullName,
                 label = stringResource(R.string.checked_by),
                 leadingIcon = {
                     AvatarIcon(
                         modifier = Modifier.padding(horizontal = 8.dp),
-                        user = checkInner!!.checkoffUser
+                        user = checkInner!!.checkoffMember
                     )
                 })
         }

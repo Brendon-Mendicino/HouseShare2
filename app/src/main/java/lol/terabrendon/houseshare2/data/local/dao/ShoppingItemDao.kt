@@ -7,7 +7,7 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import lol.terabrendon.houseshare2.data.entity.ShoppingItem
-import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithUser
+import lol.terabrendon.houseshare2.data.entity.composite.ShoppingItemWithMember
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import java.time.LocalDateTime
 
@@ -18,7 +18,7 @@ interface ShoppingItemDao {
 
     @Query("SELECT * FROM ShoppingItem WHERE groupId=:groupId")
     @Transaction
-    fun findAllByGroupId(groupId: Long): Flow<List<ShoppingItemWithUser>>
+    fun findAllByGroupId(groupId: Long): Flow<List<ShoppingItemWithMember>>
 
     @Query(
         "select s.* from ShoppingItem as s " +
@@ -38,7 +38,7 @@ interface ShoppingItemDao {
     fun findUnchecked(
         groupId: Long,
         sorting: ShoppingItemRepository.Sorting = ShoppingItemRepository.Sorting.CreationDate,
-    ): Flow<List<ShoppingItemWithUser>>
+    ): Flow<List<ShoppingItemWithMember>>
 
     @Query(
         "select s.* from ShoppingItem as s " +
@@ -58,11 +58,11 @@ interface ShoppingItemDao {
     fun findChecked(
         groupId: Long,
         sorting: ShoppingItemRepository.Sorting = ShoppingItemRepository.Sorting.CreationDate,
-    ): Flow<List<ShoppingItemWithUser>>
+    ): Flow<List<ShoppingItemWithMember>>
 
     @Query("SELECT * FROM ShoppingItem WHERE id=:id")
     @Transaction
-    fun findById(id: Long): Flow<ShoppingItemWithUser?>
+    fun findById(id: Long): Flow<ShoppingItemWithMember?>
 
     @Insert
     suspend fun insert(shoppingItem: ShoppingItem): Long

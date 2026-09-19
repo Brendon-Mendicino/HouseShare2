@@ -2,8 +2,8 @@ package lol.terabrendon.houseshare2.domain.mapper
 
 import lol.terabrendon.houseshare2.data.entity.Expense
 import lol.terabrendon.houseshare2.data.entity.ExpensePart
-import lol.terabrendon.houseshare2.data.entity.composite.ExpenseWithUsers
-import lol.terabrendon.houseshare2.data.entity.composite.PaymentWithUser
+import lol.terabrendon.houseshare2.data.entity.composite.ExpenseWithMembers
+import lol.terabrendon.houseshare2.data.entity.composite.PaymentWithMember
 import lol.terabrendon.houseshare2.data.remote.dto.ExpenseDto
 import lol.terabrendon.houseshare2.data.remote.dto.ExpensePartDto
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
@@ -60,12 +60,12 @@ fun ExpenseModel.toEntity() = Expense(
     creationTimestamp = creationTimestamp,
 )
 
-fun PaymentWithUser.toModel() = UserExpenseModel(
+fun PaymentWithMember.toModel() = UserExpenseModel(
     member = member.toModel(),
     partAmount = Money.fromCompact(expensePart.partAmount),
 )
 
-fun ExpenseWithUsers.toModel() = ExpenseModel(
+fun ExpenseWithMembers.toModel() = ExpenseModel(
     id = expense.id,
     amount = expensesWithUser.map { Money.fromCompact(it.expensePart.partAmount) }.sum(),
     expenseOwner = owner.toModel(),

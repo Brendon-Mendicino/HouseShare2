@@ -6,7 +6,7 @@ import lol.terabrendon.houseshare2.data.entity.Expense
 import lol.terabrendon.houseshare2.data.entity.ExpensePart
 import lol.terabrendon.houseshare2.data.entity.GroupMember
 
-data class ExpenseWithUsers(
+data class ExpenseWithMembers(
     @Embedded
     val expense: Expense,
     @Relation(
@@ -24,5 +24,5 @@ data class ExpenseWithUsers(
         parentColumn = "id",
         entityColumn = "expenseId"
     )
-    val expensesWithUser: List<PaymentWithUser>,
+    val expensesWithUser: List<PaymentWithMember>,
 )
