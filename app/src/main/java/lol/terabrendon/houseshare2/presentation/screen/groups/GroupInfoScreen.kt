@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -53,6 +54,9 @@ import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
+import lol.terabrendon.houseshare2.presentation.provider.FabConfig
+import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
+import lol.terabrendon.houseshare2.presentation.util.UiText
 import lol.terabrendon.houseshare2.presentation.vm.GroupInfoViewModel
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.ObserveAsEvent
@@ -69,6 +73,19 @@ fun GroupInfoScreen(
 
     RegisterBackNavIcon(
         onClick = { navigator.pop() },
+        route = HomepageNavigation.GroupInfo::class,
+    )
+
+    RegisterFabConfig(
+        config = FabConfig.Fab(
+            text = UiText.Res(R.string.add_member),
+            icon = { Icon(Icons.Filled.PersonAdd, contentDescription = null) },
+            onClick = {
+                group?.let {
+                    navigator.navigate(HomepageNavigation.GroupMemberForm(groupId = it.info.groupId))
+                }
+            },
+        ),
         route = HomepageNavigation.GroupInfo::class,
     )
 

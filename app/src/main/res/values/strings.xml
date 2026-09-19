@@ -121,6 +121,7 @@
     <string name="session_expired_please_sign_in_again">Session expired. Please sign in again.</string>
     <string name="network_error">Network error</string>
     <string name="invite_members">Invite Members</string>
+    <string name="add_member">Add Member</string>
     <string name="active_members">%1$d active members</string>
     <string name="members">Members</string>
     <string name="you_have_no_friends_yet">You have no friends yet 🥺</string>
@@ -151,4 +152,5 @@
     <string name="member">Member</string>
     <string name="no_expenses_yet">No expenses yet</string>
     <string name="add_an_expense_to_get_started">Add an expense to get started</string>
+    <string name="get_started">Get Started</string>
 </resources>

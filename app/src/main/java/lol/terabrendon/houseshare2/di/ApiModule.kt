@@ -21,6 +21,7 @@ import lol.terabrendon.houseshare2.domain.typeadapter.OffsetDateTimeSerde
 import okhttp3.CookieJar
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -54,6 +55,13 @@ object ApiModule {
 
     private val csrfManager = CsrfInterceptor()
 
+    // Logs full request/response bodies in debug builds only, so cookies/PII never
+    // hit Logcat in release.
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+        else HttpLoggingInterceptor.Level.NONE
+    }
+
     @Provides
     @Singleton
     fun provideRetrofit(cookieManager: CookieJar): Retrofit = Retrofit.Builder()
@@ -74,9 +82,7 @@ object ApiModule {
                 .followRedirects(false)
                 .cookieJar(cookieManager)
                 .addNetworkInterceptor(csrfManager)
-//                .addNetworkInterceptor(HttpLoggingInterceptor().apply {
-//                    level = HttpLoggingInterceptor.Level.HEADERS
-//                })
+                .addInterceptor(loggingInterceptor)
                 .build()
         )
         .build()
@@ -108,9 +114,7 @@ object ApiModule {
                     .followRedirects(false)
                     .cookieJar(cookieManager)
                     .addNetworkInterceptor(csrfManager)
-//                    .addNetworkInterceptor(HttpLoggingInterceptor().apply {
-//                        level = HttpLoggingInterceptor.Level.HEADERS
-//                    })
+                    .addInterceptor(loggingInterceptor)
                     .build()
             )
             .build()

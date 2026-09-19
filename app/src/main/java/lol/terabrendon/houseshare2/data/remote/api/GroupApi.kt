@@ -44,6 +44,12 @@ interface GroupApi {
         @Path("memberId") memberId: Long,
     ): NetResult<GroupMemberDto>
 
+    @POST("groups/{groupId}/members")
+    suspend fun addMember(
+        @Path("groupId") groupId: Long,
+        @Body member: GroupMemberDto,
+    ): NetResult<GroupMemberDto>
+
     @POST("groups/{groupId}/invite")
     suspend fun inviteUrl(@Path("groupId") groupId: Long): NetResult<InviteUrlDto>
 

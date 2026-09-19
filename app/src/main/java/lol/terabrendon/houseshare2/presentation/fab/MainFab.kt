@@ -142,6 +142,7 @@ private fun MainNavigation.fabIcon(): ImageVector = when (this) {
     is HomepageNavigation.Groups -> Icons.Filled.Add
     is HomepageNavigation.GroupUsersForm -> Icons.AutoMirrored.Filled.ArrowForward
     is HomepageNavigation.GroupInfoForm -> Icons.Filled.Check
+    is HomepageNavigation.GroupMemberForm -> Icons.Filled.Check
     is HomepageNavigation.ExpenseForm -> Icons.Filled.Check
     is HomepageNavigation.ShoppingForm -> Icons.Filled.Check
 

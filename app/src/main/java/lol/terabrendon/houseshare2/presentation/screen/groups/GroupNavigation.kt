@@ -5,12 +5,14 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import lol.terabrendon.houseshare2.presentation.navigation.Navigator
 import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupInfoFormScreen
+import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupMemberFormScreen
 import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupUsersFormScreen
 import lol.terabrendon.houseshare2.presentation.util.TOP_LEVEL_TRANSITION
 import lol.terabrendon.houseshare2.presentation.util.contentKey
 import lol.terabrendon.houseshare2.presentation.util.parent
 import lol.terabrendon.houseshare2.presentation.vm.GroupFormViewModel
 import lol.terabrendon.houseshare2.presentation.vm.GroupInfoViewModel
+import lol.terabrendon.houseshare2.presentation.vm.GroupMemberFormViewModel
 
 fun EntryProviderScope<MainNavigation>.groupNavigation(
     navigator: Navigator<MainNavigation>,
@@ -25,6 +27,16 @@ fun EntryProviderScope<MainNavigation>.groupNavigation(
         val vm = GroupInfoViewModel.create(key)
 
         GroupInfoScreen(viewModel = vm, navigator = navigator)
+    }
+
+    entry<HomepageNavigation.GroupMemberForm> { key ->
+        val vm = GroupMemberFormViewModel.create(key)
+
+        GroupMemberFormScreen(
+            viewModel = vm,
+            onBack = { navigator.pop() },
+            onSubmit = { navigator.pop() },
+        )
     }
 
     entry<HomepageNavigation.GroupUsersForm>(
