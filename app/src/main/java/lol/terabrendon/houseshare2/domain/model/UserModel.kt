@@ -10,7 +10,7 @@ data class UserModel(
     val email: String?,
     override val firstName: String?,
     override val lastName: String?,
-    val picture: Uri?,
+    override val picture: Uri?,
 ) : AvatarModel {
     companion object {
         @JvmStatic

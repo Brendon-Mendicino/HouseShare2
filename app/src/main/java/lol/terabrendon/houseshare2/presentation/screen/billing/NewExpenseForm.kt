@@ -57,7 +57,6 @@ import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.model.ExpenseCategory
 import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.Money
-import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.presentation.components.AvatarIcon
 import lol.terabrendon.houseshare2.presentation.components.FormOutlinedTextField
 import lol.terabrendon.houseshare2.presentation.components.RegisterBackNavIcon
@@ -223,7 +222,7 @@ fun NewExpenseFormInner(
             ) {
                 users.forEach { user ->
                     DropdownMenuItem(
-                        text = { Text(user.username, maxLines = 1) },
+                        text = { Text(user.fullName, maxLines = 1) },
                         leadingIcon = { AvatarIcon(user = user, size = 24.dp) },
                         onClick = {
                             onEvent(ExpenseFormEvent.PayerChanged(user))
@@ -285,7 +284,7 @@ fun NewExpenseFormInner(
                             SimplePartItem(
                                 selected = selected,
                                 money = money,
-                                username = user.username,
+                                username = user.fullName,
                                 onToggle = {
                                     onEvent(ExpenseFormEvent.SimpleDivisionUserToggled(index))
                                 },
@@ -353,7 +352,7 @@ private fun SimplePartItem(
 @Composable
 private fun UserPartField(
     part: UserPartValidator,
-    user: UserModel,
+    user: GroupMemberModel,
     convertedAmount: Money,
     onUnitChanged: (unit: PaymentUnit) -> Unit,
     onAmountChanged: (amount: String) -> Unit,
@@ -366,7 +365,7 @@ private fun UserPartField(
                 .animateContentSize()
                 .fillMaxWidth(),
             param = part.amount,
-            labelText = user.username,
+            labelText = user.fullName,
             onValueChange = { onAmountChanged(it) },
             suffix = {
                 Text(convertedAmount.toCurrency())

@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import lol.terabrendon.houseshare2.data.repository.GroupRepository
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.SelectedGroupId
-import lol.terabrendon.houseshare2.data.repository.UserRepository
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.screen.groups.GroupEvent
@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GroupsViewModel @Inject constructor(
-    userRepository: UserRepository,
+    groupRepository: GroupRepository,
     getLoggedUser: GetLoggedUserUseCase,
     private val sharedPreferencesRepository: UserDataRepository,
     getSelectedGroup: GetSelectedGroupUseCase,
@@ -43,7 +43,7 @@ class GroupsViewModel @Inject constructor(
     val groups = getLoggedUser()
         .flatMapLatest { loggedUser ->
             loggedUser
-                ?.let { userRepository.findGroupsByUserId(loggedUser.id) }
+                ?.let { groupRepository.findGroupsByUserId(loggedUser.id) }
                 ?: flowOf(emptyList())
         }
         .stateIn(

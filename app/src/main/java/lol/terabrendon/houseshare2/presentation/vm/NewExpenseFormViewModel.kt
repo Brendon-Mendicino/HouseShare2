@@ -23,7 +23,7 @@ import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseModelMapper
 import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.toMoney
-import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedMemberUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.screen.billing.ExpenseFormEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
@@ -36,8 +36,8 @@ import javax.inject.Inject
 @HiltViewModel
 class NewExpenseFormViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
+    getLoggedMemberUseCase: GetLoggedMemberUseCase,
     getSelectedGroup: GetSelectedGroupUseCase,
-    getLoggedUserUseCase: GetLoggedUserUseCase,
 ) : ViewModel() {
     sealed class UiEvent {
         data object Finish : UiEvent()
@@ -53,7 +53,7 @@ class NewExpenseFormViewModel @Inject constructor(
      */
     val eventChannelFlow = eventChannel.receiveAsFlow()
 
-    private val loggedUser = getLoggedUserUseCase()
+    private val loggedMember = getLoggedMemberUseCase()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val selectedGroup = getSelectedGroup()
@@ -85,7 +85,7 @@ class NewExpenseFormViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            loggedUser.collect { user ->
+            loggedMember.collect { user ->
                 _expenseFormState.update { state ->
                     state.update {
                         payer = user
@@ -199,7 +199,7 @@ class NewExpenseFormViewModel @Inject constructor(
         val formState = expenseFormState.value
 
         // The owner of the expense if the current logged user.
-        val owner = loggedUser.value ?: throw IllegalStateException("No logged users!")
+        val owner = loggedMember.value ?: throw IllegalStateException("No logged users!")
 
         val groupId = selectedGroup.value?.info?.groupId
             ?: run {
