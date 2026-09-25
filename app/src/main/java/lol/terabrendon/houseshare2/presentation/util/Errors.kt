@@ -1,5 +1,16 @@
 package lol.terabrendon.houseshare2.presentation.util
 
+import androidx.annotation.StringRes
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.Email
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.Max
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.MaxDouble
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.Min
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.MinDouble
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.NotBlank
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.NotNull
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.Pattern
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.Size
+import io.github.brendonmendicino.aformvalidator.annotation.annotations.ToNumber
 import io.github.brendonmendicino.aformvalidator.annotation.error.ValidationError
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.error.DataError
@@ -7,7 +18,8 @@ import lol.terabrendon.houseshare2.domain.error.FormError
 import lol.terabrendon.houseshare2.domain.error.LocalError
 import lol.terabrendon.houseshare2.domain.error.RemoteError
 import lol.terabrendon.houseshare2.domain.error.RootError
-import lol.terabrendon.houseshare2.domain.form.FormMetadata
+import lol.terabrendon.houseshare2.util.IsTrue
+import lol.terabrendon.houseshare2.util.Url
 
 fun RootError.toUiText(): UiText = when (this) {
     is DataError -> toUiText()
@@ -57,67 +69,44 @@ fun FormError.toUiText(): UiText = when (this) {
     is FormError.Validation -> error.toUiText(label)
 }
 
-fun ValidationError<*>.toUiText(): UiText {
-    val meta = metadata
+fun ValidationError<*>.toUiText(@StringRes label: Int?): UiText =
+    annotation.toUiText(label?.let { UiText.Res(it) })
 
-    if (meta == null) throw IllegalStateException("Cannot call toUiText() without metadata! error=$this")
-    if (meta !is FormMetadata) throw IllegalStateException("metadata must be of FormMetadata type! metadata=$meta")
+fun ValidationError<*>.toUiText(label: UiText?): UiText = annotation.toUiText(label)
 
-    return meta.toUiText(annotation)
-}
-
-fun FormMetadata.toUiText(annotation: Annotation): UiText {
-    TODO()
-}
-
-fun ValidationError<*>.toUiText(label: Any?): UiText {
-    if (label == null || metadata != null) return toUiText()
+/**
+ * The message of a failed validation is built from the annotation that failed, and not from the
+ * [ValidationError] subtype: custom annotations like [Url] and [IsTrue] can only reuse
+ * [ValidationError.PatternErr], so switching on the error would make every one of them read
+ * "does not match the correct pattern".
+ */
+private fun Annotation.toUiText(label: UiText?): UiText {
+    if (label == null) return UiText.Res(R.string.this_value_is_not_valid)
 
     return when (this) {
-        is ValidationError.NotNullErr,
-        is ValidationError.NotBlankErr,
+        is NotBlank,
+        is NotNull,
             -> UiText.Res(R.string.should_not_be_blank, label)
 
-        is ValidationError.PatternErr -> UiText.Res(
-            R.string.does_not_match_the_correct_pattern,
-            label
-        )
-
-        is ValidationError.SizeErr -> UiText.Res(
+        is Size -> UiText.Res(
             R.string.size_should_be_between_and,
             label,
-            annotation.min.toString(),
-            annotation.max.toString()
+            min.toString(),
+            max.toString(),
         )
 
-        is ValidationError.EmailErr -> UiText.Res(R.string.is_not_a_valid_email, arrayOf(label))
-        is ValidationError.MaxErr -> UiText.Res(
-            R.string.should_not_be_greater_than,
-            label,
-            annotation.max.toString()
-        )
+        is Pattern -> UiText.Res(R.string.does_not_match_the_correct_pattern, label)
+        is Email -> UiText.Res(R.string.is_not_a_valid_email, label)
+        is Min -> UiText.Res(R.string.should_not_be_less_than, label, min.toString())
+        is MinDouble -> UiText.Res(R.string.should_not_be_less_than, label, min.toString())
+        is Max -> UiText.Res(R.string.should_not_be_greater_than, label, max.toString())
+        is MaxDouble -> UiText.Res(R.string.should_not_be_greater_than, label, max.toString())
+        is ToNumber -> UiText.Res(R.string.is_not_a_valid_number, label)
+        is Url -> UiText.Res(R.string.is_not_a_valid_link, label)
 
-        is ValidationError.MaxDoubleErr -> UiText.Res(
-            R.string.should_not_be_greater_than,
-            arrayOf(
-                label,
-                annotation.max.toString()
-            )
-        )
-
-        is ValidationError.MinErr -> UiText.Res(
-            R.string.should_not_be_less_than,
-            label,
-            annotation.min.toString()
-        )
-
-        is ValidationError.MinDoubleErr -> UiText.Res(
-            R.string.should_not_be_less_than,
-            label,
-            annotation.min.toString()
-        )
-
-        is ValidationError.ToNumberErr -> UiText.Res(R.string.is_not_a_valid_number, label)
+        // Annotation is not a sealed type, so a fallback is needed. It also covers the
+        // annotations that only state that something is wrong, like IsTrue and IsFalse.
+        else -> UiText.Res(R.string.is_not_valid, label)
     }
 }
 

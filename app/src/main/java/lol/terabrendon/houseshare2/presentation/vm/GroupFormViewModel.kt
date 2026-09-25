@@ -17,12 +17,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.GroupRepository
 import lol.terabrendon.houseshare2.data.repository.UserRepository
 import lol.terabrendon.houseshare2.domain.form.GroupFormState
 import lol.terabrendon.houseshare2.domain.form.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.toValidator
+import lol.terabrendon.houseshare2.domain.form.touchAll
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
@@ -31,7 +33,7 @@ import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupFormEven
 import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupFormUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
-import lol.terabrendon.houseshare2.presentation.util.toUiText
+import lol.terabrendon.houseshare2.presentation.util.errorUiText
 import lol.terabrendon.houseshare2.util.CombinedStateFlow
 import lol.terabrendon.houseshare2.util.mapState
 import timber.log.Timber
@@ -154,15 +156,12 @@ class GroupFormViewModel @AssistedInject constructor(
     }
 
     private suspend fun onSubmit() {
-        val formState = _groupFormState.value
+        val formState = _groupFormState.updateAndGet { it.touchAll() }
         val loggedUser =
             loggedUser.first() ?: throw IllegalStateException("No current logged-in user!")
 
-        val formError = formState.errors.firstOrNull()
-        if (formError != null) {
-            val (parameterName, error) = formError
-            val message = error.toUiText(parameterName)
-
+        val message = formState.errorUiText()
+        if (message != null) {
             SnackbarController.sendEvent(SnackbarEvent(message = message))
             return
         }

@@ -9,10 +9,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.form.toValidator
+import lol.terabrendon.houseshare2.domain.form.touchAll
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
@@ -20,7 +22,7 @@ import lol.terabrendon.houseshare2.presentation.screen.shopping.form.ShoppingIte
 import lol.terabrendon.houseshare2.presentation.screen.shopping.form.ShoppingItemFormUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
-import lol.terabrendon.houseshare2.presentation.util.toUiText
+import lol.terabrendon.houseshare2.presentation.util.errorUiText
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -59,15 +61,12 @@ class ShoppingItemFormViewModel @Inject constructor(
     }
 
     private suspend fun onSubmit() {
-        val formState = _formState.value
+        val formState = _formState.updateAndGet { it.touchAll() }
         val loggedUser = getLoggedUserUseCase().first()!!
         val selectedGroup = getSelectedGroupUseCase().first()!!
 
-        val formError = formState.errors.firstOrNull()
-        if (formError != null) {
-            val (property, error) = formError
-            val message = error.toUiText(property)
-
+        val message = formState.errorUiText()
+        if (message != null) {
             SnackbarController.sendEvent(SnackbarEvent(message = message))
 
             return

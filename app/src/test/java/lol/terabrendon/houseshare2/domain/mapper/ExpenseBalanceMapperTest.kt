@@ -1,8 +1,8 @@
 package lol.terabrendon.houseshare2.domain.mapper
 
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
-import lol.terabrendon.houseshare2.domain.model.UserModel
 import lol.terabrendon.houseshare2.domain.model.toMoney
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -21,7 +21,7 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `map with single expense where payer is only user should return zero balance`() {
-        val alice = UserModel.random().copy(id = 1L, username = "Alice")
+        val alice = GroupMemberModel.random().copy(id = 1L, firstName = "Alice")
         val expense = ExpenseModel.default().copy(
             id = 100L,
             amount = 10.toMoney(),
@@ -40,8 +40,8 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `map with single expense where payer is not in userExpenses should give full credit`() {
-        val alice = UserModel.random().copy(id = 1L, username = "Alice")
-        val bob = UserModel.random().copy(id = 2L, username = "Bob")
+        val alice = GroupMemberModel.random().copy(id = 1L, firstName = "Alice")
+        val bob = GroupMemberModel.random().copy(id = 2L, firstName = "Bob")
 
         val expense = ExpenseModel.default().copy(
             id = 100L,
@@ -59,8 +59,8 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `map with multiple expenses summing correctly`() {
-        val alice = UserModel.random().copy(id = 1L, username = "Alice")
-        val bob = UserModel.random().copy(id = 2L, username = "Bob")
+        val alice = GroupMemberModel.random().copy(id = 1L, firstName = "Alice")
+        val bob = GroupMemberModel.random().copy(id = 2L, firstName = "Bob")
 
         // 1. Alice pays 10, Bob owes 5
         val exp1 = ExpenseModel.default().copy(
@@ -89,9 +89,9 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `map handles multiple beneficiaries in one expense`() {
-        val payer = UserModel.random().copy(id = 1L)
-        val u2 = UserModel.random().copy(id = 2L)
-        val u3 = UserModel.random().copy(id = 3L)
+        val payer = GroupMemberModel.random().copy(id = 1L)
+        val u2 = GroupMemberModel.random().copy(id = 2L)
+        val u3 = GroupMemberModel.random().copy(id = 3L)
 
         val expense = ExpenseModel.default().copy(
             expensePayer = payer,
@@ -111,9 +111,9 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `map handles complex circular debt resulting in zero`() {
-        val a = UserModel.random().copy(id = 1L)
-        val b = UserModel.random().copy(id = 2L)
-        val c = UserModel.random().copy(id = 3L)
+        val a = GroupMemberModel.random().copy(id = 1L)
+        val b = GroupMemberModel.random().copy(id = 2L)
+        val c = GroupMemberModel.random().copy(id = 3L)
 
         val expenses = listOf(
             // A pays 10 for B
@@ -136,8 +136,8 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `map handles precision with minimal currency units`() {
-        val alice = UserModel.random().copy(id = 1L)
-        val bob = UserModel.random().copy(id = 2L)
+        val alice = GroupMemberModel.random().copy(id = 1L)
+        val bob = GroupMemberModel.random().copy(id = 2L)
 
         // Alice pays 0.01, split is 100% for Bob
         val expense = ExpenseModel.default().copy(
@@ -153,9 +153,9 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `sum of all balances should always be zero`() {
-        val a = UserModel.random().copy(id = 1L)
-        val b = UserModel.random().copy(id = 2L)
-        val c = UserModel.random().copy(id = 3L)
+        val a = GroupMemberModel.random().copy(id = 1L)
+        val b = GroupMemberModel.random().copy(id = 2L)
+        val c = GroupMemberModel.random().copy(id = 3L)
 
         val expenses = listOf(
             ExpenseModel.default().copy(
@@ -186,8 +186,8 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `duplicate user entries in same expense should aggregate correctly`() {
-        val payer = UserModel.random().copy(id = 1L)
-        val bob = UserModel.random().copy(id = 2L)
+        val payer = GroupMemberModel.random().copy(id = 1L)
+        val bob = GroupMemberModel.random().copy(id = 2L)
 
         val expense = ExpenseModel.default().copy(
             expensePayer = payer,
@@ -205,8 +205,8 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `zero amount entries should not affect balances`() {
-        val a = UserModel.random().copy(id = 1L)
-        val b = UserModel.random().copy(id = 2L)
+        val a = GroupMemberModel.random().copy(id = 1L)
+        val b = GroupMemberModel.random().copy(id = 2L)
 
         val expense = ExpenseModel.default().copy(
             expensePayer = a,
@@ -223,8 +223,8 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `payer entries inside userExpenses should be ignored`() {
-        val payer = UserModel.random().copy(id = 1L)
-        val bob = UserModel.random().copy(id = 2L)
+        val payer = GroupMemberModel.random().copy(id = 1L)
+        val bob = GroupMemberModel.random().copy(id = 2L)
 
         val expense = ExpenseModel.default().copy(
             expensePayer = payer,
@@ -242,8 +242,8 @@ class ExpenseBalanceMapperTest {
 
     @Test
     fun `multiple expenses should aggregate consistently`() {
-        val a = UserModel.random().copy(id = 1L)
-        val b = UserModel.random().copy(id = 2L)
+        val a = GroupMemberModel.random().copy(id = 1L)
+        val b = GroupMemberModel.random().copy(id = 2L)
 
         val expenses = (1..100).map {
             ExpenseModel.default().copy(

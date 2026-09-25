@@ -14,11 +14,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.GroupRepository
 import lol.terabrendon.houseshare2.domain.form.GroupMemberFormState
 import lol.terabrendon.houseshare2.domain.form.GroupMemberFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.toValidator
+import lol.terabrendon.houseshare2.domain.form.touchAll
 import lol.terabrendon.houseshare2.domain.mapper.toModel
 import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
@@ -26,7 +28,7 @@ import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupMemberFo
 import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupMemberFormUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
-import lol.terabrendon.houseshare2.presentation.util.toUiText
+import lol.terabrendon.houseshare2.presentation.util.errorUiText
 import timber.log.Timber
 
 @HiltViewModel(assistedFactory = GroupMemberFormViewModel.Factory::class)
@@ -104,13 +106,10 @@ class GroupMemberFormViewModel @AssistedInject constructor(
     }
 
     private suspend fun onSubmit() {
-        val formState = _groupMemberFormState.value
+        val formState = _groupMemberFormState.updateAndGet { it.touchAll() }
 
-        val formError = formState.errors.firstOrNull()
-        if (formError != null) {
-            val (parameterName, error) = formError
-            val message = error.toUiText(parameterName)
-
+        val message = formState.errorUiText()
+        if (message != null) {
             SnackbarController.sendEvent(SnackbarEvent(message = message))
             return
         }

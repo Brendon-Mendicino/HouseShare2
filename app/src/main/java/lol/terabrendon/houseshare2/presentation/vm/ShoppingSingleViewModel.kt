@@ -25,7 +25,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.screen.shopping.ShoppingItemEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
-import lol.terabrendon.houseshare2.presentation.util.toUiText
+import lol.terabrendon.houseshare2.presentation.util.errorUiText
 import javax.inject.Inject
 
 @HiltViewModel(assistedFactory = ShoppingSingleViewModel.Factory::class)
@@ -95,12 +95,9 @@ class ShoppingSingleViewModel @AssistedInject constructor(
     ) {
         val info = shoppingItem.value?.info ?: return
 
-        val validationError = info.toForm().copyForm().toValidator().errors.firstOrNull()
+        val message = info.toForm().copyForm().toValidator().errorUiText()
 
-        if (validationError != null) {
-            val (label, error) = validationError
-            val message = error.toUiText(label)
-
+        if (message != null) {
             SnackbarController.sendEvent(SnackbarEvent(message = message))
 
             return

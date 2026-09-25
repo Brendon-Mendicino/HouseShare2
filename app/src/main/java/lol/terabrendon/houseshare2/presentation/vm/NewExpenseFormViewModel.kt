@@ -15,11 +15,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
 import lol.terabrendon.houseshare2.domain.form.ExpenseFormState
 import lol.terabrendon.houseshare2.domain.form.UserPart
 import lol.terabrendon.houseshare2.domain.form.toValidator
+import lol.terabrendon.houseshare2.domain.form.touchAll
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseModelMapper
 import lol.terabrendon.houseshare2.domain.model.Money
 import lol.terabrendon.houseshare2.domain.model.toMoney
@@ -28,7 +30,7 @@ import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.screen.billing.ExpenseFormEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
-import lol.terabrendon.houseshare2.presentation.util.toUiText
+import lol.terabrendon.houseshare2.presentation.util.errorUiText
 import lol.terabrendon.houseshare2.util.update
 import timber.log.Timber
 import javax.inject.Inject
@@ -196,7 +198,7 @@ class NewExpenseFormViewModel @Inject constructor(
     }
 
     private suspend fun onSubmit() {
-        val formState = expenseFormState.value
+        val formState = _expenseFormState.updateAndGet { it.touchAll() }
 
         // The owner of the expense if the current logged user.
         val owner = loggedMember.value ?: throw IllegalStateException("No logged users!")
@@ -209,9 +211,8 @@ class NewExpenseFormViewModel @Inject constructor(
                 throw IllegalStateException(msg)
             }
 
-        val error = formState.errors.firstOrNull()
-        if (error != null) {
-            val message = error.second.toUiText(error.first)
+        val message = formState.errorUiText()
+        if (message != null) {
             SnackbarController.sendEvent(SnackbarEvent(message = message))
             return
         }

@@ -58,6 +58,9 @@
     <string name="should_not_be_less_than">%1$s non deve essere inferiore a %2$s!</string>
     <string name="size_should_be_between_and">La dimensione di %1$s deve essere compresa tra %2$s e %3$s</string>
     <string name="is_not_a_valid_number">%1$s non è un numero valido!</string>
+    <string name="is_not_a_valid_link">%1$s non è un link valido!</string>
+    <string name="is_not_valid">%1$s non è valido!</string>
+    <string name="this_value_is_not_valid">Questo valore non è valido!</string>
     <string name="the_current_selected_items_will_be_delete_permanently">Gli elementi selezionati verranno eliminati in modo permanente.</string>
     <string name="created_by">Creato da: %1$s</string>
     <string name="now">Ora</string>

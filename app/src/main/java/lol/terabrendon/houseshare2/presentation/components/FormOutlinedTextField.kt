@@ -31,7 +31,8 @@ import io.github.brendonmendicino.aformvalidator.annotation.annotations.NotBlank
 import io.github.brendonmendicino.aformvalidator.annotation.error.ValidationError
 import io.github.brendonmendicino.aformvalidator.core.ParamState
 import io.github.brendonmendicino.aformvalidator.core.ValidatorCond
-import lol.terabrendon.houseshare2.presentation.util.errorText
+import lol.terabrendon.houseshare2.presentation.util.UiText
+import lol.terabrendon.houseshare2.presentation.util.toUiText
 
 /**
  * <a href="https://m3.material.io/components/text-fields/overview" class="external" target="_blank">Material Design outlined text field</a>.
@@ -120,7 +121,7 @@ fun <T : Any?, E : Any> FormOutlinedTextField(
     suffix: @Composable (() -> Unit)? = null,
     errorConverter: @Composable (E) -> String = {
         when (it) {
-            is ValidationError<*> -> it.errorText(labelText)
+            is ValidationError<*> -> it.toUiText(UiText.Dyn(labelText)).text()
             else -> it.toString()
         }
     },
