@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.michaelbull.result.getOrElse
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -19,6 +20,7 @@ import lol.terabrendon.houseshare2.domain.form.GroupMemberFormState
 import lol.terabrendon.houseshare2.domain.form.GroupMemberFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.toModel
+import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupMemberFormEvent
 import lol.terabrendon.houseshare2.presentation.screen.groups.form.GroupMemberFormUiEvent
@@ -51,6 +53,29 @@ class GroupMemberFormViewModel @AssistedInject constructor(
 
     private val _groupMemberFormState = MutableStateFlow(GroupMemberFormState().toValidator())
     val groupMemberFormState = _groupMemberFormState.asStateFlow()
+
+    // Holds the member being edited, so `id` and `userId` (not part of the form) can be
+    // carried over on submit instead of being lost. Only set when route.memberId != null.
+    private var existingMember: GroupMemberModel? = null
+
+    init {
+        viewModelScope.launch {
+            val memberId = route.memberId ?: return@launch
+
+            val member = groupRepository.findOrFetchMember(route.groupId, memberId)
+                .getOrElse { err ->
+                    SnackbarController.sendError(err)
+                    return@launch
+                } ?: return@launch
+
+            existingMember = member
+            _groupMemberFormState.updateState {
+                firstName = member.firstName
+                lastName = member.lastName
+                picture = member.picture?.toString()
+            }
+        }
+    }
 
     /**
      * Helper function.
@@ -90,15 +115,29 @@ class GroupMemberFormViewModel @AssistedInject constructor(
             return
         }
 
-        val member = formState.toData().toModel(route.groupId)
+        val newMember = formState.toData().toModel(route.groupId)
+        val existing = existingMember
+        val member = if (existing != null) {
+            newMember.copy(id = existing.id, userId = existing.userId)
+        } else {
+            newMember
+        }
 
-        Timber.i(
-            "onSubmit: adding new member \"%s\" to groupId=%d",
-            member.firstName,
-            route.groupId,
-        )
-
-        val (_, err) = groupRepository.addMember(member)
+        val (_, err) = if (existing != null) {
+            Timber.i(
+                "onSubmit: updating memberId=%d of groupId=%d",
+                member.id,
+                route.groupId,
+            )
+            groupRepository.updateMember(member)
+        } else {
+            Timber.i(
+                "onSubmit: adding new member \"%s\" to groupId=%d",
+                member.firstName,
+                route.groupId,
+            )
+            groupRepository.addMember(member)
+        }
         if (err != null) {
             SnackbarController.sendError(err)
             return

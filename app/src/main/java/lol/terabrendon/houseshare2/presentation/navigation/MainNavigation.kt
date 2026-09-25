@@ -58,7 +58,8 @@ sealed class MainNavigation : NavKey {
         is UserProfile -> R.string.profile
         is Settings -> R.string.settings
         is HomepageNavigation.GroupInfo -> R.string.group_info
-        is HomepageNavigation.GroupMemberForm -> R.string.add_member
+        is HomepageNavigation.GroupMemberForm ->
+            if (memberId == null) R.string.add_member else R.string.edit_member
     }
 }
 

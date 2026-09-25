@@ -1,5 +1,6 @@
 package lol.terabrendon.houseshare2.presentation.components
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.annotation.ColorInt
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -22,7 +24,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
+import coil3.ImageLoader
 import coil3.compose.SubcomposeAsyncImage
+import coil3.gif.AnimatedImageDecoder
+import coil3.gif.GifDecoder
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import lol.terabrendon.houseshare2.domain.model.AvatarModel
 import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import kotlin.math.abs
@@ -42,8 +48,22 @@ fun AvatarIcon(
     size: Dp = 40.dp,
 ) {
     val density = LocalDensity.current
+    val context = LocalContext.current
     val firstName = user?.firstName ?: ""
     val lastName = user?.lastName ?: ""
+
+    val imageLoader = remember(context) {
+        ImageLoader.Builder(context)
+            .components {
+                add(OkHttpNetworkFetcherFactory())
+                if (SDK_INT >= 28) {
+                    add(AnimatedImageDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
+            }
+            .build()
+    }
 
     val color = remember(user) {
         val name = listOf(firstName, lastName).joinToString(separator = "").uppercase()
@@ -76,6 +96,7 @@ fun AvatarIcon(
         modifier = modifier
             .size(size)
             .clip(CircleShape),
+        imageLoader = imageLoader,
         loading = {
             letterIcon()
         },

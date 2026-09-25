@@ -39,7 +39,7 @@ sealed class HomepageNavigation : MainNavigation() {
     data class GroupInfoForm(val groupId: Long?) : HomepageNavigation()
 
     @Serializable
-    data class GroupMemberForm(val groupId: Long) : HomepageNavigation()
+    data class GroupMemberForm(val groupId: Long, val memberId: Long? = null) : HomepageNavigation()
 
     /** Profile **/
     @Serializable

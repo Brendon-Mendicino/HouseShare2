@@ -18,6 +18,8 @@ interface GroupRepository {
 
     suspend fun addMember(member: GroupMemberModel): DataResult<GroupMemberModel>
 
+    suspend fun updateMember(member: GroupMemberModel): DataResult<GroupMemberModel>
+
     suspend fun insert(group: GroupModel): DataResult<Unit>
 
     suspend fun update(group: GroupModel): DataResult<Unit>

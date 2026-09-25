@@ -141,6 +141,17 @@ class GroupRepositoryImpl @Inject constructor(
         return Ok(memberDto.toModel())
     }
 
+    override suspend fun updateMember(member: GroupMemberModel): DataResult<GroupMemberModel> {
+        val memberDto = groupApi.updateMember(member.groupId, member.id, member.toDto())
+            .getOrElse { return Err(it) }
+
+        localSafe { groupMemberDao.upsert(memberDto.toEntity()) }.getOrElse { return Err(it) }
+
+        Timber.i("updateMember: updated memberId=%d of groupId=%d", memberDto.id, memberDto.groupId)
+
+        return Ok(memberDto.toModel())
+    }
+
 
     override suspend fun insert(group: GroupModel): DataResult<Unit> {
         val groupDto = groupApi.save(group.toDto()).getOrElse { return Err(it) }

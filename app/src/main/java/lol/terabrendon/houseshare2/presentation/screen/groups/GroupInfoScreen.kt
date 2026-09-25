@@ -107,6 +107,11 @@ fun GroupInfoScreen(
         inviteUrlLoading = inviteUrlLoading,
         onEvent = viewModel::onEvent,
         onEditClick = { navigator.navigate(HomepageNavigation.GroupInfoForm(groupId = group!!.info.groupId)) },
+        onMemberClick = { member ->
+            navigator.navigate(
+                HomepageNavigation.GroupMemberForm(groupId = member.groupId, memberId = member.id)
+            )
+        },
     )
 }
 
@@ -118,6 +123,7 @@ private fun GroupInfoInner(
     inviteUrlLoading: Boolean,
     onEvent: (event: GroupInfoEvent) -> Unit,
     onEditClick: () -> Unit,
+    onMemberClick: (GroupMemberModel) -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -161,7 +167,11 @@ private fun GroupInfoInner(
 
         // 3. User List
         items(group.members, key = { it.id }) { user ->
-            UserListItem(user = user, isCurrentUser = currentUser?.id == user.id)
+            UserListItem(
+                user = user,
+                isCurrentUser = currentUser?.id == user.id,
+                onClick = { onMemberClick(user) },
+            )
         }
     }
 }
@@ -237,9 +247,15 @@ fun GroupHeaderCard(
 }
 
 @Composable
-fun UserListItem(modifier: Modifier = Modifier, user: GroupMemberModel, isCurrentUser: Boolean) {
+fun UserListItem(
+    modifier: Modifier = Modifier,
+    user: GroupMemberModel,
+    isCurrentUser: Boolean,
+    onClick: () -> Unit = {},
+) {
     // OutlinedCard gives a clean separation without heavy shadows
     OutlinedCard(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.outlinedCardColors(
             containerColor = MaterialTheme.colorScheme.surface

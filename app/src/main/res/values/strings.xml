@@ -122,6 +122,7 @@
     <string name="network_error">Network error</string>
     <string name="invite_members">Invite Members</string>
     <string name="add_member">Add Member</string>
+    <string name="edit_member">Edit Member</string>
     <string name="active_members">%1$d active members</string>
     <string name="members">Members</string>
     <string name="you_have_no_friends_yet">You have no friends yet 🥺</string>

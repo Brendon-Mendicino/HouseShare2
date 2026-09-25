@@ -119,6 +119,7 @@
     <string name="network_error">Errore di rete</string>
     <string name="invite_members">Invita membri</string>
     <string name="add_member">Aggiungi membro</string>
+    <string name="edit_member">Modifica membro</string>
     <string name="active_members">%1$d membri attivi</string>
     <string name="members">Membri</string>
     <string name="you_have_no_friends_yet">Non hai ancora amici 🥺</string>
