@@ -1,0 +1,158 @@
+HTTP/1.1 200 OK
+Cache-Control: no-store, must-revalidate, max-age=0
+content-length: 6023
+Content-Language: en
+Content-Security-Policy: frame-src 'self'; frame-ancestors 'self'; object-src 'none';
+Content-Type: text/html;charset=utf-8
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Robots-Tag: none
+X-XSS-Protection: 1; mode=block
+
+<!DOCTYPE html>
+<html class="login-pf">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="robots" content="noindex, nofollow">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Sign in to house-share</title>
+    <link rel="icon" href="/resources/igvlb/login/keycloak/img/favicon.ico"/>
+    <link href="/resources/igvlb/common/keycloak/node_modules/@patternfly/patternfly/patternfly.min.css"
+          rel="stylesheet"/>
+    <link href="/resources/igvlb/common/keycloak/node_modules/patternfly/dist/css/patternfly.min.css"
+          rel="stylesheet"/>
+    <link href="/resources/igvlb/common/keycloak/node_modules/patternfly/dist/css/patternfly-additions.min.css"
+          rel="stylesheet"/>
+    <link href="/resources/igvlb/common/keycloak/lib/pficon/pficon.css" rel="stylesheet"/>
+    <link href="/resources/igvlb/login/keycloak/css/login.css" rel="stylesheet"/>
+    <script src="/resources/igvlb/login/keycloak/js/menu-button-links.js" type="module"></script>
+    <script type="module">
+        import { checkCookiesAndSetTimer } from "/resources/igvlb/login/keycloak/js/authChecker.js";
+
+        checkCookiesAndSetTimer(
+          "23c00ab8-b817-4a69-b9cc-f1dbf8f18d69",
+          "ElytnHRuV9w",
+          "/realms/house-share/login-actions/restart?client_id=house-share-app&tab_id=ElytnHRuV9w&skip_logout=true"
+        );
+    </script>
+    <SCRIPT>
+         if (typeof history.replaceState === 'function') {  history.replaceState({}, "some title", "http://192.168.1.150:8080/realms/house-share/login-actions/authenticate?execution=c2b35f80-3b3a-4eee-8059-959c3e93bae4&client_id=house-share-app&tab_id=ElytnHRuV9w"); }
+    </SCRIPT>
+</head>
+
+<body class="">
+<div class="login-pf-page">
+    <div id="kc-header" class="login-pf-page-header">
+        <div id="kc-header-wrapper"
+             class="">house-share
+        </div>
+    </div>
+    <div class="card-pf">
+        <header class="login-pf-header">
+            <h1 id="kc-page-title"> Sign in to your account
+
+            </h1>
+        </header>
+        <div id="kc-content">
+            <div id="kc-content-wrapper">
+
+
+                <div id="kc-form">
+                    <div id="kc-form-wrapper">
+                        <form id="kc-form-login" onsubmit="login.disabled = true; return true;"
+                              action="http://192.168.1.150:8080/realms/house-share/login-actions/authenticate?session_code=0Ts-XAN696hLyJxOs7zmCOoldxCqpqyaMeIHqmwy9qc&amp;execution=c2b35f80-3b3a-4eee-8059-959c3e93bae4&amp;client_id=house-share-app&amp;tab_id=ElytnHRuV9w"
+                              method="post">
+                            <div class="form-group">
+                                <label for="username"
+                                       class="pf-c-form__label pf-c-form__label-text">Username or
+                                    email</label>
+
+                                <input tabindex="2" id="username" class="pf-c-form-control"
+                                       name="username" value="not-a-real-user" type="text" autofocus
+                                       autocomplete="username"
+                                       aria-invalid="true"
+                                />
+
+                                <span id="input-error"
+                                      class="pf-c-form__helper-text pf-m-error required kc-feedback-text"
+                                      aria-live="polite">
+                                        Invalid username or password.
+                                </span>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password"
+                                       class="pf-c-form__label pf-c-form__label-text">Password</label>
+
+                                <div class="pf-c-input-group">
+                                    <input tabindex="3" id="password" class="pf-c-form-control"
+                                           name="password" type="password"
+                                           autocomplete="current-password"
+                                           aria-invalid="true"
+                                    />
+                                    <button class="pf-c-button pf-m-control" type="button"
+                                            aria-label="Show password"
+                                            aria-controls="password" data-password-toggle
+                                            tabindex="4"
+                                            data-icon-show="fa fa-eye"
+                                            data-icon-hide="fa fa-eye-slash"
+                                            data-label-show="Show password"
+                                            data-label-hide="Hide password">
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+
+
+                            </div>
+
+                            <div class="form-group login-pf-settings">
+                                <div id="kc-form-options">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input tabindex="5" id="rememberMe" name="rememberMe"
+                                                   type="checkbox"> Remember me
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="">
+                                </div>
+
+                            </div>
+
+                            <div id="kc-form-buttons" class="form-group">
+                                <input type="hidden" id="id-hidden-input" name="credentialId"/>
+                                <input tabindex="7"
+                                       class="pf-c-button pf-m-primary pf-m-block btn-lg"
+                                       name="login" id="kc-login" type="submit" value="Sign In"/>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <script type="module"
+                        src="/resources/igvlb/login/keycloak/js/passwordVisibility.js"></script>
+
+
+                <div id="kc-info" class="login-pf-signup">
+                    <div id="kc-info-wrapper" class="">
+                        <div id="kc-registration-container">
+                            <div id="kc-registration">
+                    <span>New user? <a tabindex="8"
+                                       href="/realms/house-share/login-actions/registration?client_id=house-share-app&amp;tab_id=ElytnHRuV9w">Register</a></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,60 +1,48 @@
 package lol.terabrendon.houseshare2.domain.usecase
 
-import android.content.Intent
-import androidx.core.net.toUri
+import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.coroutines.coroutineBinding
 import com.github.michaelbull.result.getErrorOr
-import lol.terabrendon.houseshare2.DeepLinkActivity
 import lol.terabrendon.houseshare2.data.remote.api.AuthApi
+import lol.terabrendon.houseshare2.data.remote.api.IdpApi
 import lol.terabrendon.houseshare2.domain.error.DataError
 import lol.terabrendon.houseshare2.domain.error.RemoteError
-import lol.terabrendon.houseshare2.presentation.util.ActivityQueue
-import lol.terabrendon.houseshare2.util.setQuery
 import timber.log.Timber
 import javax.inject.Inject
 
 /**
- * This use-case starts the logout procedure. This function will make a call the OICD server
- * asking to logout the current session.
+ * Logs out of the server and of the identity provider, then clears every local trace of the
+ * session through [FinishLogoutUseCase].
  *
- * After the logout we will be redirected to the [DeepLinkActivity] where the request will be
- * handled by [FinishLogoutUseCase].
+ * No browser is involved: the provider session lives in the cookie jar of the app, so the app can
+ * end it by following the logout url the server answers with.
  */
 class StartLogoutUseCase @Inject constructor(
     private val authApi: AuthApi,
+    private val idpApi: IdpApi,
+    private val finishLogout: FinishLogoutUseCase,
 ) {
-    suspend operator fun invoke(): Result<Unit, DataError> = coroutineBinding {
+    suspend operator fun invoke(): Result<Unit, DataError> {
         val res = authApi.logout()
         Timber.i("invoke: logout response: %s", res)
 
-        val redirect = res.getErrorOr(null)
-        val uri = when (redirect) {
-            is RemoteError.Redirect -> redirect.location.toUri()
-            else -> null
+        // The server answers with a redirect to the end session endpoint of the provider.
+        val redirect = res.getErrorOr(null) as? RemoteError.Redirect
+
+        if (redirect != null) {
+            // Best effort: whatever the provider answers, the local session is gone after this
+            // use-case, otherwise the user would be stuck logged in.
+            runCatching { idpApi.get(redirect.location) }
+                .onFailure { e -> Timber.w(e, "invoke: provider logout failed") }
+                .onSuccess { Timber.i("invoke: provider session ended") }
+        } else {
+            Timber.w("invoke: the server did not answer with the provider logout url")
         }
 
-        if (uri == null) {
-            Timber.w("invoke: logout failed! response=%s", res)
-            return@coroutineBinding
-        }
+        finishLogout()
 
-        if (uri.path == "/") {
-            Timber.w("we are already logged out! Start an intent with the app logout uri, in this way ${DeepLinkActivity::class.simpleName} will the logout on its own.")
+        Timber.i("invoke: logout completed")
 
-            val intent =
-                Intent(Intent.ACTION_VIEW, "app://lol.terabrendon.houseshare2/logout".toUri())
-            ActivityQueue.sendIntent(intent)
-
-            return@coroutineBinding
-        }
-
-        val logoutUri = uri
-            .setQuery("post_logout_redirect_uri", "app://lol.terabrendon.houseshare2/logout")
-
-        val intent = Intent(Intent.ACTION_VIEW, logoutUri)
-        ActivityQueue.sendIntent(intent)
-
-        Timber.i("invoke: started logout procedure")
+        return Ok(Unit)
     }
 }

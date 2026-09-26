@@ -1,6 +1,15 @@
 package lol.terabrendon.houseshare2.data.remote.api
 
 
+import androidx.datastore.core.DataStore
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import lol.terabrendon.houseshare2.data.local.preferences.CookieData
+import lol.terabrendon.houseshare2.data.local.preferences.toHttpCookie
+import lol.terabrendon.houseshare2.data.local.preferences.toStored
+import timber.log.Timber
+import java.io.IOException
 import java.net.CookieStore
 import java.net.HttpCookie
 import java.net.URI
@@ -22,13 +31,16 @@ import java.util.concurrent.locks.ReentrantLock
  * BRENDON COMMENT: this is the biggest piece of garbage I've
  * ever done, I'm so proud of myself :,)
  *
+ * The cookies are kept in memory and written to [dataStore] at every change. [CookieStore] is a
+ * blocking api, so the DataStore is used in a blocking way: a cookie is on disk by the time the
+ * response that set it reaches the app.
+ *
  * @author Edward Wang
  * @since 1.6
  * @hide Visible for testing only.
  */
-@Suppress("unchecked_cast")
 class SharedPrefCookieStore(
-    private val cookieStore: SharedCookieIndexStore,
+    private val dataStore: DataStore<CookieData>,
 ) : CookieStore {
     // the in-memory representation of cookies
     // BEGIN Android-removed: Remove cookieJar and domainIndex.
@@ -54,8 +66,7 @@ class SharedPrefCookieStore(
      * The default ctor
      */
     init {
-        uriIndex = cookieStore.get().map { (k, v) -> k to v.toMutableList() }
-            .toMap(mutableMapOf()) as MutableMap<URI?, MutableList<HttpCookie?>>?
+        uriIndex = load()
         lock = ReentrantLock(false)
         applyMCompatibility = false
     }
@@ -79,7 +90,7 @@ class SharedPrefCookieStore(
             //}
 
             // store to shared
-            cookieStore.set(uriIndex as Map<URI, List<HttpCookie>>)
+            persist()
         } finally {
             lock!!.unlock()
         }
@@ -212,7 +223,7 @@ class SharedPrefCookieStore(
 
         } finally {
             // store to shared
-            cookieStore.set(uriIndex as Map<URI, List<HttpCookie>>)
+            persist()
             lock!!.unlock()
         }
         // END Android-changed: Fix uri not being removed from uriIndex.
@@ -232,7 +243,7 @@ class SharedPrefCookieStore(
             uriIndex!!.clear()
 
             // store to shared
-            cookieStore.set(uriIndex as Map<URI, List<HttpCookie>>)
+            persist()
         } finally {
             lock!!.unlock()
         }
@@ -241,6 +252,40 @@ class SharedPrefCookieStore(
         // END Android-changed: Let removeAll() return false when there are no cookies.
     }
 
+
+    private fun load(): MutableMap<URI?, MutableList<HttpCookie?>> = runBlocking {
+        dataStore.data
+            .catch { e ->
+                if (e !is IOException) throw e
+                Timber.e(e, "load: unable to read the cookies")
+                emit(CookieData())
+            }
+            .first()
+            .cookies
+            .mapValuesTo(mutableMapOf<URI?, MutableList<HttpCookie?>>()) { (_, cookies) ->
+                cookies.mapTo(mutableListOf()) { it.toHttpCookie() }
+            }
+    }
+
+    /**
+     * Must be called with [lock] held.
+     */
+    private fun persist() {
+        // A copy: the DataStore keeps the value as its current state, it must not change under it.
+        val data = CookieData(
+            cookies = uriIndex!!
+                .filterKeys { it != null }
+                .mapKeys { (uri, _) -> uri!! }
+                .mapValues { (_, cookies) -> cookies.filterNotNull().map { it.toStored() } }
+        )
+
+        try {
+            runBlocking { dataStore.updateData { data } }
+        } catch (e: Exception) {
+            // The cookies still work for as long as the app runs, only the persistence is lost.
+            Timber.e(e, "persist: unable to write the cookies")
+        }
+    }
 
     /* ---------------- Private operations -------------- */ /*
      * This is almost the same as HttpCookie.domainMatches except for

@@ -2,21 +2,25 @@ package lol.terabrendon.houseshare2.di
 
 import android.content.Context
 import com.google.gson.GsonBuilder
+import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.BuildConfig
+import lol.terabrendon.houseshare2.data.local.preferences.cookiePreferencesStore
 import lol.terabrendon.houseshare2.data.remote.api.AuthApi
 import lol.terabrendon.houseshare2.data.remote.api.CsrfInterceptor
 import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
+import lol.terabrendon.houseshare2.data.remote.api.IdpApi
 import lol.terabrendon.houseshare2.data.remote.api.ResultCallAdapterFactory
-import lol.terabrendon.houseshare2.data.remote.api.SharedCookieIndexStore
+import lol.terabrendon.houseshare2.data.remote.api.SessionRenewInterceptor
 import lol.terabrendon.houseshare2.data.remote.api.SharedPrefCookieStore
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
+import lol.terabrendon.houseshare2.data.repository.SessionManager
 import lol.terabrendon.houseshare2.domain.typeadapter.OffsetDateTimeSerde
 import okhttp3.CookieJar
 import okhttp3.JavaNetCookieJar
@@ -27,6 +31,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 import java.net.CookieManager
 import java.net.CookiePolicy
+import java.net.CookieStore
 import java.time.OffsetDateTime
 import javax.inject.Singleton
 
@@ -35,22 +40,17 @@ import javax.inject.Singleton
 object ApiModule {
     @Provides
     @Singleton
-    fun provideCookieManager(
+    fun provideCookieStore(
         @ApplicationContext
         context: Context,
-    ): CookieJar =
+    ): CookieStore = SharedPrefCookieStore(context.cookiePreferencesStore)
+
+    @Provides
+    @Singleton
+    fun provideCookieManager(cookieStore: CookieStore): CookieJar =
         JavaNetCookieJar(
-            CookieManager(
-                SharedPrefCookieStore(
-                    SharedCookieIndexStore(
-                        context.getSharedPreferences(
-                            "cookie_index",
-                            Context.MODE_PRIVATE
-                        )
-                    )
-                ),
-                null,
-            ).apply { setCookiePolicy(CookiePolicy.ACCEPT_ALL) })
+            CookieManager(cookieStore, null)
+                .apply { setCookiePolicy(CookiePolicy.ACCEPT_ALL) })
 
 
     private val csrfManager = CsrfInterceptor()
@@ -64,7 +64,10 @@ object ApiModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(cookieManager: CookieJar): Retrofit = Retrofit.Builder()
+    fun provideRetrofit(
+        cookieManager: CookieJar,
+        sessionManager: Lazy<SessionManager>,
+    ): Retrofit = Retrofit.Builder()
         .baseUrl(BuildConfig.BASE_URL + "api/v1/")
         .addCallAdapterFactory(ResultCallAdapterFactory.create())
         .addConverterFactory(
@@ -82,6 +85,8 @@ object ApiModule {
                 .followRedirects(false)
                 .cookieJar(cookieManager)
                 .addNetworkInterceptor(csrfManager)
+                // Before the logging one, so that the replayed request is logged as well.
+                .addInterceptor(SessionRenewInterceptor(sessionManager))
                 .addInterceptor(loggingInterceptor)
                 .build()
         )
@@ -109,6 +114,7 @@ object ApiModule {
         val retrofit = Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .addCallAdapterFactory(ResultCallAdapterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()
                     .followRedirects(false)
@@ -121,4 +127,30 @@ object ApiModule {
 
         return retrofit.create<AuthApi>()
     }
+
+    /**
+     * The identity provider is reached with the same cookie jar as the server: its session
+     * cookies are persisted exactly like the server ones, which is what allows a login to be
+     * renewed without asking the credentials again.
+     *
+     * Every url of this client is absolute and comes from the server or from the provider pages,
+     * the base url is only there because Retrofit requires one.
+     */
+    @Provides
+    @Singleton
+    @IdpRetrofit
+    fun provideIdpRetrofit(cookieManager: CookieJar): Retrofit = Retrofit.Builder()
+        .baseUrl(BuildConfig.BASE_URL)
+        .client(
+            OkHttpClient.Builder()
+                .followRedirects(false)
+                .cookieJar(cookieManager)
+                .addInterceptor(loggingInterceptor)
+                .build()
+        )
+        .build()
+
+    @Provides
+    @Singleton
+    fun provideIdpApi(@IdpRetrofit retrofit: Retrofit): IdpApi = retrofit.create<IdpApi>()
 }

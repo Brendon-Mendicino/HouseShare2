@@ -12,7 +12,6 @@ import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.domain.usecase.AcceptInviteUseCase
-import lol.terabrendon.houseshare2.domain.usecase.FinishLoginUseCase
 import lol.terabrendon.houseshare2.domain.usecase.FinishLogoutUseCase
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
@@ -23,9 +22,6 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class DeepLinkActivity : ComponentActivity() {
-    @Inject
-    lateinit var finishLoginUseCase: FinishLoginUseCase
-
     @Inject
     lateinit var finishLogoutUseCase: FinishLogoutUseCase
 
@@ -55,7 +51,6 @@ class DeepLinkActivity : ComponentActivity() {
         matcher(
             uri.path ?: "",
             """^\/logout$""" to { logout(mainActivity) },
-            """^\/login\/oauth2$""" to { login(uri, mainActivity) },
             """^\/api\/v\d+\/groups\/(?<groupId>[^\/]+)\/invite\/join$""" to {
                 val groupId = it.groups[1]?.value?.toLongOrNull()!!
                 Timber.i("onCreate: matching invite groupId=%d", groupId)
@@ -74,24 +69,6 @@ class DeepLinkActivity : ComponentActivity() {
     suspend fun logout(mainActivity: Intent) {
         finishLogoutUseCase()
         startActivity(mainActivity)
-    }
-
-    suspend fun login(uri: Uri, mainActivity: Intent) {
-        finishLoginUseCase(uri)
-            .onSuccess {
-                Timber.i("onCreate: successfully authenticated! username=%s", it.username)
-
-                startActivity(mainActivity)
-            }
-            .onFailure {
-                Timber.e("onCreate: auth failed! error=%s", it)
-
-                Toast.makeText(
-                    this@DeepLinkActivity,
-                    R.string.failed_to_authenticate,
-                    Toast.LENGTH_LONG
-                ).show()
-            }
     }
 
     suspend fun groupInvite(groupId: Long, uri: Uri, mainActivity: Intent) {

@@ -47,6 +47,10 @@ fun RemoteError.toUiText(): UiText {
         is RemoteError.Redirect -> UiText.Res(R.string.the_resource_has_changed_location)
         is RemoteError.GatewayTimeout -> UiText.Res(R.string.gateway_timed_out)
         is RemoteError.NoConnection -> UiText.Res(R.string.no_internet_connection)
+        is RemoteError.NoSession -> UiText.Res(R.string.session_expired_please_sign_in_again)
+        is RemoteError.InvalidCredentials -> reason
+            ?.let { UiText.Dyn(it) }
+            ?: UiText.Res(R.string.wrong_username_or_password)
         is RemoteError.NotFound -> UiText.Res(R.string.the_request_resource_does_not_exist)
         is RemoteError.RequestTimeout -> UiText.Res(R.string.the_request_took_too_long_to_elaborate)
         is RemoteError.ServiceUnavailable -> UiText.Res(R.string.the_server_is_temporarily_unavailable)

@@ -67,7 +67,6 @@
                 <data android:host="houseshare.hollowinsidepizza.xyz" />
 
                 <data android:path="/logout" />
-                <data android:path="/login/oauth2" />
                 <!--                <data android:pathAdvancedPattern="/api/v[0-9]+/groups/[^/]+/invite/join" />-->
                 <data android:pathPattern="/api/v.*/groups/.*/invite/join" />
             </intent-filter>

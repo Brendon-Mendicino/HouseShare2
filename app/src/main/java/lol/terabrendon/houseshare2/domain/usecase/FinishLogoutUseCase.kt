@@ -9,14 +9,20 @@ import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.Log
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.SelectedGroupId
 import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 import timber.log.Timber
+import java.net.CookieStore
 import javax.inject.Inject
 
 class FinishLogoutUseCase @Inject constructor(
     private val userDataRepository: UserDataRepository,
+    private val cookieStore: CookieStore,
     private val db: RoomDatabase,
 ) {
     suspend operator fun invoke() = withContext(Dispatchers.IO) {
         db.clearAllTables()
+
+        // Both sessions live here, the one of the server and the one of the identity provider.
+        // They used to survive the logout, which made the next login start half authenticated.
+        cookieStore.removeAll()
 
         userDataRepository.update(LoggedUserId(null))
         userDataRepository.update(SelectedGroupId(null))

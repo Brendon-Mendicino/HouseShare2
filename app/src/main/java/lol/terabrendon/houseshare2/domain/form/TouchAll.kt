@@ -39,3 +39,7 @@ fun ExpenseFormStateValidator.touchAll() = copy(
     userParts = userParts.update(),
 )
 
+fun LoginFormStateValidator.touchAll() = copy(
+    username = username.update(),
+    password = password.update(),
+)

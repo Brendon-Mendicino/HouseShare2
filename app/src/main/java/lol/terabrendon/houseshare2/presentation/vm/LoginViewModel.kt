@@ -6,17 +6,26 @@ import com.github.michaelbull.result.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.domain.form.LoginFormState
+import lol.terabrendon.houseshare2.domain.form.LoginFormStateValidator
+import lol.terabrendon.houseshare2.domain.form.toValidator
+import lol.terabrendon.houseshare2.domain.form.touchAll
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
-import lol.terabrendon.houseshare2.domain.usecase.StartLoginUseCase
+import lol.terabrendon.houseshare2.domain.usecase.LoginUseCase
 import lol.terabrendon.houseshare2.presentation.screen.login.LoginEvent
 import lol.terabrendon.houseshare2.presentation.screen.login.LoginUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.SnackbarEvent
 import lol.terabrendon.houseshare2.presentation.util.UiText
+import lol.terabrendon.houseshare2.presentation.util.errorUiText
 import lol.terabrendon.houseshare2.presentation.util.toUiText
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,10 +33,16 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val getLoggedUser: GetLoggedUserUseCase,
-    private val userLoginUseCase: StartLoginUseCase,
+    private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
     private var _uiEvent = Channel<LoginUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    private val _formState = MutableStateFlow(LoginFormState().toValidator())
+    val formState = _formState.asStateFlow()
+
+    private val _isPending = MutableStateFlow(false)
+    val isPending = _isPending.asStateFlow()
 
     init {
         // When a user is found it means that login was performed correctly.
@@ -44,21 +59,49 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    private fun MutableStateFlow<LoginFormStateValidator>.updateState(inner: LoginFormStateValidator.Updater.() -> Unit) =
+        this.update { it.update(inner) }
+
     fun onEvent(event: LoginEvent) {
         when (event) {
-            LoginEvent.Login -> viewModelScope.launch {
-                userLoginUseCase()
-                    .onFailure { error ->
-                        Timber.w("onEvent: failed to perform login! response=%s", error)
-
-                        SnackbarController.sendEvent(
-                            SnackbarEvent(
-                                message = UiText.Res(R.string.login_failed) + error.toUiText()
-                            )
-                        )
-                        _uiEvent.send(LoginUiEvent.LoginFailed)
-                    }
+            is LoginEvent.UsernameChanged -> _formState.updateState {
+                username = event.username
             }
+
+            is LoginEvent.PasswordChanged -> _formState.updateState {
+                password = event.password
+            }
+
+            LoginEvent.Login -> viewModelScope.launch { onLogin() }
         }
+    }
+
+    private suspend fun onLogin() {
+        val formState = _formState.updateAndGet { it.touchAll() }
+
+        val formError = formState.errorUiText()
+        if (formError != null) {
+            SnackbarController.sendEvent(SnackbarEvent(message = formError))
+            return
+        }
+
+        val data = formState.toData()
+
+        _isPending.update { true }
+
+        loginUseCase(username = data.username, password = data.password)
+            .onFailure { err ->
+                Timber.w("onLogin: failed to perform login! error=%s", err)
+
+                SnackbarController.sendEvent(
+                    SnackbarEvent(
+                        message = UiText.Res(R.string.login_failed) + err.toUiText()
+                    )
+                )
+
+                _uiEvent.send(LoginUiEvent.LoginFailed)
+            }
+
+        _isPending.update { false }
     }
 }

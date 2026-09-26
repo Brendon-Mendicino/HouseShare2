@@ -28,6 +28,18 @@ sealed interface RemoteError : DataError {
     data class Unknown(val response: Response<*>) : RemoteError
     data object NoConnection : RemoteError
 
+    /**
+     * There is no session and none could be obtained: either no token is stored on the device or
+     * the refresh token was rejected by the OIDC provider. The user has to log in again.
+     */
+    data object NoSession : RemoteError
+
+    /**
+     * The identity provider refused the credentials. [reason] is the message it answered with,
+     * when it gave one.
+     */
+    data class InvalidCredentials(val reason: String? = null) : RemoteError
+
     fun maybeResponse() = when (this) {
         is BadGateway -> this.response
         is BadRequest -> this.response
@@ -44,9 +56,19 @@ sealed interface RemoteError : DataError {
         is Unknown -> this.response
         is UnsupportedMediaType -> this.response
         is NoConnection -> null
+        is NoSession -> null
+        is InvalidCredentials -> null
     }
 
     fun message(): String {
+        if (this is NoSession) {
+            return "No session"
+        }
+
+        if (this is InvalidCredentials) {
+            return reason ?: "Invalid credentials"
+        }
+
         val response = maybeResponse()
         if (response == null) {
             return "No connection"
@@ -68,6 +90,9 @@ sealed interface RemoteError : DataError {
             is ContentTooLarge,
             is UnsupportedMediaType,
             is TooManyRequests,
+                // Not status codes, but they mean the same thing to every caller: logged out.
+            is NoSession,
+            is InvalidCredentials,
                 -> true
 
             else -> false

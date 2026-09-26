@@ -5,6 +5,7 @@ import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.form.ExpenseFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.GroupFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.GroupMemberFormStateValidator
+import lol.terabrendon.houseshare2.domain.form.LoginFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.UserPartValidator
 
@@ -46,6 +47,11 @@ fun ExpenseFormStateValidator.labels(): Map<String, Int> = mapOf(
     ExpenseFormStateValidator::payer.name to R.string.payed_by,
 )
 
+fun LoginFormStateValidator.labels(): Map<String, Int> = mapOf(
+    LoginFormStateValidator::username.name to R.string.username,
+    LoginFormStateValidator::password.name to R.string.password,
+)
+
 fun UserPartValidator.labels(): Map<String, Int> = mapOf(
     UserPartValidator::amount.name to R.string.amount,
     UserPartValidator::amountDouble.name to R.string.amount,
@@ -61,6 +67,8 @@ fun GroupFormStateValidator.errorUiText(): UiText? = errors.firstUiText(labels()
 fun ShoppingItemFormStateValidator.errorUiText(): UiText? = errors.firstUiText(labels())
 
 fun UserPartValidator.errorUiText(): UiText? = errors.firstUiText(labels())
+
+fun LoginFormStateValidator.errorUiText(): UiText? = errors.firstUiText(labels())
 
 fun ExpenseFormStateValidator.errorUiText(): UiText? {
     val (name, error) = errors.firstOrNull() ?: return null
