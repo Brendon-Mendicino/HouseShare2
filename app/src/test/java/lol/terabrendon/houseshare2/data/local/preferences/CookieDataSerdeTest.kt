@@ -3,6 +3,8 @@ package lol.terabrendon.houseshare2.data.local.preferences
 import androidx.datastore.core.CorruptionException
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import lol.terabrendon.houseshare2.data.local.crypto.Crypto
+import lol.terabrendon.houseshare2.data.local.crypto.PlainCrypto
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -15,16 +17,16 @@ class CookieDataSerdeTest {
      * The real cipher uses the Android Keystore, which is not available on the jvm. What is tested
      * here is the serializer, not the cipher.
      */
-    private val serializer = CookieDataSerializer(
-        encrypt = { it.reversedArray() },
-        decrypt = { it.reversedArray() },
-    )
+    private val serializer = CookieDataSerializer(object : Crypto {
+        override fun encrypt(bytes: ByteArray) = bytes.reversedArray()
+        override fun decrypt(bytes: ByteArray) = bytes.reversedArray()
+    })
 
     /** What a lost Keystore key looks like. */
-    private val brokenSerializer = CookieDataSerializer(
-        encrypt = { it },
-        decrypt = { throw BadPaddingException() },
-    )
+    private val brokenSerializer = CookieDataSerializer(object : Crypto {
+        override fun encrypt(bytes: ByteArray) = bytes
+        override fun decrypt(bytes: ByteArray): ByteArray = throw BadPaddingException()
+    })
 
     private val session = HttpCookie("JSESSIONID", "super-secret-session").apply {
         path = "/"
@@ -52,6 +54,15 @@ class CookieDataSerdeTest {
     @Test
     fun `the stored bytes are not readable`() {
         assertThat(serializer.write(data).decodeToString()).doesNotContain("super-secret-session")
+    }
+
+    @Test
+    fun `the plain serializer stores readable json`() {
+        val plain = CookieDataSerializer(PlainCrypto)
+        val bytes = plain.write(data)
+
+        assertThat(bytes.decodeToString()).contains("super-secret-session")
+        assertThat(plain.read(bytes)).isEqualTo(data)
     }
 
     @Test(expected = CorruptionException::class)

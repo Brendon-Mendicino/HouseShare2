@@ -9,7 +9,7 @@ import java.net.HttpCookie
  * [lol.terabrendon.houseshare2.data.remote.api.SharedPrefCookieStore].
  *
  * They hold the sessions of the server and of the identity provider, which are as good as the
- * credentials of the user: the file is encrypted, see [CookieDataSerializer].
+ * credentials of the user: the file is encrypted in release builds, see [cookiePreferencesStore].
  */
 @Serializable
 data class CookieData(
