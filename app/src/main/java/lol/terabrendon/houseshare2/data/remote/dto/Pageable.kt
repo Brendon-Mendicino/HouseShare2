@@ -20,4 +20,14 @@ data class Pageable(
 
         return map.toMap()
     }
+
+    companion object {
+        /**
+         * Asks Spring for the whole collection in a single page. The server still clamps it to
+         * its `max-page-size`.
+         *
+         * Temporary: it stands in for paging until items are synced through events.
+         */
+        const val UNLIMITED = Int.MAX_VALUE
+    }
 }

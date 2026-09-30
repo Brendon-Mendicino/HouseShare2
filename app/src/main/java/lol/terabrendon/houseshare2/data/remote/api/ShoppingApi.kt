@@ -2,6 +2,7 @@ package lol.terabrendon.houseshare2.data.remote.api
 
 import lol.terabrendon.houseshare2.data.remote.dto.CheckDto
 import lol.terabrendon.houseshare2.data.remote.dto.Page
+import lol.terabrendon.houseshare2.data.remote.dto.Pageable
 import lol.terabrendon.houseshare2.data.remote.dto.ShoppingItemDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -9,6 +10,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 import javax.annotation.CheckReturnValue
 
 @CheckReturnValue
@@ -27,7 +29,10 @@ interface ShoppingApi {
     ): NetResult<ShoppingItemDto>
 
     @GET("groups/{groupId}/shopping-items")
-    suspend fun getByGroupId(@Path("groupId") groupId: Long): Page<ShoppingItemDto>
+    suspend fun getByGroupId(
+        @Path("groupId") groupId: Long,
+        @Query("size") size: Int = Pageable.UNLIMITED,
+    ): Page<ShoppingItemDto>
 
     @DELETE("groups/{groupId}/shopping-items/{shoppingItemId}")
     suspend fun delete(
