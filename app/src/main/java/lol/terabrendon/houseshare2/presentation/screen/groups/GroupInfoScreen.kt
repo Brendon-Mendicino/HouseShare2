@@ -148,7 +148,7 @@ private fun GroupInfoInner(
         item {
             GroupHeaderCard(
                 groupName = group.info.name,
-                memberCount = group.users.size,
+                memberCount = group.members.size,
                 onShareClick = { onEvent(GroupInfoEvent.ShareGroup) },
                 onEditClick = onEditClick,
                 inviteUrlLoading = inviteUrlLoading,
@@ -166,11 +166,11 @@ private fun GroupInfoInner(
         }
 
         // 3. User List
-        items(group.members, key = { it.id }) { user ->
+        items(group.members, key = { it.id }) { member ->
             UserListItem(
-                user = user,
-                isCurrentUser = currentUser?.id == user.id,
-                onClick = { onMemberClick(user) },
+                member = member,
+                isCurrentUser = currentUser?.id == member.userId,
+                onClick = { onMemberClick(member) },
             )
         }
     }
@@ -249,7 +249,7 @@ fun GroupHeaderCard(
 @Composable
 fun UserListItem(
     modifier: Modifier = Modifier,
-    user: GroupMemberModel,
+    member: GroupMemberModel,
     isCurrentUser: Boolean,
     onClick: () -> Unit = {},
 ) {
@@ -273,12 +273,12 @@ fun UserListItem(
                         }
                     }
                 }) {
-                    AvatarIcon(user = user)
+                    AvatarIcon(user = member)
                 }
             },
             headlineContent = {
                 Text(
-                    text = user.fullName,
+                    text = member.fullName,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium
                 )
@@ -296,8 +296,9 @@ fun UserListItem(
 @Composable
 fun PreviewGroupInfo_Populated() {
     HouseShare2Theme {
-        val mockUsers = List(3) { UserModel.random() }
-        val mockGroup = GroupModel.default().copy(users = mockUsers)
+        val mockUsers = List(3) { UserModel.random().copy(id = it.toLong()) }
+        val members = List(3) { GroupMemberModel.random().copy(userId = it.toLong()) }
+        val mockGroup = GroupModel.default().copy(users = mockUsers, members = members)
 
         GroupInfoInner(
             group = mockGroup,

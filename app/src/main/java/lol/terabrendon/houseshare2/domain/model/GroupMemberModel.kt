@@ -2,6 +2,7 @@ package lol.terabrendon.houseshare2.domain.model
 
 import android.net.Uri
 import java.util.UUID
+import kotlin.random.Random
 
 data class GroupMemberModel(
     val id: Long,
@@ -25,6 +26,13 @@ data class GroupMemberModel(
         )
 
         @JvmStatic
-        fun random() = default().copy(firstName = UUID.randomUUID().toString())
+        fun random() = GroupMemberModel(
+            id = Random.nextLong(),
+            firstName = UUID.randomUUID().toString(),
+            lastName = null,
+            picture = null,
+            groupId = Random.nextLong(),
+            userId = null,
+        )
     }
 }
