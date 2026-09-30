@@ -157,4 +157,11 @@
     <string name="no_expenses_yet">Ancora nessuna spesa</string>
     <string name="add_an_expense_to_get_started">Aggiungi una spesa per cominciare</string>
     <string name="get_started">Inizia</string>
+    <string name="login_error">Accesso non riuscito, riprova.</string>
+    <string name="or">oppure</string>
+    <string name="new_to_houseshare">Nuovo su HouseShare?</string>
+    <string name="create_account">Crea un account</string>
+    <string name="register_in_browser_hint">Completerai la registrazione nel browser, poi torna qui per accedere.</string>
+    <string name="show_password">Mostra password</string>
+    <string name="hide_password">Nascondi password</string>
 </resources>

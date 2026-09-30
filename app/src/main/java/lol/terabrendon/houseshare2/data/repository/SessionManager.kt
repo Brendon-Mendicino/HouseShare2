@@ -4,6 +4,7 @@ import androidx.core.net.toUri
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.map
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.unwrapError
 import kotlinx.coroutines.sync.Mutex
@@ -69,6 +70,14 @@ class SessionManager @Inject constructor(
         Timber.i("renew: renewing the session")
 
         authenticate(credentials = null)
+    }
+
+    /**
+     * Where a new user can sign up. The url is built from a fresh authorization request of the
+     * server, so the app still knows nothing about the provider configuration.
+     */
+    suspend fun registrationUrl(): NetResult<String> = mutex.withLock {
+        authorizationUrl().map { idpAuthenticator.registrationUrl(it) }
     }
 
     private suspend fun authenticate(credentials: Credentials?): NetResult<Unit> {

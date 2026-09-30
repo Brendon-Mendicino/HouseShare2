@@ -11,21 +11,22 @@ import dagger.hilt.components.SingletonComponent
 import lol.terabrendon.houseshare2.BuildConfig
 import lol.terabrendon.houseshare2.data.local.preferences.cookiePreferencesStore
 import lol.terabrendon.houseshare2.data.remote.api.AuthApi
-import lol.terabrendon.houseshare2.data.remote.api.CsrfInterceptor
 import lol.terabrendon.houseshare2.data.remote.api.ExpenseApi
 import lol.terabrendon.houseshare2.data.remote.api.GroupApi
 import lol.terabrendon.houseshare2.data.remote.api.IdpApi
 import lol.terabrendon.houseshare2.data.remote.api.ResultCallAdapterFactory
-import lol.terabrendon.houseshare2.data.remote.api.SessionRenewInterceptor
 import lol.terabrendon.houseshare2.data.remote.api.SharedPrefCookieStore
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
+import lol.terabrendon.houseshare2.data.remote.idp.CsrfInterceptor
+import lol.terabrendon.houseshare2.data.remote.interceptor.HttpLoggingInterceptor
+import lol.terabrendon.houseshare2.data.remote.interceptor.HttpLoggingInterceptor.Level
+import lol.terabrendon.houseshare2.data.remote.interceptor.SessionRenewInterceptor
 import lol.terabrendon.houseshare2.data.repository.SessionManager
 import lol.terabrendon.houseshare2.domain.typeadapter.OffsetDateTimeSerde
 import okhttp3.CookieJar
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -57,10 +58,9 @@ object ApiModule {
 
     // Logs full request/response bodies in debug builds only, so cookies/PII never
     // hit Logcat in release.
-    private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
-        else HttpLoggingInterceptor.Level.NONE
-    }
+    private val loggingInterceptor = HttpLoggingInterceptor(
+        level = if (BuildConfig.DEBUG) Level.BODY else Level.NONE,
+    )
 
     @Provides
     @Singleton

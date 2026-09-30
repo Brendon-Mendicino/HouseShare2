@@ -3,6 +3,7 @@ package lol.terabrendon.houseshare2.presentation.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -19,6 +20,7 @@ import lol.terabrendon.houseshare2.domain.form.LoginFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.form.touchAll
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
+import lol.terabrendon.houseshare2.domain.usecase.GetRegistrationUrlUseCase
 import lol.terabrendon.houseshare2.domain.usecase.LoginUseCase
 import lol.terabrendon.houseshare2.presentation.screen.login.LoginEvent
 import lol.terabrendon.houseshare2.presentation.screen.login.LoginUiEvent
@@ -34,6 +36,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val getLoggedUser: GetLoggedUserUseCase,
     private val loginUseCase: LoginUseCase,
+    private val getRegistrationUrl: GetRegistrationUrlUseCase,
 ) : ViewModel() {
     private var _uiEvent = Channel<LoginUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -73,7 +76,23 @@ class LoginViewModel @Inject constructor(
             }
 
             LoginEvent.Login -> viewModelScope.launch { onLogin() }
+
+            LoginEvent.Register -> viewModelScope.launch { onRegister() }
         }
+    }
+
+    private suspend fun onRegister() {
+        _isPending.update { true }
+
+        getRegistrationUrl()
+            .onSuccess { url -> _uiEvent.send(LoginUiEvent.OpenRegistration(url)) }
+            .onFailure { err ->
+                Timber.w("onRegister: failed to get the registration url! error=%s", err)
+
+                SnackbarController.sendError(err)
+            }
+
+        _isPending.update { false }
     }
 
     private suspend fun onLogin() {

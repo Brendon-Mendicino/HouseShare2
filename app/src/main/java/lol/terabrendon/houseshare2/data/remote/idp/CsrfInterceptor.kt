@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.data.remote.api
+package lol.terabrendon.houseshare2.data.remote.idp
 
 import okhttp3.Cookie
 import okhttp3.Interceptor

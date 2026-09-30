@@ -1,4 +1,4 @@
-package lol.terabrendon.houseshare2.data.remote.api
+package lol.terabrendon.houseshare2.data.remote.interceptor
 
 import androidx.core.net.toUri
 import com.github.michaelbull.result.onFailure
@@ -15,7 +15,7 @@ import timber.log.Timber
  * Without this, an expired session surfaces as an error to the user and is only noticed by the
  * login poller, up to a couple of minutes later.
  *
- * [SessionManager] is injected lazily: it depends on the auth and provider APIs, which are built
+ * [lol.terabrendon.houseshare2.data.repository.SessionManager] is injected lazily: it depends on the auth and provider APIs, which are built
  * by the same Hilt module that builds the client this interceptor belongs to.
  */
 class SessionRenewInterceptor(

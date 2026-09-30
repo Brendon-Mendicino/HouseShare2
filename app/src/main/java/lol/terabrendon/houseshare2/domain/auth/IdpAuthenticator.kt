@@ -35,4 +35,12 @@ interface IdpAuthenticator {
         authorizationUrl: String,
         credentials: Credentials?,
     ): NetResult<String>
+
+    /**
+     * The url of the provider page where a new user signs up, derived from [authorizationUrl].
+     *
+     * Registration is the one step the app does not perform itself: the url is opened in a
+     * browser, and once the account exists the user comes back and logs in with [authenticate].
+     */
+    fun registrationUrl(authorizationUrl: String): String
 }

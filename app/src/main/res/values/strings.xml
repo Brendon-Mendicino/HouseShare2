@@ -159,4 +159,11 @@
     <string name="no_expenses_yet">No expenses yet</string>
     <string name="add_an_expense_to_get_started">Add an expense to get started</string>
     <string name="get_started">Get Started</string>
+    <string name="login_error">Couldn\'t log you in, please try again.</string>
+    <string name="or">or</string>
+    <string name="new_to_houseshare">New to HouseShare?</string>
+    <string name="create_account">Create an account</string>
+    <string name="register_in_browser_hint">You\'ll sign up in your browser, then come back here to log in.</string>
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
 </resources>

@@ -10,6 +10,7 @@ import lol.terabrendon.houseshare2.data.remote.util.convertResponse
 import lol.terabrendon.houseshare2.domain.auth.Credentials
 import lol.terabrendon.houseshare2.domain.auth.IdpAuthenticator
 import lol.terabrendon.houseshare2.domain.error.RemoteError
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.ResponseBody
 import retrofit2.Response
 import timber.log.Timber
@@ -106,6 +107,21 @@ class KeycloakAuthenticator @Inject constructor(
 
         return Err(convertResponse(result).unwrapError())
     }
+
+    /**
+     * The same authorization request, asking the provider to show its registration page instead
+     * of the login one (`prompt=create`, from OpenID Connect "Initiating User Registration").
+     *
+     * The registration link printed on the login page cannot be used instead: it is bound to the
+     * authentication session cookie of the provider, which lives in the cookie jar of the app and
+     * not in the browser that is going to open the url.
+     */
+    override fun registrationUrl(authorizationUrl: String): String = authorizationUrl
+        .toHttpUrl()
+        .newBuilder()
+        .setQueryParameter("prompt", "create")
+        .build()
+        .toString()
 
     private sealed interface Hop {
         /** The flow is over, [redirect] carries the authorization code. */
