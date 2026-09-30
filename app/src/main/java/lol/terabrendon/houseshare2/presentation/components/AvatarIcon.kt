@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -80,12 +83,20 @@ fun AvatarIcon(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawCircle(SolidColor(color))
             }
-            Text(
-                text = initials,
-                fontSize = with(density) { (size * 2 / 3).toSp() },
-                color = Color.White,
-                maxLines = 1,
-            )
+            if (initials.isBlank()) {
+                Icon(
+                    Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(size * 2 / 3)
+                )
+            } else {
+                Text(
+                    text = initials,
+                    fontSize = with(density) { (size * 2 / 3).toSp() },
+                    color = Color.White,
+                    maxLines = 1,
+                )
+            }
         }
     }
 
@@ -127,5 +138,16 @@ private fun IconUserPreview(
     AvatarIcon(
         user = GroupMemberModel.default(),
         size = size.dp
+    )
+}
+
+@Preview
+@Composable
+private fun IconWithoutName(
+    @PreviewParameter(provider = Prev::class) size: Int,
+) {
+    AvatarIcon(
+        user = GroupMemberModel.default().copy(firstName = ""),
+        size = size.dp,
     )
 }
