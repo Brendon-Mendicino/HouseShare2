@@ -135,7 +135,7 @@ class NavigatorImpl(
             }
         }.distinctUntilChanged()
             .onEach { check(it.isNotEmpty()) { "BackStack size must always by greater than 0!" } }
-            .onEach { Timber.i("backStack: %s", it) }
+            .onEach { Timber.d("backStack: %s", it) }
 
     private fun handleNavigationWithGraph(dest: MainNavigation): List<MainNavigation> {
         return if (dest in MainNavigation.topLevelRoutes) {

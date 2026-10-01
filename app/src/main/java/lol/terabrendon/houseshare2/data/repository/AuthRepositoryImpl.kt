@@ -4,10 +4,12 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.map
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import lol.terabrendon.houseshare2.data.local.dao.UserDao
 import lol.terabrendon.houseshare2.data.local.util.localSafe
+import lol.terabrendon.houseshare2.data.remote.api.NetResult
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.LoggedUserId
 import lol.terabrendon.houseshare2.domain.error.DataError
@@ -56,4 +58,9 @@ class AuthRepositoryImpl @Inject constructor(
         .onFailure { err ->
             Timber.w("loggedUser: returned an error: err=%s", err)
         }
+
+    override suspend fun fetchLoggedUser(): NetResult<UserModel> {
+        return userApi.getLoggedUser().map { it.toModel() }
+            .onFailure { err -> Timber.w("could not fetch the logged user. err=%s", err) }
+    }
 }

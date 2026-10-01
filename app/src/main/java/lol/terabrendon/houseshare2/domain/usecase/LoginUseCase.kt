@@ -5,9 +5,11 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import lol.terabrendon.houseshare2.data.repository.AuthRepository
 import lol.terabrendon.houseshare2.data.repository.SessionManager
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.domain.auth.Credentials
 import lol.terabrendon.houseshare2.domain.error.DataError
 import lol.terabrendon.houseshare2.domain.model.UserModel
@@ -21,6 +23,7 @@ import javax.inject.Inject
 class LoginUseCase @Inject constructor(
     private val sessionManager: SessionManager,
     private val authRepository: AuthRepository,
+    private val userDataRepository: UserDataRepository,
     private val db: RoomDatabase,
 ) {
     suspend operator fun invoke(
@@ -33,10 +36,14 @@ class LoginUseCase @Inject constructor(
             .login(Credentials(username = username, password = password))
             .getOrElse { err -> return@withContext Err(err) }
 
-        Timber.i("invoke: starting DB clear")
-        // TODO: only clear them if the user is different from what was logged previously
-//        db.clearAllTables()
-        Timber.i("invoke: finished DB clear")
+        val previousUserId = userDataRepository.currentLoggedUserId.first()
+        val newUser = authRepository.fetchLoggedUser().getOrElse { return@withContext Err(it) }
+
+        if (previousUserId != null && previousUserId != newUser.id) {
+            Timber.i("invoke: starting DB clear")
+            db.clearAllTables()
+            Timber.i("invoke: finished DB clear")
+        }
 
         authRepository.finishLogin()
     }
