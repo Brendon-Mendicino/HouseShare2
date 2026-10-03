@@ -14,10 +14,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.data.repository.ExpenseRepository
+import lol.terabrendon.houseshare2.domain.mapper.DebtSettlementMapper
 import lol.terabrendon.houseshare2.domain.mapper.ExpenseBalanceMapper
 import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
+import lol.terabrendon.houseshare2.domain.model.DebtModel
 import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.toMoney
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedMemberUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import javax.inject.Inject
@@ -26,8 +29,19 @@ import javax.inject.Inject
 class BillingViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
     private val expenseBalanceMapper: ExpenseBalanceMapper,
+    private val debtSettlementMapper: DebtSettlementMapper,
     getSelectedGroupUseCase: GetSelectedGroupUseCase,
+    getLoggedMemberUseCase: GetLoggedMemberUseCase,
 ) : ViewModel() {
+
+    /**
+     * The payments that settle the group, split by how they concern the logged member.
+     */
+    data class DebtsUiState(
+        val youOwe: List<DebtModel> = emptyList(),
+        val owedToYou: List<DebtModel> = emptyList(),
+        val others: List<DebtModel> = emptyList(),
+    )
 
     companion object {
         @JvmStatic
@@ -79,6 +93,19 @@ class BillingViewModel @Inject constructor(
 
     val balances = combine(partialBalances, groupMembers, ::addMissingUsers)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
+
+    // Members without expenses have no balance, so they can't be part of any debt.
+    val debts = combine(
+        partialBalances.map { debtSettlementMapper.map(it.values) },
+        getLoggedMemberUseCase(),
+    ) { debts, me ->
+        DebtsUiState(
+            youOwe = debts.filter { it.debtor.id == me?.id },
+            owedToYou = debts.filter { it.creditor.id == me?.id },
+            others = debts.filter { it.debtor.id != me?.id && it.creditor.id != me?.id },
+        )
+    }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), DebtsUiState())
 }
 
 // qual e il mio tasssskkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk???????????????????????????????????????????????????????????????????????????????????

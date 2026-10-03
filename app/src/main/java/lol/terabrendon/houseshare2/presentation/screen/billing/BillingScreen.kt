@@ -30,17 +30,21 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.AccountBalance
 import androidx.compose.material.icons.outlined.Receipt
+import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
@@ -76,6 +80,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.domain.model.BillingBalanceModel
+import lol.terabrendon.houseshare2.domain.model.DebtModel
 import lol.terabrendon.houseshare2.domain.model.ExpenseModel
 import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
 import lol.terabrendon.houseshare2.domain.model.UserExpenseModel
@@ -90,6 +95,7 @@ import lol.terabrendon.houseshare2.presentation.provider.RegisterFabConfig
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import lol.terabrendon.houseshare2.presentation.util.UiText
 import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel
+import lol.terabrendon.houseshare2.presentation.vm.BillingViewModel.DebtsUiState
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.inlineFormat
 
@@ -115,6 +121,11 @@ private val tabItems = listOf(
         selectedIcon = Icons.Filled.AccountBalance,
         unselectedIcon = Icons.Outlined.AccountBalance,
     ),
+    TabItem(
+        title = R.string.debts,
+        selectedIcon = Icons.Filled.SwapHoriz,
+        unselectedIcon = Icons.Outlined.SwapHoriz,
+    ),
 )
 
 @Composable
@@ -125,6 +136,7 @@ fun BillingScreen(
     val groupAvailable = billingViewModel.currentGroup.collectAsStateWithLifecycle().value != null
     val expenses by billingViewModel.expenses.collectAsStateWithLifecycle()
     val balances by billingViewModel.balances.collectAsStateWithLifecycle()
+    val debts by billingViewModel.debts.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
 
@@ -146,7 +158,7 @@ fun BillingScreen(
         return
     }
 
-    BillingInnerScreen(expenses = expenses, balances = balances)
+    BillingInnerScreen(expenses = expenses, balances = balances, debts = debts)
 }
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -154,6 +166,7 @@ fun BillingScreen(
 private fun BillingInnerScreen(
     expenses: List<ExpenseModel>,
     balances: List<BillingBalanceModel>,
+    debts: DebtsUiState,
 ) {
     val pagerState = rememberPagerState { tabItems.size }
     val scope = rememberCoroutineScope()
@@ -183,6 +196,7 @@ private fun BillingInnerScreen(
             when (pageIndex) {
                 0 -> ExpenseList(expenses = expenses, modifier = Modifier.fillMaxSize())
                 1 -> AccountBalance(balances = balances, modifier = Modifier.fillMaxSize())
+                2 -> DebtList(debts = debts, modifier = Modifier.fillMaxSize())
                 else -> throw RuntimeException("Page index out of bounds! pageIndex=$pageIndex")
             }
         }
@@ -236,6 +250,114 @@ private fun AccountBalanceItem(modifier: Modifier = Modifier, billingBalance: Bi
 
             Spacer(Modifier.requiredWidth(8.dp))
         }
+    }
+}
+
+@Composable
+private fun DebtList(modifier: Modifier = Modifier, debts: DebtsUiState) {
+    if (debts.youOwe.isEmpty() && debts.owedToYou.isEmpty() && debts.others.isEmpty()) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
+            Text(
+                text = stringResource(R.string.all_settled_up),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        return
+    }
+
+    LazyColumn(modifier = modifier) {
+        debtSection(R.string.you_owe, debts.youOwe) { debt ->
+            DebtItem(
+                member = debt.creditor,
+                amount = debt.amount.toCurrency(),
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+        debtSection(R.string.owed_to_you, debts.owedToYou) { debt ->
+            DebtItem(
+                member = debt.debtor,
+                amount = debt.amount.toCurrency(),
+                color = Color(168, 213, 186),
+            )
+        }
+        debtSection(R.string.between_the_others, debts.others) { debt ->
+            OthersDebtItem(debt = debt)
+        }
+    }
+}
+
+private fun LazyListScope.debtSection(
+    @StringRes title: Int,
+    debts: List<DebtModel>,
+    content: @Composable (DebtModel) -> Unit,
+) {
+    if (debts.isEmpty()) return
+
+    item(key = title) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(stringResource(title), fontWeight = FontWeight.Bold)
+            HorizontalDivider(modifier = Modifier.weight(1f))
+        }
+    }
+    items(debts, key = { "$title-${it.debtor.id}-${it.creditor.id}" }) { debt ->
+        content(debt)
+    }
+}
+
+@Composable
+private fun DebtItem(member: GroupMemberModel, amount: String, color: Color) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        AvatarIcon(user = member)
+        Text(
+            text = member.fullName,
+            modifier = Modifier.weight(1f),
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(text = amount, fontWeight = FontWeight.Bold, color = color)
+    }
+}
+
+@Composable
+private fun OthersDebtItem(debt: DebtModel) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        AvatarIcon(user = debt.debtor, size = 32.dp)
+        Icon(
+            Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        AvatarIcon(user = debt.creditor, size = 32.dp)
+        Text(
+            text = "${debt.debtor.firstName} → ${debt.creditor.firstName}",
+            modifier = Modifier.weight(1f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = debt.amount.toCurrency(),
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -532,4 +654,27 @@ private fun AccountBalancePreview() {
     }.take(6).toList()
 
     AccountBalance(balances = balances)
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DebtListPreview() {
+    val me = GroupMemberModel.default().copy(id = 1, firstName = "Giulia", lastName = "Rossi")
+    val marco = GroupMemberModel.default().copy(id = 2, firstName = "Marco", lastName = "Bianchi")
+    val emma = GroupMemberModel.default().copy(id = 3, firstName = "Emma", lastName = "Wilson")
+    val tom = GroupMemberModel.default().copy(id = 4, firstName = "Tom", lastName = "Becker")
+
+    DebtList(
+        debts = DebtsUiState(
+            youOwe = listOf(DebtModel(me, emma, 42.50.toMoney())),
+            owedToYou = listOf(DebtModel(marco, me, 120.toMoney())),
+            others = listOf(DebtModel(tom, emma, 18.20.toMoney())),
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DebtListSettledPreview() {
+    DebtList(debts = DebtsUiState(), modifier = Modifier.fillMaxSize())
 }
