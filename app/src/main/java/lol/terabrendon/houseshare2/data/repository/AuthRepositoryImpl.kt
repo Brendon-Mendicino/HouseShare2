@@ -12,6 +12,7 @@ import lol.terabrendon.houseshare2.data.local.util.localSafe
 import lol.terabrendon.houseshare2.data.remote.api.NetResult
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.LoggedUserId
+import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.PrevLoggedUserId
 import lol.terabrendon.houseshare2.domain.error.DataError
 import lol.terabrendon.houseshare2.domain.mapper.toEntity
 import lol.terabrendon.houseshare2.domain.mapper.toModel
@@ -29,6 +30,7 @@ class AuthRepositoryImpl @Inject constructor(
 
         localSafe {
             userDataRepository.update(LoggedUserId(user.id))
+            userDataRepository.update(PrevLoggedUserId(user.id))
             userDao.upsert(user.toEntity())
         }.getOrElse { return Err(it) }
 

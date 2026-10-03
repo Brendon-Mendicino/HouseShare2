@@ -36,7 +36,7 @@ class LoginUseCase @Inject constructor(
             .login(Credentials(username = username, password = password))
             .getOrElse { err -> return@withContext Err(err) }
 
-        val previousUserId = userDataRepository.currentLoggedUserId.first()
+        val previousUserId = userDataRepository.prevLoggedUserId.first()
         val newUser = authRepository.fetchLoggedUser().getOrElse { return@withContext Err(it) }
 
         if (previousUserId != null && previousUserId != newUser.id) {

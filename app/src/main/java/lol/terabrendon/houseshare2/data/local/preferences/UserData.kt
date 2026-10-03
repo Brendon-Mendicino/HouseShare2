@@ -7,6 +7,7 @@ import lol.terabrendon.houseshare2.presentation.navigation.MainNavigation
 data class UserData(
     val backStack: List<MainNavigation> = emptyList(),
     val currentLoggedUserId: Long? = null,
+    val prevLoggedUserId: Long? = null,
     val selectedGroupId: Long? = null,
     val termsAndConditions: Boolean = false,
     val sendAnalytics: Boolean = false,

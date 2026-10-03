@@ -33,6 +33,11 @@ class UserDataRepositoryImpl @Inject constructor(
         get() = userPreferencesFlow
             .map { data -> data.currentLoggedUserId.takeIf { 0L != it } }
 
+    override val prevLoggedUserId: Flow<Long?>
+        get() = userPreferencesFlow
+            .map { data -> data.prevLoggedUserId }
+            .distinctUntilChanged()
+
     override val selectedGroupId: Flow<Long?>
         get() = userPreferencesFlow
             .map { data -> data.selectedGroupId.takeIf { 0L != it } }
@@ -58,6 +63,7 @@ class UserDataRepositoryImpl @Inject constructor(
                 is Update.BackStack -> data.copy(backStack = update.backStack)
                 is Update.SelectedGroupId -> data.copy(selectedGroupId = update.groupId)
                 is Update.LoggedUserId -> data.copy(currentLoggedUserId = update.userId)
+                is Update.PrevLoggedUserId -> data.copy(prevLoggedUserId = update.userId)
                 is Update.SendAnalytics -> data.copy(sendAnalytics = update.accept)
                 is Update.TermsConditions -> data.copy(termsAndConditions = update.accept)
                 is Update.AppTheme -> data.copy(appTheme = update.theme)

@@ -8,6 +8,7 @@ interface UserDataRepository {
     sealed interface Update {
         data class BackStack(val backStack: List<MainNavigation>) : Update
         data class LoggedUserId(val userId: Long?) : Update
+        data class PrevLoggedUserId(val userId: Long?) : Update
         data class SelectedGroupId(val groupId: Long?) : Update
         data class TermsConditions(val accept: Boolean) : Update
         data class SendAnalytics(val accept: Boolean) : Update
@@ -17,6 +18,7 @@ interface UserDataRepository {
 
     val savedBackStack: Flow<List<MainNavigation>>
     val currentLoggedUserId: Flow<Long?>
+    val prevLoggedUserId: Flow<Long?>
     val selectedGroupId: Flow<Long?>
     val termsAndConditions: Flow<Boolean>
     val sendAnalytics: Flow<Boolean>
