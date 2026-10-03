@@ -29,6 +29,9 @@
 # Retrofit2 uses GSON to convert requests data
 -keep class lol.terabrendon.houseshare2.data.remote.dto.** { *; }
 -keep class com.github.michaelbull.result.Result { *; }
+# Gson maps enums through their constant fields (getDeclaredFields), R8 would otherwise remove or
+# rename them. Covers the domain enums used inside the DTOs (ExpenseCategory, ShoppingItemPriority).
+-keepclassmembers enum lol.terabrendon.houseshare2.domain.model.** { <fields>; }
 
 # -- Room
 -keep class * extends androidx.room.RoomDatabase
