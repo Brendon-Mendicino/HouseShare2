@@ -166,4 +166,9 @@
     <string name="register_in_browser_hint">You\'ll sign up in your browser, then come back here to log in.</string>
     <string name="show_password">Show password</string>
     <string name="hide_password">Hide password</string>
+    <string name="server_url">Server URL</string>
+    <string name="server_url_change_hint">Changing the server logs you out and clears the local data.</string>
+    <string name="invalid_server_url">Invalid server URL</string>
+    <string name="server_url_changed">Server changed, log in again</string>
+    <string name="restore_default">Restore default</string>
 </resources>

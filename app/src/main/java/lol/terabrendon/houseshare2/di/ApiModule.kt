@@ -19,11 +19,13 @@ import lol.terabrendon.houseshare2.data.remote.api.SharedPrefCookieStore
 import lol.terabrendon.houseshare2.data.remote.api.ShoppingApi
 import lol.terabrendon.houseshare2.data.remote.api.UserApi
 import lol.terabrendon.houseshare2.data.remote.idp.CsrfInterceptor
+import lol.terabrendon.houseshare2.data.remote.interceptor.BaseUrlInterceptor
 import lol.terabrendon.houseshare2.data.remote.interceptor.HttpLoggingInterceptor
 import lol.terabrendon.houseshare2.data.remote.interceptor.HttpLoggingInterceptor.Level
 import lol.terabrendon.houseshare2.data.remote.interceptor.SessionRenewInterceptor
 import lol.terabrendon.houseshare2.data.repository.SessionManager
 import lol.terabrendon.houseshare2.domain.typeadapter.OffsetDateTimeSerde
+import lol.terabrendon.houseshare2.util.applyIf
 import okhttp3.CookieJar
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
@@ -39,6 +41,19 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
+    private val csrfManager = CsrfInterceptor()
+
+    private val baseUrlInterceptorEnabled = BuildConfig.DEBUG
+
+    // Debug builds can point the app to another server, see DebugServerUrl.
+    private val baseUrlInterceptor = BaseUrlInterceptor()
+
+    // Logs full request/response bodies in debug builds only, so cookies/PII never
+    // hit Logcat in release.
+    private val loggingInterceptor = HttpLoggingInterceptor(
+        level = if (BuildConfig.DEBUG) Level.BODY else Level.NONE,
+    )
+
     @Provides
     @Singleton
     fun provideCookieStore(
@@ -53,14 +68,6 @@ object ApiModule {
             CookieManager(cookieStore, null)
                 .apply { setCookiePolicy(CookiePolicy.ACCEPT_ALL) })
 
-
-    private val csrfManager = CsrfInterceptor()
-
-    // Logs full request/response bodies in debug builds only, so cookies/PII never
-    // hit Logcat in release.
-    private val loggingInterceptor = HttpLoggingInterceptor(
-        level = if (BuildConfig.DEBUG) Level.BODY else Level.NONE,
-    )
 
     @Provides
     @Singleton
@@ -84,6 +91,9 @@ object ApiModule {
             OkHttpClient.Builder()
                 .followRedirects(false)
                 .cookieJar(cookieManager)
+                .applyIf(baseUrlInterceptorEnabled) {
+                    addInterceptor(baseUrlInterceptor)
+                }
                 .addNetworkInterceptor(csrfManager)
                 // Before the logging one, so that the replayed request is logged as well.
                 .addInterceptor(SessionRenewInterceptor(sessionManager))
@@ -119,6 +129,9 @@ object ApiModule {
                 OkHttpClient.Builder()
                     .followRedirects(false)
                     .cookieJar(cookieManager)
+                    .applyIf(baseUrlInterceptorEnabled) {
+                        addInterceptor(baseUrlInterceptor)
+                    }
                     .addNetworkInterceptor(csrfManager)
                     .addInterceptor(loggingInterceptor)
                     .build()
@@ -145,6 +158,9 @@ object ApiModule {
             OkHttpClient.Builder()
                 .followRedirects(false)
                 .cookieJar(cookieManager)
+                .applyIf(baseUrlInterceptorEnabled) {
+                    addInterceptor(baseUrlInterceptor)
+                }
                 .addInterceptor(loggingInterceptor)
                 .build()
         )

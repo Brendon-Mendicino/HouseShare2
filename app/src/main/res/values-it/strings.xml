@@ -164,4 +164,9 @@
     <string name="register_in_browser_hint">Completerai la registrazione nel browser, poi torna qui per accedere.</string>
     <string name="show_password">Mostra password</string>
     <string name="hide_password">Nascondi password</string>
+    <string name="server_url">URL del server</string>
+    <string name="server_url_change_hint">Cambiare server effettua il logout e cancella i dati locali.</string>
+    <string name="invalid_server_url">URL del server non valido</string>
+    <string name="server_url_changed">Server cambiato, accedi di nuovo</string>
+    <string name="restore_default">Ripristina predefinito</string>
 </resources>

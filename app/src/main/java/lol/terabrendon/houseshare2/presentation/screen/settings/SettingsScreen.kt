@@ -14,17 +14,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType.Companion.PrimaryNotEditable
@@ -37,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +53,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
@@ -182,9 +187,73 @@ private fun SettingsInner(
             supportingContent = {
                 Text(BuildConfig.BUILD_TYPE)
             },
-            leadingContent = { Icon(Icons.Default.Terminal, null) })
+            leadingContent = { Icon(Icons.Default.Terminal, null) },
+        )
 
+        if (state.showServerUrl) {
+            ServerUrlItem(
+                serverUrl = state.serverUrl,
+                onChange = { onEvent(SettingsEvent.ServerUrlChanged(it)) },
+            )
+        }
     }
+}
+
+/**
+ * Debug builds only: shows the server the app is connected to and allows to change it.
+ */
+@Composable
+private fun ServerUrlItem(
+    modifier: Modifier = Modifier,
+    serverUrl: String,
+    onChange: (String?) -> Unit,
+) {
+    var editing by remember { mutableStateOf(false) }
+
+    ListItem(
+        modifier = modifier.clickable { editing = true },
+        headlineContent = { Text(stringResource(R.string.server_url)) },
+        supportingContent = { Text(serverUrl) },
+        leadingContent = { Icon(Icons.Default.Dns, null) },
+    )
+
+    if (!editing) return
+
+    var input by remember { mutableStateOf(serverUrl) }
+
+    AlertDialog(
+        icon = { Icon(Icons.Default.Dns, null) },
+        title = { Text(stringResource(R.string.server_url)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.server_url_change_hint))
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        onDismissRequest = { editing = false },
+        confirmButton = {
+            TextButton(onClick = {
+                editing = false
+                onChange(input)
+            }) {
+                Text(stringResource(R.string.confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = {
+                editing = false
+                onChange(null)
+            }) {
+                Text(stringResource(R.string.restore_default))
+            }
+        },
+    )
 }
 
 @Composable
@@ -339,6 +408,6 @@ private fun DynamicColorPicker(
 @Composable
 private fun SettingsPreview() {
     HouseShare2Theme {
-        SettingsInner(onEvent = {}, state = SettingsState())
+        SettingsInner(onEvent = {}, state = SettingsState(showServerUrl = true))
     }
 }

@@ -1,10 +1,5 @@
 package lol.terabrendon.houseshare2.presentation.screen.user
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,11 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,9 +79,7 @@ private fun UserProfileInner(
                 AvatarIcon(
                     user = user,
                     size = 180.dp,
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .rotatingGradient()
+                    modifier = Modifier.padding(16.dp),
                 )
             }
         }
@@ -143,33 +132,6 @@ private fun UserProfileInner(
             }
         }
     }
-}
-
-@Composable
-private fun Modifier.rotatingGradient(): Modifier = let {
-    val scheme = MaterialTheme.colorScheme
-    val grad = Brush.sweepGradient(
-        listOf(
-            scheme.primaryContainer,
-            scheme.secondaryContainer,
-            scheme.tertiaryContainer,
-            scheme.primaryContainer,
-        )
-    )
-
-    val infiniteTransition = rememberInfiniteTransition()
-    val rotatingAnimation = infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(1000, easing = LinearEasing))
-    )
-
-    it
-        .drawBehind {
-            rotate(rotatingAnimation.value) {
-                drawCircle(brush = grad, radius = 180.dp.value, style = Stroke(180.dp.value))
-            }
-        }
 }
 
 @Composable
