@@ -5,8 +5,10 @@ import androidx.annotation.ColorInt
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -21,11 +23,13 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import coil3.ImageLoader
 import coil3.compose.SubcomposeAsyncImage
@@ -90,11 +94,19 @@ fun AvatarIcon(
                     modifier = Modifier.size(size * 2 / 3)
                 )
             } else {
+                // Two wide letters (e.g. "MW") don't fit at full size: shrink them instead of wrapping,
+                // keeping the text inside the circle.
                 Text(
                     text = initials,
-                    fontSize = with(density) { (size * 2 / 3).toSp() },
+                    modifier = Modifier.fillMaxWidth(0.8f),
                     color = Color.White,
+                    textAlign = TextAlign.Center,
                     maxLines = 1,
+                    softWrap = false,
+                    autoSize = TextAutoSize.StepBased(
+                        minFontSize = 1.sp,
+                        maxFontSize = with(density) { (size * 2 / 3).toSp() },
+                    ),
                 )
             }
         }
