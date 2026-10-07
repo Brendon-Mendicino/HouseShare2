@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
-import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedMemberUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.screen.shopping.ShoppingScreenEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
@@ -26,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShoppingViewModel @Inject constructor(
     private val shoppingItemRepository: ShoppingItemRepository,
-    private val getLoggedUserUseCase: GetLoggedUserUseCase,
+    private val getLoggedMemberUseCase: GetLoggedMemberUseCase,
     getSelectedGroupUseCase: GetSelectedGroupUseCase,
 ) : ViewModel() {
     val currentGroup = getSelectedGroupUseCase().stateIn(
@@ -108,12 +109,15 @@ class ShoppingViewModel @Inject constructor(
                     .filter { item -> item.info.id in selectedItems.value }
                     .map { it.info.id }
 
-                val loggedUser = getLoggedUserUseCase().first()!!
+                val loggedMember = getLoggedMemberUseCase().first() ?: run {
+                    SnackbarController.sendRes(R.string.you_are_not_logged_in)
+                    return@launch
+                }
                 val groupId = currentGroup.value!!.info.groupId
 
                 Timber.i("onEvent: check of %d ShoppingItems from the repository.", items.size)
 
-                val (_, err) = shoppingItemRepository.checkoffItems(groupId, items, loggedUser.id)
+                val (_, err) = shoppingItemRepository.checkoffItems(groupId, items, loggedMember.id)
                 if (err != null) {
                     SnackbarController.sendError(err)
                     return@launch

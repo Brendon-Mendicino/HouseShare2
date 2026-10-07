@@ -11,12 +11,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.form.touchAll
 import lol.terabrendon.houseshare2.domain.mapper.toModel
-import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedMemberUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetSelectedGroupUseCase
 import lol.terabrendon.houseshare2.presentation.screen.shopping.form.ShoppingItemFormEvent
 import lol.terabrendon.houseshare2.presentation.screen.shopping.form.ShoppingItemFormUiEvent
@@ -29,7 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShoppingItemFormViewModel @Inject constructor(
     private val shoppingItemRepository: ShoppingItemRepository,
-    private val getLoggedUserUseCase: GetLoggedUserUseCase,
+    private val getLoggedMemberUseCase: GetLoggedMemberUseCase,
     private val getSelectedGroupUseCase: GetSelectedGroupUseCase,
 ) : ViewModel() {
     private val _uiEvents = Channel<ShoppingItemFormUiEvent>()
@@ -62,7 +63,11 @@ class ShoppingItemFormViewModel @Inject constructor(
 
     private suspend fun onSubmit() {
         val formState = _formState.updateAndGet { it.touchAll() }
-        val loggedUser = getLoggedUserUseCase().first()!!
+        val loggedMember = getLoggedMemberUseCase().first() ?: run {
+            SnackbarController.sendRes(R.string.you_are_not_logged_in)
+            return
+        }
+
         val selectedGroup = getSelectedGroupUseCase().first()!!
 
         val message = formState.errorUiText()
@@ -74,7 +79,7 @@ class ShoppingItemFormViewModel @Inject constructor(
 
         val shoppingItem = formState
             .toData()
-            .copy(ownerId = loggedUser.id, groupId = selectedGroup.info.groupId)
+            .copy(ownerId = loggedMember.id, groupId = selectedGroup.info.groupId)
             .toModel()
 
         Timber.i(

@@ -10,7 +10,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -64,18 +63,21 @@ class ShoppingItemRepositoryImpl @Inject constructor(
         externalScope.launch(ioDispatcher) {
             Timber.i("refreshByGroupId: refreshing shopping items of group.id=%d", groupId)
 
-            val local = shoppingItemDao.findAllByGroupId(groupId).first()
+//            val local = shoppingItemDao.findAllByGroupId(groupId).first()
 
-            val toRemove = local.map { it.item.id }.toMutableSet()
+            // TODO: dont remove anything for now, later elements will have the deleted flag 
+//            val toRemove = local.map { it.item.id }.toMutableSet()
 
             // Get remote dto
-            shoppingApi.getByGroupId(groupId).content
-                .map { it.toEntity() }
-                .onEach { toRemove.remove(it.id) }
-                .map { launch { shoppingItemDao.upsert(it) } }
-                .joinAll()
+            val dtos = shoppingApi.getByGroupId(groupId).content
+//                .map { it.toEntity() }
+//                .onEach { toRemove.remove(it.id) }
+//                .map { launch { shoppingItemDao.upsert(it) } }
+//                .joinAll()
 
-            shoppingItemDao.deleteAllById(toRemove.toList())
+            shoppingItemDao.upsertAll(dtos.map { it.toEntity() })
+
+//            shoppingItemDao.deleteAllById(toRemove.toList())
         }.join()
     }
 

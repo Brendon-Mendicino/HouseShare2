@@ -23,14 +23,16 @@ interface ShoppingItemDao {
     @Query(
         "select s.* from ShoppingItem as s " +
                 "join (select id, (case priority when 'Now' then 3 when 'Soon' then 2 when 'Later' then 1 end) as pid from ShoppingItem) as prio on s.id=prio.id " +
-                "join `User` as u on u.id=s.ownerId " +
-                "where groupId=:groupId and checkingMemberId is null " +
+                // ownerId is a member: members without an account have no user.
+                "join GroupMember as m on m.id=s.ownerId " +
+                "left join `User` as u on u.id=m.userId " +
+                "where s.groupId=:groupId and s.checkingMemberId is null " +
                 "order by " +
                 "case :sorting " +
-                "   when 'CreationDate' then creationTimestamp " +
+                "   when 'CreationDate' then s.creationTimestamp " +
                 "   when 'Priority' then prio.pid " +
-                "   when 'Name' then lower(name) " +
-                "   when 'Username' then lower(u.username) " +
+                "   when 'Name' then lower(s.name) " +
+                "   when 'Username' then lower(coalesce(u.username, m.firstName)) " +
                 "end " +
                 "desc "
     )
@@ -43,14 +45,16 @@ interface ShoppingItemDao {
     @Query(
         "select s.* from ShoppingItem as s " +
                 "join (select id, (case priority when 'Now' then 3 when 'Soon' then 2 when 'Later' then 1 end) as pid from ShoppingItem) as prio on s.id=prio.id " +
-                "join `User` as u on u.id=s.ownerId " +
-                "where groupId=:groupId and not checkingMemberId is null " +
+                // ownerId is a member: members without an account have no user.
+                "join GroupMember as m on m.id=s.ownerId " +
+                "left join `User` as u on u.id=m.userId " +
+                "where s.groupId=:groupId and not s.checkingMemberId is null " +
                 "order by " +
                 "case :sorting " +
-                "   when 'CreationDate' then creationTimestamp " +
+                "   when 'CreationDate' then s.creationTimestamp " +
                 "   when 'Priority' then prio.pid " +
-                "   when 'Name' then lower(name) " +
-                "   when 'Username' then lower(u.username) " +
+                "   when 'Name' then lower(s.name) " +
+                "   when 'Username' then lower(coalesce(u.username, m.firstName)) " +
                 "end " +
                 "desc "
     )
@@ -69,6 +73,9 @@ interface ShoppingItemDao {
 
     @Upsert
     suspend fun upsert(shoppingItem: ShoppingItem): Long
+
+    @Upsert
+    suspend fun upsertAll(shoppingItems: List<ShoppingItem>): LongArray
 
     @Query("DELETE FROM ShoppingItem WHERE id in (:itemIds)")
     suspend fun deleteAllById(itemIds: List<Long>)

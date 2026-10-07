@@ -1,9 +1,9 @@
 package lol.terabrendon.houseshare2.domain.usecase
 
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import lol.terabrendon.houseshare2.domain.model.GroupMemberModel
+import javax.inject.Inject
 
 class GetLoggedMemberUseCase @Inject constructor(
     private val getLoggedUserUseCase: GetLoggedUserUseCase,

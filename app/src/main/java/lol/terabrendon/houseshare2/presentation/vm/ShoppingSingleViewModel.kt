@@ -9,18 +9,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import lol.terabrendon.houseshare2.R
 import lol.terabrendon.houseshare2.data.repository.ShoppingItemRepository
 import lol.terabrendon.houseshare2.domain.form.ShoppingItemFormState
 import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.mapper.toForm
 import lol.terabrendon.houseshare2.domain.model.ShoppingItemInfoModel
 import lol.terabrendon.houseshare2.domain.model.toMoneyOrNull
-import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
+import lol.terabrendon.houseshare2.domain.usecase.GetLoggedMemberUseCase
 import lol.terabrendon.houseshare2.presentation.navigation.HomepageNavigation
 import lol.terabrendon.houseshare2.presentation.screen.shopping.ShoppingItemEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
@@ -41,7 +41,7 @@ class ShoppingSingleViewModel @AssistedInject constructor(
 
     // If the constructor has @AssistedInject I cannot this class directly
     @Inject
-    lateinit var getLoggedUserUseCase: GetLoggedUserUseCase
+    lateinit var getLoggedMemberUseCase: GetLoggedMemberUseCase
 
     data class State(
         val pending: Int = 0,
@@ -118,13 +118,18 @@ class ShoppingSingleViewModel @AssistedInject constructor(
         if (item == null)
             return
 
-        val loggedUser = getLoggedUserUseCase().filterNotNull().first()
+        // The item is checked off by a member of its group, not by the user account.
+        val loggedMember = getLoggedMemberUseCase().first()
+        if (loggedMember == null || loggedMember.groupId != item.info.groupId) {
+            SnackbarController.sendRes(R.string.you_are_not_logged_in)
+            return
+        }
 
         val (_, err) = if (item.checkoffState == null) {
             shoppingItemRepository.checkoffItems(
                 item.info.groupId,
                 listOf(item.info.id),
-                loggedUser.id
+                loggedMember.id
             )
         } else {
             shoppingItemRepository.uncheckItems(item.info.groupId, listOf(item.info.id))

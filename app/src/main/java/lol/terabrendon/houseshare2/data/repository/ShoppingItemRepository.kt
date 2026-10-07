@@ -35,7 +35,7 @@ interface ShoppingItemRepository {
     suspend fun checkoffItems(
         groupId: Long,
         shoppingItemIds: List<Long>,
-        userId: Long,
+        memberId: Long,
     ): DataResult<Unit>
 
     suspend fun uncheckItems(groupId: Long, shoppingItemIds: List<Long>): DataResult<Unit>
