@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import lol.terabrendon.houseshare2.data.remote.DebugServerUrl
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.domain.error.RemoteError
 import lol.terabrendon.houseshare2.domain.error.RootException
@@ -28,6 +29,9 @@ class HouseShareApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Before any request: the interceptor reads it synchronously.
+        DebugServerUrl.init(this)
 
 //        Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
 

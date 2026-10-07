@@ -16,7 +16,7 @@ import lol.terabrendon.houseshare2.data.repository.UserDataRepository
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.AppTheme
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.DynamicColors
 import lol.terabrendon.houseshare2.data.repository.UserDataRepository.Update.SendAnalytics
-import lol.terabrendon.houseshare2.domain.usecase.FinishLogoutUseCase
+import lol.terabrendon.houseshare2.domain.auth.AuthManager
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
 import timber.log.Timber
 import javax.inject.Inject
@@ -43,7 +43,7 @@ sealed interface SettingsEvent {
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val userDataRepository: UserDataRepository,
-    private val finishLogoutUseCase: FinishLogoutUseCase,
+    private val authManager: AuthManager,
 ) : ViewModel() {
 
     val uiState = combine(userDataRepository.data, DebugServerUrl.current) { data, serverUrl ->
@@ -83,7 +83,7 @@ class SettingsViewModel @Inject constructor(
         DebugServerUrl.set(url)
 
         // The session, the cookies and the stored data all belong to the previous server.
-        finishLogoutUseCase()
+        authManager.clearSession(wipeData = true)
         SnackbarController.sendRes(R.string.server_url_changed)
     }
 }

@@ -11,8 +11,8 @@ import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import lol.terabrendon.houseshare2.domain.auth.AuthManager
 import lol.terabrendon.houseshare2.domain.usecase.AcceptInviteUseCase
-import lol.terabrendon.houseshare2.domain.usecase.FinishLogoutUseCase
 import lol.terabrendon.houseshare2.presentation.components.LoadingOverlayScreen
 import lol.terabrendon.houseshare2.ui.theme.HouseShare2Theme
 import lol.terabrendon.houseshare2.util.matcher
@@ -23,7 +23,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class DeepLinkActivity : ComponentActivity() {
     @Inject
-    lateinit var finishLogoutUseCase: FinishLogoutUseCase
+    lateinit var authManager: AuthManager
 
     @Inject
     lateinit var acceptInviteUseCase: AcceptInviteUseCase
@@ -67,7 +67,7 @@ class DeepLinkActivity : ComponentActivity() {
     }
 
     suspend fun logout(mainActivity: Intent) {
-        finishLogoutUseCase()
+        authManager.clearSession(wipeData = true)
         startActivity(mainActivity)
     }
 

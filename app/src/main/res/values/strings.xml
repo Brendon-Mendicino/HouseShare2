@@ -171,4 +171,10 @@
     <string name="invalid_server_url">Invalid server URL</string>
     <string name="server_url_changed">Server changed, log in again</string>
     <string name="restore_default">Restore default</string>
+    <string name="debts">Debts</string>
+    <string name="you_owe">You owe</string>
+    <string name="owed_to_you">Owed to you</string>
+    <string name="between_the_others">Between the others</string>
+    <string name="all_settled_up">All settled up</string>
+    <string name="you_are_not_logged_in">You are not logged in</string>
 </resources>

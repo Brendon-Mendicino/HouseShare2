@@ -16,6 +16,7 @@ import lol.terabrendon.houseshare2.domain.auth.Credentials
 import lol.terabrendon.houseshare2.domain.auth.IdpAuthenticator
 import lol.terabrendon.houseshare2.domain.error.RemoteError
 import timber.log.Timber
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,7 +49,7 @@ class SessionManager @Inject constructor(
      * Opens a session with the credentials typed by the user.
      */
     suspend fun login(credentials: Credentials): NetResult<Unit> = mutex.withLock {
-        authenticate(credentials)
+        connectionSafe { authenticate(credentials) }
     }
 
     /**
@@ -69,7 +70,7 @@ class SessionManager @Inject constructor(
 
         Timber.i("renew: renewing the session")
 
-        authenticate(credentials = null)
+        connectionSafe { authenticate(credentials = null) }
     }
 
     /**
@@ -77,7 +78,18 @@ class SessionManager @Inject constructor(
      * server, so the app still knows nothing about the provider configuration.
      */
     suspend fun registrationUrl(): NetResult<String> = mutex.withLock {
-        authorizationUrl().map { idpAuthenticator.registrationUrl(it) }
+        connectionSafe { authorizationUrl().map { idpAuthenticator.registrationUrl(it) } }
+    }
+
+    /**
+     * The calls of the flow return the raw [retrofit2.Response] to read its redirects, so a failed
+     * connection surfaces as an exception instead of a [RemoteError].
+     */
+    private inline fun <T> connectionSafe(block: () -> NetResult<T>): NetResult<T> = try {
+        block()
+    } catch (e: IOException) {
+        Timber.w(e, "connectionSafe: could not reach the server or the identity provider")
+        Err(RemoteError.NoConnection)
     }
 
     private suspend fun authenticate(credentials: Credentials?): NetResult<Unit> {

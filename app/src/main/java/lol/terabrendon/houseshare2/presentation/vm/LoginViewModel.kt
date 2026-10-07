@@ -15,13 +15,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import lol.terabrendon.houseshare2.R
+import lol.terabrendon.houseshare2.domain.auth.AuthManager
 import lol.terabrendon.houseshare2.domain.form.LoginFormState
 import lol.terabrendon.houseshare2.domain.form.LoginFormStateValidator
 import lol.terabrendon.houseshare2.domain.form.toValidator
 import lol.terabrendon.houseshare2.domain.form.touchAll
 import lol.terabrendon.houseshare2.domain.usecase.GetLoggedUserUseCase
 import lol.terabrendon.houseshare2.domain.usecase.GetRegistrationUrlUseCase
-import lol.terabrendon.houseshare2.domain.usecase.LoginUseCase
 import lol.terabrendon.houseshare2.presentation.screen.login.LoginEvent
 import lol.terabrendon.houseshare2.presentation.screen.login.LoginUiEvent
 import lol.terabrendon.houseshare2.presentation.util.SnackbarController
@@ -35,7 +35,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val getLoggedUser: GetLoggedUserUseCase,
-    private val loginUseCase: LoginUseCase,
+    private val authManager: AuthManager,
     private val getRegistrationUrl: GetRegistrationUrlUseCase,
 ) : ViewModel() {
     private var _uiEvent = Channel<LoginUiEvent>()
@@ -108,7 +108,7 @@ class LoginViewModel @Inject constructor(
 
         _isPending.update { true }
 
-        loginUseCase(username = data.username, password = data.password)
+        authManager.login(username = data.username, password = data.password)
             .onFailure { err ->
                 Timber.w("onLogin: failed to perform login! error=%s", err)
 

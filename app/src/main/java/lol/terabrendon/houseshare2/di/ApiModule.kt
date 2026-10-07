@@ -24,6 +24,7 @@ import lol.terabrendon.houseshare2.data.remote.interceptor.HttpLoggingIntercepto
 import lol.terabrendon.houseshare2.data.remote.interceptor.HttpLoggingInterceptor.Level
 import lol.terabrendon.houseshare2.data.remote.interceptor.SessionRenewInterceptor
 import lol.terabrendon.houseshare2.data.repository.SessionManager
+import lol.terabrendon.houseshare2.domain.auth.AuthManager
 import lol.terabrendon.houseshare2.domain.typeadapter.OffsetDateTimeSerde
 import lol.terabrendon.houseshare2.util.applyIf
 import okhttp3.CookieJar
@@ -74,6 +75,7 @@ object ApiModule {
     fun provideRetrofit(
         cookieManager: CookieJar,
         sessionManager: Lazy<SessionManager>,
+        authManager: Lazy<AuthManager>,
     ): Retrofit = Retrofit.Builder()
         .baseUrl(BuildConfig.BASE_URL + "api/v1/")
         .addCallAdapterFactory(ResultCallAdapterFactory.create())
@@ -96,7 +98,7 @@ object ApiModule {
                 }
                 .addNetworkInterceptor(csrfManager)
                 // Before the logging one, so that the replayed request is logged as well.
-                .addInterceptor(SessionRenewInterceptor(sessionManager))
+                .addInterceptor(SessionRenewInterceptor(sessionManager, authManager))
                 .addInterceptor(loggingInterceptor)
                 .build()
         )

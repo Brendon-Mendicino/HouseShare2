@@ -1,14 +1,14 @@
 package lol.terabrendon.houseshare2.data.repository
 
-import com.github.michaelbull.result.Result
+import lol.terabrendon.houseshare2.data.local.util.LocalResult
 import lol.terabrendon.houseshare2.data.remote.api.NetResult
-import lol.terabrendon.houseshare2.domain.error.DataError
 import lol.terabrendon.houseshare2.domain.model.UserModel
 
 interface AuthRepository {
-    suspend fun finishLogin(): Result<UserModel, DataError>
-
-    suspend fun loggedUser(): Result<UserModel, DataError>
-
+    /**
+     * Asks the server who owns the current session.
+     */
     suspend fun fetchLoggedUser(): NetResult<UserModel>
+
+    suspend fun saveUser(user: UserModel): LocalResult<Unit>
 }

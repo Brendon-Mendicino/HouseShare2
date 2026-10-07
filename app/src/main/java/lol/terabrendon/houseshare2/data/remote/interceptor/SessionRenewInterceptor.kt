@@ -5,6 +5,8 @@ import com.github.michaelbull.result.onFailure
 import dagger.Lazy
 import kotlinx.coroutines.runBlocking
 import lol.terabrendon.houseshare2.data.repository.SessionManager
+import lol.terabrendon.houseshare2.domain.auth.AuthManager
+import lol.terabrendon.houseshare2.domain.error.RemoteError
 import okhttp3.Interceptor
 import okhttp3.Response
 import timber.log.Timber
@@ -15,11 +17,15 @@ import timber.log.Timber
  * Without this, an expired session surfaces as an error to the user and is only noticed by the
  * login poller, up to a couple of minutes later.
  *
- * [lol.terabrendon.houseshare2.data.repository.SessionManager] is injected lazily: it depends on the auth and provider APIs, which are built
- * by the same Hilt module that builds the client this interceptor belongs to.
+ * When the provider wants the credentials again the session can not be renewed: [AuthManager] is
+ * told, and the user goes back to the login screen.
+ *
+ * [SessionManager] and [AuthManager] are injected lazily: they depend on the auth and provider APIs,
+ * which are built by the same Hilt module that builds the client this interceptor belongs to.
  */
 class SessionRenewInterceptor(
     private val sessionManager: Lazy<SessionManager>,
+    private val authManager: Lazy<AuthManager>,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
@@ -37,6 +43,12 @@ class SessionRenewInterceptor(
             sessionManager.get().renew(staleGeneration = generation).onFailure { err ->
                 Timber.w("intercept: session renewal failed, err=%s", err)
                 renewed = false
+
+                // Only a provider asking for the credentials ends the session: a network error
+                // while renewing does not say anything about it.
+                if (err is RemoteError.NoSession) {
+                    authManager.get().onSessionLost(generation)
+                }
             }
         }
 

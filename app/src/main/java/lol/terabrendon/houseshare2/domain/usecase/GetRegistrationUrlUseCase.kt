@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 /**
  * The url of the page where a new user signs up, to be opened in a browser. Once the account is
- * created the user logs in as usual, with [LoginUseCase].
+ * created the user logs in as usual, with [lol.terabrendon.houseshare2.domain.auth.AuthManager.login].
  */
 class GetRegistrationUrlUseCase @Inject constructor(
     private val sessionManager: SessionManager,

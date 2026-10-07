@@ -87,7 +87,7 @@
     <string name="language">Linguaggio</string>
     <string name="shopping_item">Articolo</string>
     <string name="no_group_selected">Nessun gruppo selezionato</string>
-    <string name="select_group_before_expense">Seleziona prima di poter aggiungere una nuova spesa</string>
+    <string name="select_group_before_expense">Seleziona un gruppo prima di poter aggiungere una nuova spesa</string>
     <string name="please_go_to_the_group_tab_and_select_a_group">Vai nella pagina dei gruppi e selezionane uno</string>
     <string name="selected_items">Articoli selezionati</string>
     <string name="group_info">Info del gruppo</string>
@@ -153,7 +153,7 @@
     <string name="add_an_item_to_get_started">Aggiungi un articolo per iniziare</string>
     <string name="you">Tu</string>
     <string name="member">Membro</string>
-    <string name="select_group_before_shopping_item">Seleziona prima di poter aggiungere un nuovo articolo</string>
+    <string name="select_group_before_shopping_item">Seleziona un gruppo prima di poter aggiungere un nuovo articolo</string>
     <string name="no_expenses_yet">Ancora nessuna spesa</string>
     <string name="add_an_expense_to_get_started">Aggiungi una spesa per cominciare</string>
     <string name="get_started">Inizia</string>
