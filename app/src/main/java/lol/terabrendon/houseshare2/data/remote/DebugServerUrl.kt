@@ -1,11 +1,15 @@
 package lol.terabrendon.houseshare2.data.remote
 
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import lol.terabrendon.houseshare2.BuildConfig
 import lol.terabrendon.houseshare2.data.remote.DebugServerUrl.current
 import lol.terabrendon.houseshare2.data.remote.DebugServerUrl.default
+import lol.terabrendon.houseshare2.data.remote.DebugServerUrl.init
 import lol.terabrendon.houseshare2.data.remote.DebugServerUrl.rewrite
 import lol.terabrendon.houseshare2.data.remote.DebugServerUrl.set
 import okhttp3.HttpUrl
@@ -21,14 +25,33 @@ import timber.log.Timber
  * [lol.terabrendon.houseshare2.data.remote.interceptor.BaseUrlInterceptor] moves every request
  * from [default] to it through [rewrite]. Release builds always use [default].
  *
- * The override only lives in memory, it is read synchronously by the interceptor and observed by
- * the settings screen through [current]; restarting the app restores [default].
+ * The interceptor reads the override synchronously, so it is kept in memory and observed by the
+ * settings screen through [current]. It survives restarts in a [SharedPreferences] file, which
+ * unlike the DataStore can be read synchronously by [init] before any request is made.
  */
 object DebugServerUrl {
     val default: HttpUrl = BuildConfig.BASE_URL.toHttpUrl()
 
     private val _current = MutableStateFlow(default)
     val current: StateFlow<HttpUrl> = _current.asStateFlow()
+
+    private const val KEY = "server_url"
+    private var prefs: SharedPreferences? = null
+
+    /**
+     * Restores the stored override, debug builds only.
+     */
+    fun init(context: Context) {
+        if (!BuildConfig.DEBUG) return
+
+        val prefs = context.getSharedPreferences("debug_server_url", Context.MODE_PRIVATE)
+        this.prefs = prefs
+
+        prefs.getString(KEY, null)?.let(::parse)?.let { url ->
+            Timber.i("init: restored server url %s", url)
+            _current.value = url
+        }
+    }
 
     /**
      * Parses a user typed url, the trailing slash is added when missing, as Retrofit requires it.
@@ -46,6 +69,7 @@ object DebugServerUrl {
 
         Timber.i("set: server url changed to %s", url ?: default)
         _current.value = url ?: default
+        prefs?.edit { if (url == null) remove(KEY) else putString(KEY, url.toString()) }
     }
 
     /**
